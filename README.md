@@ -23,4 +23,4 @@ npm install
 node ./index.js -once
 ```
 
-If the build was successful, there will be a folder named `dist` in the same directory that contains the userscripts.
+Build output is in the `dist/` folder
