@@ -59,7 +59,7 @@ var create_script = basename => {
 	}, (err, stats) => {
 		if(err)return console.error(err);
 		
-		compiler[process.argv.includes('-once') ? 'run' : 'watch']({}, (err, stats) => {
+		var callback = (err, stats) => {
 			var error = !!(err || stats.compilation.errors.length);
 			
 			for(var ind = 0; ind < stats.compilation.errors.length; ind++)error = true, console.error(stats.compilation.errors[ind]);
@@ -67,7 +67,10 @@ var create_script = basename => {
 			
 			if(error)return console.error('Build of', basename, 'fail');
 			else console.log('Build of', basename, 'success');
-		});
+		};
+		
+		if(process.argv.includes('-once'))compiler.run(callback);
+		else compiler.watch({}, callback);
 	});
 };
 
