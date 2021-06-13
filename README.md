@@ -1,7 +1,7 @@
 # Webpack userscripts
 Krunker cheats with shared libraries, built with Webpack.
 
-To use the userscripts, you will need [Tampermonkey](https://www.tampermonkey.net/).
+To use the userscripts, you will need [Tampermonkey](https://www.tampermonkey.net/) installed.
 
 ## Where are the userscripts?
 
