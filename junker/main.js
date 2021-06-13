@@ -121,21 +121,21 @@ class Main {
 				}
 			}
 
-			else target = targets.sort((p1, p2) => this.getD3D(this.me.x, this.me.z, p1.x, p1.z) - this.getD3D(this.me.x, this.me.z, p2.x, p2.z)).shift();
+			else target = targets.sort((p1, p2) => utils.getD3D(this.me.x, this.me.z, p1.x, p1.z) - utils.getD3D(this.me.x, this.me.z, p2.x, p2.z)).shift();
 
 			if (target) {
 				let obj = target[vars.objInstances];
 				let pos = obj.position.clone();
-				let yDire = (this.getDir(this.me.z, this.me.x, pos.z||target.z, pos.x||target.x) || 0) * 1000;
-				let xDire = ((this.getXDire(this.me.x, this.me.y, this.me.z, pos.x||target.x, pos.y||target.y - target[vars.crouchVal] * vars.consts.crouchDst + this.me[vars.crouchVal] * vars.consts.crouchDst + this.settings.aimOffset.val, pos.z||target.z) || 0) - vars.consts.recoilMlt * this.me[vars.recoilAnimY]) * 1000;
+				let yDire = (utils.getDir(this.me.z, this.me.x, pos.z||target.z, pos.x||target.x) || 0) * 1000;
+				let xDire = ((utils.getXDire(this.me.x, this.me.y, this.me.z, pos.x||target.x, pos.y||target.y - target[vars.crouchVal] * vars.consts.crouchDst + this.me[vars.crouchVal] * vars.consts.crouchDst + this.settings.aimOffset.val, pos.z||target.z) || 0) - vars.consts.recoilMlt * this.me[vars.recoilAnimY]) * 1000;
 				let inCast = this.ray.intersectObjects(playerMaps, true).length//this.ray.intersectObjects(this.game.map.objects, true, obj) == obj;
 
 				let vis = pos.clone();
 				vis.y += vars.consts.playerHeight + vars.consts.nameOffset - (target[vars.crouchVal] * vars.consts.crouchDst);
 				if (target.hatIndex >= 0) vis.y += vars.consts.nameOffsetHat;
-				let dstDiv = Math.max(0.3, (1 - (this.getD3D(this.me.x, this.me.y, this.me.z, vis.x, vis.y, vis.z) / 600)));
+				let dstDiv = Math.max(0.3, (1 - (utils.getD3D(this.me.x, this.me.y, this.me.z, vis.x, vis.y, vis.z) / 600)));
 				let fSize = (20 * dstDiv);
-				let visible = (fSize >= 1 && this.containsPoint(vis));
+				let visible = (fSize >= 1 && utils.contains_point(vis));
 
 				if (this.me.weapon[vars.nAuto] && this.me[vars.didShoot]) {
 					input[vars.keys.shoot] = 0;
@@ -263,7 +263,7 @@ class Main {
 							position.x += j * playerScale;
 							position.z += k * playerScale;
 							position.y += l * (player.height - player[vars.crouchVal] * vars.consts.crouchDst);
-							if (!this.containsPoint(position)) {
+							if (!utils.contains_point(position)) {
 								br = true;
 								break;
 							}
@@ -313,7 +313,7 @@ class Main {
 				// perfect box esp
 				this.ctx.lineWidth = 5;
 				this.ctx.strokeStyle = isEnemy ? isRisky ? "#FFFF00" : main.settings.espHostileCol.val||"#ff0000" : main.settings.espFriendlyCol.val||"#00ff00"//this.settings.rainbowColor.val ? this.overlay.rainbow.col : "#eb5656"
-				let distanceScale = Math.max(.3, 1 - this.getD3D(worldPosition.x, worldPosition.y, worldPosition.z, player.x, player.y, player.z) / 600);
+				let distanceScale = Math.max(.3, 1 - utils.getD3D(worldPosition.x, worldPosition.y, worldPosition.z, player.x, player.y, player.z) / 600);
 				CRC2d.scale.apply(this.ctx, [distanceScale, distanceScale]);
 				let xScale = scaledWidth / distanceScale;
 				let yScale = scaledHeight / distanceScale;
@@ -505,8 +505,8 @@ class Main {
 				html: () => this.generateSetting("checkbox", "showSkidBtn"),
 				set: (value, init) => {
 					let button = document.getElementById("mainButton");
-					if (!utils.isDefined(button)) utils.createButton("Junk", "https://i.imgur.com/pA5e8hy.png", this.toggleMenu, value)
-					utils.waitFor(() => document.getElementById("mainButton")).then(button => { button.style.display = value ? "inherit" : "none" })
+					if (!utils.isDefined(button)) utils.create_button("Junk", "https://i.imgur.com/pA5e8hy.png", this.toggleMenu, value)
+					utils.wait_for(() => document.getElementById("mainButton")).then(button => { button.style.display = value ? "inherit" : "none" })
 				}
 			},
 			customCSS: {
@@ -560,14 +560,14 @@ class Main {
 				max: 50.0,
 				step: 0.01,
 				html: () => this.generateSetting("slider", "weaponZoom"),
-				set: (value) => utils.waitFor(() => this.renderer).then(renderer => renderer.adsFovMlt.fill(value))
+				set: (value) => utils.wait_for(() => this.renderer).then(renderer => renderer.adsFovMlt.fill(value))
 			},
 			weaponTrails: {
 				tab: "Weapon",
 				name: "Weapon Trails",
 				val: false,
 				html: () => this.generateSetting("checkbox", "weaponTrails"),
-				set: (value) => utils.waitFor(() => this.me).then(me => { me.weapon.trail = value })
+				set: (value) => utils.wait_for(() => this.me).then(me => { me.weapon.trail = value })
 			},
 			autoAim: {
 				tab: "Weapon",
@@ -787,9 +787,9 @@ class Main {
 
 		}
 
-		utils.waitFor(() => window.windows).then(() => {
+		utils.wait_for(() => window.windows).then(() => {
 			let win = window.windows[11]; win.html = "";
-			win.header = utils.genHash(8);
+			win.header = Math.random(); // hash
 			win.gen = ()=> {
 				let tmpHTML = `<div class='wrapper'><div class="content"><div class="guild-icon" style="background-image: url(&quot;https://cdn.discordapp.com/icons/${this.discord.guild.id}/${this.discord.guild.icon}.webp?size=64&quot;);"></div><div class="guild-info" style="flex: 1 1 auto;"><div class="guild-name"> <a href="https://e9x.github.io/kru/inv">${this.discord.guild.name}</a> &nbsp;&nbsp;&nbsp;<div class="colorStandard size14 guildDetail"><div class="statusCounts"><i class="statusOnline status"></i><span class="count-30T-5k online-count">${this.discord.approximate_presence_count} Online</span>&nbsp;<i class="statusOffline status"></i><span class="count-30T-5k offline-count">${this.discord.approximate_member_count} Members</span></div></div></div></div><button type="button" class="d-button join-button" onmouseenter="playTick()" onclick="window.location.href='https://discord.com/invite/${this.discord.code}'"><div class="d-button-label">Join</div></button></div></div>`;
 				tmpHTML += '<div class="tab">'; this.tabs.forEach(tab => { tmpHTML += `<button class="tablinks" onclick="${vars.key}.tabChange(event, '${tab}')">${tab}</button>` }); tmpHTML +='</div>'
@@ -903,7 +903,7 @@ class Main {
 	async gameHooks() {
 		let main = this;
 		
-		let exports = await utils.waitFor(() => this.exports);
+		let exports = await utils.wait_for(() => this.exports);
 		
 		let toFind = {
 			overlay: ["render", "canvas"],
@@ -921,6 +921,8 @@ class Main {
 				}
 			}
 		}
+		
+		utils.three = this.three;
 		
 		if (!(Object.keys(toFind).length === 0 && toFind.constructor === Object)) {
 			for (let name in toFind) {
@@ -998,7 +1000,7 @@ class Main {
 			},
 		})
 		
-		utils.waitFor(() => this.ws).then(() => {
+		utils.wait_for(() => this.ws).then(() => {
 			this.wsEvent = this.ws._dispatchEvent.bind(this.ws);
 			this.wsSend = this.ws.send.bind(this.ws);
 			this.ws.send = new Proxy(this.ws.send, {
@@ -1079,9 +1081,12 @@ class Main {
 			if (me.kickedByVote) Object.assign(me, {kickedByVote: false});
 			me.account = Object.assign(me, {premiumT: true});
 			
-			["scale", "game", "controls", "renderer", "me"].forEach((item, index)=>{
-				this[item] = renderArgs[index];
-			});
+			this.renderer = utils.world = renderer;
+			this.scale = scale;
+			this.game = utils.game = game;
+			this.controls = controls;
+			this.me = me;
+			
 			this.ctx.save();
 			this.ctx.scale(scale, scale);
 			// this.ctx.clearRect(0, 0, width, height);
@@ -1104,7 +1109,7 @@ class Main {
 	}
 	
 	mainCustomRule(action, rule) {
-		utils.waitFor(() => this.mainCustom).then(() => {
+		utils.wait_for(() => this.mainCustom).then(() => {
 			const rules = this.mainCustom.cssRules;
 			if (action == "insert") this.mainCustom.insertRule(rule);
 			else if (action == "delete") {
@@ -1118,7 +1123,7 @@ class Main {
 	}
 	
 	displayStyle(el, val) {
-		utils.waitFor(() => window[el], 5e3).then(node => {
+		utils.wait_for(() => window[el], 5e3).then(node => {
 			if (node) node.style.display = val ? "none" : "inherit";
 			else log.error(el, " was not found in the window object");
 		})
@@ -1176,21 +1181,19 @@ class Main {
 			console.log('page is fully loaded');
 			
 			this.stylesheets();
-
-			utils.waitFor(() => document.querySelector('#instructionsUpdate'), 5e3).then(target => {
-				if(!target)return console.error('Could not get instructions update');
-				utils.createObserver(target, 'style', target => {
-					if (this.settings.autoFindNew.val) {
-						if (['Kicked', 'Banned', 'Disconnected', 'Error', 'Game is full'].some(text => target && target.innerHTML.includes(text))) {
-							location = document.location.origin;
-						}
+			
+			api.on_instruct = () => {
+				if(this.settings.autoFindNew.val){
+					if(['Kicked', 'Banned', 'Disconnected', 'Error', 'Game is full'].some(text => target && target.innerHTML.includes(text))){
+						location = document.location.origin;
 					}
-				});
-			})
-
+				}
+			};
+			
 			window.addEventListener('keyup', event =>{
 				if (this.downKeys.has(event.code)) this.downKeys.delete(event.code)
 			});
+			
 			window.addEventListener('keydown', event =>{
 				if ('INPUT' == document.activeElement.tagName) return;
 				switch (event.code) {
@@ -1211,73 +1214,6 @@ class Main {
 			});
 		});
 	}
-	getD3D(x1, y1, z1, x2, y2, z2) {
-		let dx = x1 - x2;
-		let dy = y1 - y2;
-		let dz = z1 - z2;
-		return Math.sqrt(dx * dx + dy * dy + dz * dz);
-	}
-
-	getAngleDst(a, b) {
-		return Math.atan2(Math.sin(b - a), Math.cos(a - b));
-	}
-
-	getXDire(x1, y1, z1, x2, y2, z2) {
-		let h = Math.abs(y1 - y2);
-		let dst = this.getD3D(x1, y1, z1, x2, y2, z2);
-		return (Math.asin(h / dst) * ((y1 > y2)?-1:1));
-	}
-
-	getDir(x1, y1, x2, y2) {
-		return Math.atan2(y1 - y2, x1 - x2);
-	}
-
-	getDistance(x1, y1, x2, y2) {
-		return Math.sqrt((x2 -= x1) * x2 + (y2 -= y1) * y2);
-	}
-
-	containsPoint(point) {
-		let planes = this.renderer.frustum.planes;
-		for (let i = 0; i < 6; i ++) {
-			if (planes[i].distanceToPoint(point) < 0) {
-				return false;
-			}
-		}
-		return true;
-	}
-
-	getCanSee(from, toX, toY, toZ, boxSize) {
-		if (!from) return 0;
-		boxSize = boxSize||0;
-		for (let obj, dist = this.getD3D(from.x, from.y, from.z, toX, toY, toZ),
-			 xDr = this.getDir(from.z, from.x, toZ, toX),
-			 yDr = this.getDir(this.getDistance(from.x, from.z, toX, toZ), toY, 0, from.y),
-			 dx = 1 / (dist * Math.sin(xDr - Math.PI) * Math.cos(yDr)), dz = 1 / (dist * Math.cos(xDr - Math.PI) * Math.cos(yDr)),
-			 dy = 1 / (dist * Math.sin(yDr)), yOffset = from.y + (from.height || 0) - vars.consts.cameraHeight,
-			 aa = 0; aa < this.game.map.manager.objects.length; ++aa) {
-			if (!(obj = this.game.map.manager.objects[aa]).noShoot && obj.active && !obj.transparent && (!this.settings.wallPenetrate.val || (!obj.penetrable || !this.me.weapon.pierce))) {
-				let tmpDst = this.lineInRect(from.x, from.z, yOffset, dx, dz, dy, obj.x - Math.max(0, obj.width - boxSize), obj.z - Math.max(0, obj.length - boxSize), obj.y - Math.max(0, obj.height - boxSize), obj.x + Math.max(0, obj.width - boxSize), obj.z + Math.max(0, obj.length - boxSize), obj.y + Math.max(0, obj.height - boxSize));
-				if (tmpDst && 1 > tmpDst) return tmpDst;
-			}
-		}
-
-		return null;
-	}
-
-	lineInRect(lx1, lz1, ly1, dx, dz, dy, x1, z1, y1, x2, z2, y2) {
-		let t1 = (x1 - lx1) * dx;
-		let t2 = (x2 - lx1) * dx;
-		let t3 = (y1 - ly1) * dy;
-		let t4 = (y2 - ly1) * dy;
-		let t5 = (z1 - lz1) * dz;
-		let t6 = (z2 - lz1) * dz;
-		let tmin = Math.max(Math.max(Math.min(t1, t2), Math.min(t3, t4)), Math.min(t5, t6));
-		let tmax = Math.min(Math.min(Math.max(t1, t2), Math.max(t3, t4)), Math.max(t5, t6));
-		if (tmax < 0) return false;
-		if (tmin > tmax) return false;
-		return tmin;
-	}
-
 	lookDir(xDire, yDire) {
 		xDire = xDire / 1000
 		yDire = yDire / 1000
@@ -1309,8 +1245,8 @@ class Main {
 		return pos;
 	}
 
-	getInView(entity) {
-		return null == this.getCanSee(this.me, entity.x, entity.y, entity.z);
+	getInView(entity){
+		return null == utils.obstructing(this.me, entity, (!this.me || this.me.weapon && this.me.weapon.pierce) && this.settings.wallPenetrate.val);
 	}
 
 	getIsFriendly(entity) {

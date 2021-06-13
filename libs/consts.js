@@ -18,7 +18,7 @@ exports.api_url = 'https://api.sys32.dev/';
 exports.mm_url = 'https://matchmaker.krunker.io/';
 
 exports.is_frame = window != window.top;
-exports.extracted = typeof build_extracted != 'number' ? Date.now() : build_extracted;
+exports.extracted = Date.now('build_extracted');
 
 // .htaccess for ui testing
 exports.krunker = utils.is_host(location, 'krunker.io', 'browserfps.com') && ['/.htaccess', '/'].includes(location.pathname);

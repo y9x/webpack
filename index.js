@@ -51,7 +51,7 @@ var create_script = basename => {
 				
 				headers += '// ==/UserScript==\n';
 				
-				var source = file.source.source().replace(/build_extracted/g, extracted.getTime());
+				var source = file.source.source().replace(/Date\.now\('build_extracted'\)/g, extracted.getTime());
 				
 				compilation.updateAsset(file.name, new webpack.sources.RawSource(`${headers}\n${source}`));
 			})) },
