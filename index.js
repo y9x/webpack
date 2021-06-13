@@ -59,8 +59,7 @@ var create_script = basename => {
 	}, (err, stats) => {
 		if(err)return console.error(err);
 		
-		// process.argv.includes('-once') ? 'run' : 'watch'
-		compiler.watch({}, (err, stats) => {
+		compiler[process.argv.includes('-once') ? 'run' : 'watch']({}, (err, stats) => {
 			var error = !!(err || stats.compilation.errors.length);
 			
 			for(var ind = 0; ind < stats.compilation.errors.length; ind++)error = true, console.error(stats.compilation.errors[ind]);

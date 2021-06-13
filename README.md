@@ -1,9 +1,11 @@
 # Webpack userscripts
 Krunker cheats with shared libraries, built with Webpack.
 
-## Building
+## Where are the userscripts?
 
-Output goes to `dist/`
+Userscripts are found [here](https://y9x.github.io/userscripts/).
+
+## Building
 
 To build the userscripts, you will need [NodeJS](https://nodejs.org/en/download/).
 
@@ -16,5 +18,7 @@ cd webpack
 
 npm install
 
-node .
+node ./index.js -once
 ```
+
+If the build was successful, there will be a folder named `dist` in the same directory that contains the userscripts.
