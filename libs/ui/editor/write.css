@@ -1,0 +1,32 @@
+.write {
+	background: #FFF;
+	font-size: 13px;
+	font-family: monospace;
+	line-height: 18px;
+    contain: size;
+    overflow: auto;
+    display: grid;
+    grid-template-columns: 26px 1fr;
+}
+
+.write > .linenums {
+	padding-left: 6px;
+	width: 20px;
+	height: 100%;
+	background: #F7F7F7;
+	color: #999;
+	line-height: 18px;
+	text-align: right;
+}
+
+.write > .text {
+	min-width: calc(100% - 4px);
+	padding-top: 0px;
+	border: none;
+	line-height: 18px;
+	background: transparent;
+	resize: none;
+	padding-left: 4px;
+	white-space: nowrap;
+	overflow: hidden;
+}
