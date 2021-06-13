@@ -4,8 +4,9 @@ var os = require('os'),
 	path = require('path'),
 	https = require('https'),
 	webpack = require('webpack'),
+	dist = path.join(__dirname, 'dist'),
 	hosts = [ 'krunker.io', '*.browserfps.com', 'linkvertise.com' ],
-	dist = path.join(__dirname, 'dist');
+	targets = [ 'sploit', 'junker' ];
 
 var create_script = basename => {
 	var folder = path.join(__dirname, basename),
@@ -35,6 +36,7 @@ var create_script = basename => {
 						extracted: extracted.toGMTString(),
 						match: hosts.map(host => '*://' + host + '/*'),
 						'run-at': 'document-start',
+						// use gm_xmlhttprequest again?
 						// connect: [ 'sys32.dev', 'githubusercontent.com' ],
 						noframes: '',
 					};
@@ -57,7 +59,8 @@ var create_script = basename => {
 	}, (err, stats) => {
 		if(err)return console.error(err);
 		
-		compiler[process.argv.includes('-once') ? 'run' : 'watch']({}, (err, stats) => {
+		// process.argv.includes('-once') ? 'run' : 'watch'
+		compiler.watch({}, (err, stats) => {
 			var error = !!(err || stats.compilation.errors.length);
 			
 			for(var ind = 0; ind < stats.compilation.errors.length; ind++)error = true, console.error(stats.compilation.errors[ind]);
@@ -69,14 +72,4 @@ var create_script = basename => {
 	});
 };
 
-/*
-name: spackage.name,
-author: spackage.author,
-description: spackage.description,
-version: spackage.version,
-license: spackage.license,
-namespace: spackage.homepage,
-supportURL: spackage.bugs.url,*/
-
-create_script('junker');
-create_script('sploit');
+for(let target of targets)create_script(target);

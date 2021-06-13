@@ -7,16 +7,14 @@ Output goes to `dist/`
 
 To build the userscripts, you will need [NodeJS](https://nodejs.org/en/download/).
 
-If you are on windows, download and unzip the repository and run `build.bat`.
-
-Building quick start on a commandline:
+Quickstart:
 
 ```sh
-git clone https://github.com/e9x/kru.git
+git clone https://github.com/y9x/webpack.git
 
-cd kru
+cd webpack
 
 npm install
 
-node index.js -once
+node .
 ```
