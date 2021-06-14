@@ -129,8 +129,6 @@ class Visual {
 		return cheat.config.esp.status == 'chams' || cheat.config.esp.status == 'box_chams' || cheat.config.esp.status == 'full';
 	}
 	cham(player){
-		var self = this;
-		
 		if(!player.obj[Visual.hooked]){
 			player.obj[Visual.hooked] = true;
 			
@@ -150,8 +148,8 @@ class Visual {
 			var orig_mat = obj.material;
 			
 			Object.defineProperty(obj, 'material', {
-				get(){
-					var material = self.can_draw_chams ? (self.materials[player.esp_color] || (self.materials[player.esp_color] = new utils.three.MeshBasicMaterial({
+				get: _ => {
+					var material = this.can_draw_chams ? (this.materials[player.esp_color] || (this.materials[player.esp_color] = new utils.three.MeshBasicMaterial({
 						transparent: true,
 						fog: false,
 						depthTest: false,

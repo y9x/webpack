@@ -6,21 +6,39 @@ var Utils = require('./utils'),
 
 class LinkvertiseBypass {
 	constructor(){
-		this.debug_redirect = false;
-		this.console = false;
+		this.debug_redirect = true;
 		
 		this.beacon = new Set();
 		
-		this.log = this.console ? console.log : () => {};
-		this.log_time = this.console ? console.time : () => {};
-		this.log_time_end = this.console ? console.timeEnd : () => {};
+		this.debug = console.debug;
+		this.start = performance.now();
+		
+		this.force_all_tasks = true;
 		
 		this.pick_tasks();
 		
-		if(this.debug_redirect)this.log_time('Redirect');
+		this.debug('Will do', this.will_do.length, 'tasks:', this.will_do);
+	}
+	debug_list(title, obj){
+		var props = [];
+		
+		for(let prop in obj){
+			let sub_str = `${prop}:\n`;
+			
+			let lines = [];
+			
+			for(let item of [].concat(obj[prop]))lines.push('\t' + item);
+			
+			sub_str += lines.join('\n');
+			
+			props.push(sub_str);
+		}
+		
+		this.debug(`${title}\n\n${props.join('\n\n')}`);
 	}
 	pick_tasks(){
-		var tasks = [ 'web', /*'video',*/ 'addon', 'notifications' ].map(task => 'require_' + task),
+		// video gives no impressions 6/14/2021
+		var tasks = [ 'web', /*'video',*/ 'addon', 'notifications' ],
 			amount = this.random(2, tasks.length);
 		
 		this.meta = {
@@ -30,27 +48,28 @@ class LinkvertiseBypass {
 			shouldPromoteOpera: true,
 		};
 		
-		for(let task of tasks)this.meta[task] = true;
+		this.will_do = [];
 		
-		return;
-		
-		var will_do = [];
-		
-		while((amount -= 1) != -1){
-			while(true){
-				let task = this.random(tasks);
-				
-				if(this.meta[task])continue;
-				
-				this.meta[task] = true;
-				
-				will_do.push(task);
-				
-				break;
-			}
+		if(this.force_all_tasks){
+			for(let task of tasks)this.will_do.push(task), this.meta['require_' + task] = true;
+			
+			return;
 		}
 		
-		this.log('Will do', will_do.length, 'tasks:', will_do);
+		for(let task of tasks)this.meta['require_' + task] = false;
+		
+		while((amount -= 1) != -1)while(true){
+			let task = this.random(tasks),
+				id = 'require_' + task;
+			
+			if(this.meta[id])continue;
+			
+			this.meta[id] = true;
+			
+			will_do.push(task);
+			
+			break;
+		}
 	}
 	random(min, max){
 		if(Array.isArray(min))return min[~~(Math.random() * min.length)];
@@ -95,9 +114,9 @@ class LinkvertiseBypass {
 				
 				self.main(this);
 				self.linkvertise(this.linkvertiseService);
+				self.adblock(this.adblockService);
 				self.web(this.webService);
 				self.addon(this.addonService);
-				self.adblock(this.adblockService);
 				self.video(this.videoService);
 				self.notifications(this.notificationsService);
 				
@@ -131,9 +150,21 @@ class LinkvertiseBypass {
 		// navigator.beacon should have been used for impressions
 		XMLHttpRequest.prototype.open = new Proxy(XMLHttpRequest.prototype.open, {
 			apply: (target, request, [ method, url, ...args ]) => {
-				if((url + '').startsWith('https://publisher.linkvertise.com/'))this.beacon.add(new Promise(resolve => request.addEventListener('readystatechange', () => {
-					if(request.readyState >= XMLHttpRequest.HEADERS_RECEIVED)resolve();
-				})));
+				try{
+					let furl = new URL(url, location);
+					
+					if(furl.host == 'publisher.linkvertise.com'){
+						let promise = new Promise(resolve => request.addEventListener('readystatechange', () => {
+							if(request.readyState >= XMLHttpRequest.HEADERS_RECEIVED)resolve();
+						}));
+						
+						promise.url = furl.pathname;
+						
+						this.beacon.add(promise);
+					}
+				}catch(err){
+					console.error(err);
+				}
 				
 				return Reflect.apply(target, request, [ method, url, ...args ]);
 			}
@@ -155,7 +186,11 @@ class LinkvertiseBypass {
 			service.link.type = 'DYNAMIC';
 			
 			Promise.all(this.beacon).then(() => {
-				if(this.debug_redirect)this.log_time_end('Redirect');
+				if(this.debug_redirect)this.debug_list(`Redirect called.`, {
+					Tasks: this.will_do.map(task => '\t' + task),
+					URLs: [...this.beacon].map(promise => promise.url).map(url => '\t' + url),
+					'Total time': performance.now() - this.start + ' MS',
+				});
 				else oredir.call(service)
 			});
 		};
@@ -180,7 +215,7 @@ class LinkvertiseBypass {
 		service.addPlayer = () => {
 			if(service.videoState != 'PENDING')return;
 			service.videoState = 'DONE';
-		}
+		};
 	}
 	addon(service){
 		var addon_installed = false;

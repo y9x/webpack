@@ -50,8 +50,6 @@ var UI = require('../libs/ui/'),
 	source = api.source(),
 	token = api.token();
 
-vars.load(require('./vars'));
-
 api.on_instruct = () => {
 	if(api.has_instruct('connection banned 0x2'))localStorage.removeItem('krunker_token'), UI.alert([
 		`<p>You were IP banned, Sploit has signed you out.\nSpoof your IP to bypass this ban with one of the following:</p>`,
@@ -120,7 +118,6 @@ UI.ready.then(async () => {
 					},
 				});
 			},
-			socket(socket){ cheat.socket = socket },
 			world(world){ cheat.world = utils.world = world },
 			can_see: inview => cheat.config.esp.status == 'full' ? false : (cheat.config.esp.nametags || inview),
 			skins: ent => cheat.config.game.skins && typeof ent == 'object' && ent != null && ent.stats ? cheat.skins : ent.skins,

@@ -1,29 +1,10 @@
 'use strict';
+
 var vars = require('../libs/vars'),
 	cheat = require('./cheat'),
+	InputData = require('../libs/inputdata'),
 	{ Vector3 } = require('../libs/space'),
 	{ api, utils } = require('../libs/consts');
-
-class InputData {
-	constructor(array){
-		this.array = array;
-	}
-};
-
-InputData.previous = {};
-
-for(let prop in vars.keys){
-	let key = vars.keys[prop];
-	
-	Object.defineProperty(InputData.prototype, prop, {
-		get(){
-			return this.array[key];
-		},
-		set(value){
-			return this.array[key] = typeof value == 'boolean' ? +value : value;
-		},
-	});
-}
 
 class Input {
 	constructor(){

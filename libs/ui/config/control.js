@@ -1,6 +1,6 @@
 'use strict';
 
-var { keybinds, utils } = require('../consts');
+var { keybinds, utils, global_listen } = require('../consts');
 
 class Control {
 	constructor(data, section){

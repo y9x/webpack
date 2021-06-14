@@ -24,8 +24,6 @@ class UIMenu {
 			}
 		}).observe(document, { childList: true, subtree: true });
 		
-		utils.add_ele('style', document.documentElement, { textContent: require('./index.css') });
-		
 		this.presets = {
 			Default: {},
 		};
