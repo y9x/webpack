@@ -115,15 +115,6 @@ class Main {
 									}
 								}
 							}
-							if (type=="3") {
-								if (msg[0][4]) {
-									msg[0][4].wId=0;
-									msg[0][4].hs=true;
-									 msg[0][4].dst=Infinity
-									msg[0][4].wb=true;
-								}
-
-							}
 							
 							return target.apply(that, [type, ...msg]);
 						}
