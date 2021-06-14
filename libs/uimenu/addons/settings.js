@@ -37,11 +37,17 @@ class SettingsAddon extends Addon {
 		}).addEventListener('click', () => File.pick({
 			accept: 'junker.json',
 		}).then(async file => {
-			console.log(file, await file.read());
-			// this.menu.reset_config();
+			var data = await file.read();
+			
+			try{
+				await this.menu.insert_config(JSON.parse(data), true);
+			}catch(err){
+				console.error(err);
+				alert('Invalid config');
+			}
 		}));
 		
-		this.preset = utils.add_ele('div', this.config, {
+		this.preset = utils.add_ele('select', this.config, {
 			id: 'settingsPreset',
 			className: 'inputGrey2',
 			style: {
@@ -50,12 +56,16 @@ class SettingsAddon extends Addon {
 			},
 		});
 		
-		// TODO: ADD PRESETS
-		
 		this.preset.addEventListener('change', () => {
-			// this.preset.value
+			if(this.preset.value == 'Custom')return;
+			
+			this.menu.load_preset(this.preset.value);
 		});
 		
+		utils.add_ele('option', this.preset, {
+			value: 'Custom',
+			textContent: 'Custom',
+		});
 		
 		this.search = utils.crt_ele('input', {
 			id: 'settSearch',
@@ -69,9 +79,27 @@ class SettingsAddon extends Addon {
 		
 		this.ready();
 	}
+	handle_preset(label){
+		utils.add_ele('option', this.preset, {
+			value: label,
+			textContent: label,
+		});
+	}
+	handle_config(config){
+		var string = JSON.stringify(config);
+		
+		for(let preset in this.menu.presets)if(JSON.stringify(this.menu.presets[preset]) == string)return this.preset.value = preset;
+		
+		this.preset.value = 'Custom';
+	}
 	handle_header(header){
 		header.prepend(this.config);
 		header.prepend(this.search);
+	}
+	handle_control(control){
+		control.on('change', (value, init) => {
+			if(!init)this.handle_config(this.menu.config);
+		});
 	}
 };
 

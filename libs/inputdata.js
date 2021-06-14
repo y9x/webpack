@@ -6,7 +6,18 @@ class InputData {
 	constructor(array){
 		this.array = array;
 	}
+	get focused(){
+		return document.pointerLockElement != null;
+	}
 };
+
+InputData.prototype.keys = {};
+
+window.addEventListener('keydown', event => InputData.prototype.keys[event.code] = true);
+
+window.addEventListener('keyup', event => delete InputData.prototype.keys[event.code]);
+
+window.addEventListener('blur', InputData.prototype.keys = {});
 
 InputData.previous = {};
 

@@ -2,7 +2,8 @@
 
 var CRC2d = CanvasRenderingContext2D.prototype,
 	{ api, meta, utils } = require('../libs/consts'),
-	vars = require('../libs/vars');
+	vars = require('../libs/vars'),
+	Player;
 
 vars.load(require('./vars'));
 
@@ -11,8 +12,6 @@ class Main {
 		global[vars.key] = this;
 		
 		this.utils = utils;
-		
-		this.downKeys = new Set();
 		
 		this.eventHandlers();
 		
@@ -146,7 +145,6 @@ class Main {
 			};
 		
 		await config_promise;
-		if(this.config.ui.show_button)this.menu.button.show();
 		
 		new Function('WP_fetchMMToken', vars.key, vars.patch(await api.source()))(token_promise, game_arg);
 	}
@@ -367,47 +365,6 @@ class Main {
 				}
 			}
 		};
-		window.addEventListener('load', event => {
-			window.addEventListener('keyup', event =>{
-				if (this.downKeys.has(event.code)) this.downKeys.delete(event.code)
-			});
-			
-			window.addEventListener('keydown', event =>{
-				if ('INPUT' == document.activeElement.tagName) return;
-				switch (event.code) {
-					case 'F1':
-						event.preventDefault();
-						this.toggleMenu();
-						break;
-
-					case 'NumpadSubtract':
-						document.exitPointerLock();
-						console.dir(window)
-						console.dir(this)
-						break;
-					default:
-						if (!this.downKeys.has(event.code)) this.downKeys.add(event.code);
-						break;
-				}
-			});
-		});
-	}
-	lookDir(xDire, yDire) {
-		xDire = xDire / 1000
-		yDire = yDire / 1000
-		this.controls.object.rotation.y = yDire
-		this.controls[vars.pchObjc].rotation.x = xDire;
-		this.controls[vars.pchObjc].rotation.x = Math.max(-vars.consts.halfPI, Math.min(vars.consts.halfPI, this.controls[vars.pchObjc].rotation.x));
-		this.controls.yDr = (this.controls[vars.pchObjc].rotation.x % Math.PI).round(3);
-		this.controls.xDr = (this.controls.object.rotation.y % Math.PI).round(3);
-		this.world.camera.updateProjectionMatrix();
-		this.world.updateFrustum();
-	}
-	resetLookAt() {
-		this.controls.yDr = this.controls[vars.pchObjc].rotation.x;
-		this.controls.xDr = this.controls.object.rotation.y;
-		this.world.camera.updateProjectionMatrix();
-		this.world.updateFrustum();
 	}
 	getInView(entity){
 		return null == utils.obstructing(this.me, entity, (!this.me || this.me.weapon && this.me.weapon.pierce) && this.config.aim.wallbangs);
@@ -422,3 +379,5 @@ var main = module.exports = new Main();
 window.main = main;
 
 main.load();
+
+Player = require('./player');

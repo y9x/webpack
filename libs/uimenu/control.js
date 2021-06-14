@@ -15,8 +15,7 @@ class Control {
 		
 		this.create();
 		
-		/*this.button = utils.add_ele('div', this.container, { className: 'toggle' });
-		this.button.addEventListener('click', () => (this.interact(), this.update()));*/
+		for(let addon of this.menu.addons)addon.handle_control(this);
 	}
 	label_text(text){
 		this.label.nodeValue = text;
@@ -56,7 +55,7 @@ class Control {
 		console.warn('No defined interaction for', this);
 	}
 	update(init){
-		if(init)this.emit('change', this.value);
+		if(init)this.emit('change', this.value, true);
 		this.label_text(this.name);
 	}
 };

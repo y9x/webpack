@@ -7,19 +7,6 @@ var vars = require('../libs/vars'),
 	{ api, utils } = require('../libs/consts');
 
 class Input {
-	constructor(){
-		document.addEventListener('pointerlockchange', () => {
-			this.focused = document.pointerLockElement != null;
-		});
-		
-		this.inputs = {};
-		
-		this.axis = [ 'x', 'y', 'z' ];
-		
-		window.addEventListener('keydown', event => this.inputs[event.code] = true);
-		window.addEventListener('keyup', event => this.inputs[event.code] = false);
-		window.addEventListener('blur', event => this.inputs = {});
-	}
 	push(array){
 		if(cheat.player && cheat.controls)try{
 			var data = new InputData(array);
@@ -74,9 +61,6 @@ class Input {
 		return {
 			x: x_dire || 0,
 			y: y_dire || 0,
-			/* normalize
-			x: utils.round(Math.max(-utils.halfpi, Math.min(utils.halfpi, x_dire)) % utils.pi2, 3) || 0,
-			y: utils.round(y_dire % utils.pi2, 3) || 0,*/
 		};
 	}
 	smooth(target){
@@ -95,11 +79,11 @@ class Input {
 	}
 	modify(data){
 		// bhop
-		if(this.focused && cheat.config.game.bhop != 'off' && (this.inputs.Space || cheat.config.game.bhop == 'autojump' || cheat.config.game.bhop == 'autoslide')){
+		if(data.focused && cheat.config.game.bhop != 'off' && (data.keys.Space || cheat.config.game.bhop == 'autojump' || cheat.config.game.bhop == 'autoslide')){
 			cheat.controls.keys[cheat.controls.binds.jump.val] ^= 1;
 			if(cheat.controls.keys[cheat.controls.binds.jump.val])cheat.controls.didPressed[cheat.controls.binds.jump.val] = 1;
 			
-			if((cheat.config.game.bhop == 'keyslide' && this.inputs.Space || cheat.config.game.bhop == 'autoslide') && cheat.player.velocity.y < -0.02 && cheat.player.can_slide)setTimeout(() => cheat.controls.keys[cheat.controls.binds.crouch.val] = 0, 325), cheat.controls.keys[cheat.controls.binds.crouch.val] = 1;
+			if((cheat.config.game.bhop == 'keyslide' && data.keys.Space || cheat.config.game.bhop == 'autoslide') && cheat.player.velocity.y < -0.02 && cheat.player.can_slide)setTimeout(() => cheat.controls.keys[cheat.controls.binds.crouch.val] = 0, 325), cheat.controls.keys[cheat.controls.binds.crouch.val] = 1;
 		}
 		
 		// auto reload

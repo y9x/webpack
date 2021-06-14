@@ -7,6 +7,13 @@ var MenuUI = require('../libs/uimenu'),
 	{ api, utils, meta } = require('../libs/consts'),
 	doc_body = utils.wait_for(() => document.body);
 
+MenuUI.keybinds.add({
+	code: 'F1',
+	interact(){
+		menu.window.show();
+	},
+});
+
 menu.load_addon(DiscordAddon, fetch(new URL('code.txt', meta.discord), { cache: 'no-store' }).then(res => res.text()));
 menu.load_addon(SettingsAddon);
 
@@ -26,6 +33,7 @@ menu.add_preset('Default', {
 		auto_reload: false,
 		fov: 'off',
 		offset: 0,
+		smooth: 50,
 		wallbangs: false,
 		frustrum_check: true,
 	},
@@ -52,6 +60,21 @@ menu.add_preset('Default', {
 	radio: {
 		stream: 'off',
 		volume: 0.5,
+	},
+});
+
+menu.add_preset('Light Assist', {
+	
+});
+
+menu.add_preset('Rage', {
+	aim: {
+		status: 'auto',
+		fov: 'small',
+		smooth: 0,
+		auto_reload: true,
+		wallbangs: true,
+		offset: 0,
 	},
 });
 
@@ -106,6 +129,9 @@ ui.add_control({
 	name: 'Show Menu Button',
 	type: 'boolean',
 	walk: 'ui.show_button',
+}).on('change', value => {
+	if(value)menu.button.show();
+	else menu.button.hide();
 });
 
 ui.add_control({
@@ -171,6 +197,15 @@ aimbot.add_control({
 		[ '0.8', 'Legs' ],
 	],
 });
+
+aimbot.add_control({
+	name: 'Smooth',
+	type: 'slider',
+	walk: 'aim.smooth',
+	range: [ 0, 50, 2 ],
+});
+
+
 
 aimbot.add_control({
 	name: 'FOV Box',

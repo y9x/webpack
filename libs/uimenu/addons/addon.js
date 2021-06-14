@@ -12,6 +12,8 @@ class Addon {
 		console.info(this.name, 'loaded');
 	}
 	create(){}
+	handle_preset(){}
+	handle_config(){}
 	handle_header(){}
 	handle_tab(){}
 	handle_preset(){}

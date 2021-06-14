@@ -57,28 +57,47 @@ class UIMenu {
 	attach(bar){
 		this.button.attach(bar);
 	}
-	add_preset(preset, value){
-		this.presets[preset] = value;
+	add_preset(label, value){
+		this.presets[label] = value;
+		
+		for(let addon of this.addons)addon.handle_preset(label, value);
 	}
-	async insert_config(data){
-		this.config = assign_deep(clone_obj(this.presets.Default), data);
+	async insert_config(data, save = false){
+		this.config = clone_obj(data);
 		
-		await this.save_config();
+		if(save)await this.save_config();
 		
-		this.window.update(false);
+		this.window.update(true);
+		
+		for(let addon of this.addons)addon.handle_config(this.config);
 	}
 	async load_preset(preset){
 		if(!this.presets.hasOwnProperty(preset))throw new Error('Invalid preset:', preset);
 		
-		this.insert_config(this.presets[preset]);
+		this.insert_config(this.presets[preset], true);
 	}
 	async save_config(){
 		await store.set('junkconfig', this.config);
 	}
 	async load_config(){
+		for(let preset in this.presets){
+			if(preset == 'Default')continue;
+			this.presets[preset] = assign_deep(clone_obj(this.presets.Default), this.presets[preset]);
+		}
+		
 		this.insert_config(await store.get('junkconfig', 'object'));
-		this.window.update(true);
 	}
+	static keybinds = new Set();
 };
+
+window.addEventListener('keydown', event => {
+	if(event.repeat || ['TEXTAREA', 'INPUT'].includes((document.activeElement || {}).tagName))return;
+	
+	// some(keycode => typeof keycode == 'string' && [ keycode, keycode.replace('Digit', 'Numpad') ]
+	for(let keybind of UIMenu.keybinds)if(keybind.code.includes(event.code)){
+		event.preventDefault();
+		keybind.interact();
+	}
+});
 
 module.exports = UIMenu;

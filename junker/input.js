@@ -25,29 +25,19 @@ class Input {
 		let ammoLeft = main.me[vars.ammos][main.me[vars.weaponIndex]];
 
 		// autoReload
-		if(main.config.aim.auto_reload){
-			//let capacity = main.me.weapon.ammo;
-			//if (ammoLeft < capacity)
-			if (isMelee) {
-				if (!main.me.canThrow) {
-					//main.me.refillKnife();
-				}
-			} else if (!ammoLeft) {
-				main.game.players.reload(main.me);
-				data.reload = 1;
-				// main.me[vars.reloadTimer] = 1;
-				//main.me.resetAmmo();
-			}
+		if(main.config.aim.auto_reload && !ammoLeft){
+			main.game.players.reload(main.me);
+			data.reload = 1;
 		}
 		
 		//Auto Bhop
-		if(main.config.player.bhop != 'off') {
-			if(main.downKeys.has('Space') || main.config.player.bhop.startsWith('auto')){
+		if(data.focused && main.config.player.bhop != 'off') {
+			if(data.keys.Space || main.config.player.bhop.startsWith('auto')){
 				main.controls.keys[main.controls.binds.jump.val] ^= 1;
 				
 				if(main.controls.keys[main.controls.binds.jump.val])main.controls.didPressed[main.controls.binds.jump.val] = 1;
 				
-				if(main.downKeys.has('Space') || main.config.player.bhop == 'autoslide') {
+				if(data.keys.Space || main.config.player.bhop == 'autoslide') {
 					if (main.me[vars.yVel] < -0.03 && main.me.canSlide) {
 						setTimeout(() => {
 							main.controls.keys[main.controls.binds.crouch.val] = 0;
@@ -61,11 +51,8 @@ class Input {
 
 		//Autoaim
 		if (main.config.aim.status !== "off") {
-			let ray = new utils.three.Raycaster();
+			let playerMaps = []
 			
-			ray.setFromCamera({ x: 0, y: 0 }, main.world.fpsCamera);
-			
-			const playerMaps = []
 			let target = null, targets = main.game.players.list.filter(enemy => {
 				let hostile = undefined !== enemy[vars.objInstances] && enemy[vars.objInstances] && !enemy[vars.isYou] && !main.getIsFriendly(enemy) && enemy.health > 0 && main.getInView(enemy);
 				if (hostile) playerMaps.push( enemy[vars.objInstances] );
@@ -92,9 +79,10 @@ class Input {
 			if (target) {
 				let obj = target[vars.objInstances];
 				let pos = obj.position.clone();
-				let yDire = (utils.getDir(main.me.z, main.me.x, pos.z||target.z, pos.x||target.x) || 0) * 1000;
-				let xDire = ((utils.getXDire(main.me.x, main.me.y, main.me.z, pos.x||target.x, pos.y||target.y - target[vars.crouchVal] * vars.consts.crouchDst + main.me[vars.crouchVal] * vars.consts.crouchDst /*FIX AIMOFFSET + main.config.aim.offset*/, pos.z||target.z) || 0) - vars.consts.recoilMlt * main.me[vars.recoilAnimY]) * 1000;
-				let inCast = ray.intersectObjects(playerMaps, true).length;
+				let rot = {
+					y: utils.getDir(main.me.z, main.me.x, pos.z||target.z, pos.x||target.x) || 0,
+					x: (utils.getXDire(main.me.x, main.me.y, main.me.z, pos.x||target.x, pos.y||target.y - target[vars.crouchVal] * vars.consts.crouchDst + main.me[vars.crouchVal] * vars.consts.crouchDst + main.config.aim.offset, pos.z||target.z) || 0) - vars.consts.recoilMlt * main.me[vars.recoilAnimY],
+				};
 				
 				let vis = pos.clone();
 				vis.y += vars.consts.playerHeight + vars.consts.nameOffset - (target[vars.crouchVal] * vars.consts.crouchDst);
@@ -109,51 +97,90 @@ class Input {
 					main.me.inspecting = false;
 					main.me.inspectX = 0;
 				}
-				else if (!visible && main.config.aim.frustrum_check) main.resetLookAt();
+				else if (!visible && main.config.aim.frustrum_check)1;
 				else if (ammoLeft||isMelee) {
 					switch (main.config.aim.status) {
-						case "assist":
-							if (data.scope) {
-								if (!main.me.aimDir && visible) {
-									if(!main.me.canThrow||!isMelee)main.lookDir(xDire, yDire);
+						case'assist':
+							if(data.scope) {
+								if(!main.me.aimDir && visible){
+									if(main.config.aim.smooth)rot = this.smooth({ xD: rot.x, yD: rot.y });
 									
-									data.ydir = yDire
-									data.xdir = xDire
+									// if(!main.me.canThrow||!isMelee)this.aim_camera(rot);
+									
+									this.aim_camera(rot, data);
 								}
 							}
 							break;
-						case "auto":
+						case'auto':
+							
 							data.scope = (!visible && main.config.aim.frustrum_check)?0:1;
 							
-							if (!main.me[vars.aimVal]||main.me.weapon.noAim) {
-								if (!main.me.canThrow||!isMelee) data.shoot = 1;
+							if (!main.me[vars.aimVal]||main.me.weapon.noAim){
+								if (!main.me.canThrow||!isMelee)data.shoot = 1;
 							} else data.scope = 1;
 							
-							data.ydir = yDire
-							data.xdir = xDire
+							this.aim_input(rot, data);
+							
 							break;
-						case "trigger":
+						case'trigger':
+							
+							let ray = new utils.three.Raycaster();
+							
+							ray.setFromCamera({ x: 0, y: 0 }, utils.world.fpsCamera);
+							
+							let inCast = ray.intersectObjects(playerMaps, true).length;
+							
 							if (data.scope && inCast) {
 								data.shoot = 1;
-								data.ydir = yDire
-								data.xdir = xDire
+								this.aim_input(rot);
 							}
+							
 							break;
-						case "correction":
-							if (data.shoot == 1) {
-								data.ydir = yDire
-								data.xdir = xDire
-							}
-							break;
-						default:
-							main.resetLookAt();
+						case'correction':
+						
+							if (data.shoot == 1)this.aim_input(rot);
+							
 							break;
 					}
 				}
-			} else {
-				main.resetLookAt();
 			}
 		}
+	}
+	smooth(target){
+		var mov = 17,
+			// default 0.0022
+			div = 10000,
+			turn = (50 - cheat.config.aim.smooth) / div,
+			speed = (50 - cheat.config.aim.smooth) / div,
+			x_ang = utils.getAngleDst(cheat.controls[vars.pchObjc].rotation.x, target.xD),
+			y_ang = utils.getAngleDst(cheat.controls.object.rotation.y, target.yD);
+		
+		return {
+			y: cheat.controls.object.rotation.y + y_ang * mov * turn,
+			x: cheat.controls[vars.pchObjc].rotation.x + x_ang * mov * turn,
+		};
+	}
+	lookDir(xDire, yDire) {
+		xDire = xDire / 1000
+		yDire = yDire / 1000
+		main.controls.object.rotation.y = yDire
+		main.controls[vars.pchObjc].rotation.x = xDire;
+		main.controls[vars.pchObjc].rotation.x = Math.max(-vars.consts.halfPI, Math.min(vars.consts.halfPI, main.controls[vars.pchObjc].rotation.x));
+		main.controls.yDr = (main.controls[vars.pchObjc].rotation.x % Math.PI).round(3);
+		main.controls.xDr = (main.controls.object.rotation.y % Math.PI).round(3);
+		utils.world.camera.updateProjectionMatrix();
+		utils.world.updateFrustum();
+	}
+	aim_input(rot, data){
+		data.xdir = rot.x * 1000;
+		data.ydir = rot.y * 1000;
+	}
+	aim_camera(rot, data){
+		// updating camera will make a difference next tick, update current tick with aim_input
+		cheat.controls[vars.pchObjc].rotation.x = rot.x;
+		cheat.controls.object.rotation.y = rot.y;
+		
+		this.aim_input(rot, data);
 	}
 };
 
