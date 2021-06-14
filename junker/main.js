@@ -12,13 +12,6 @@ class Main {
 		
 		this.utils = utils;
 		
-		this.settings = null;
-
-		this.css = {
-			hideAdverts: `#aContainer, #aHolder, #endAContainer, #aMerger { display: none !important; }`,
-			noTextShadows: `*, .button.small, .bigShadowT { text-shadow: none !important; }`,
-		};
-
 		this.tabs = ['Render','Weapon','Player','GamePlay','Radio','Dev'];
 
 		this.downKeys = new Set();
@@ -26,23 +19,23 @@ class Main {
 		
 		this.eventHandlers();
 		
-		this.discord = { guild: {} };
+		this.menu = require('./settings.js');
 		
-		fetch(new URL('code.txt', meta.discord), { cache: 'no-store' }).then(async res => {
-			var code = await res.text();
+		var token_promise = api.token(),
+			config_promise = this.menu.load_config();
+		
+		api.source().then(async source => {
+			await config_promise;
+			if(this.config.ui.show_button)this.menu.button.show();
 			
-			this.discord.code = code;
-			
-			Object.assign(this.discord, await(await fetch(`https://discord.com/api/v8/invites/${code}?with_counts=true`)).json());
-		});
-		
-		var tokenPromise = api.token();
-		
-		api.source().then(source => {
-			this.gameLoad(source, tokenPromise);
-			this.createSettings();
+			new Function('WP_fetchMMToken', vars.key, vars.patch(source))(token_promise, this);
 			this.gameHooks();
 		});
+		
+		this.skin_array = [...Array(5000)].map((e, i) => ({ ind: i, cnt: 1 }));
+	}
+	get config(){
+		return this.menu.config;
 	}
 	onInput(input) {
 		if (!this.settings || !utils.isDefined(this.me)) return input;
@@ -50,7 +43,7 @@ class Main {
 		let ammoLeft = this.me[vars.ammos][this.me[vars.weaponIndex]];
 
 		// autoReload
-		if (this.settings.autoReload.val) {
+		if(this.config.aim.auto_reload){
 			//let capacity = this.me.weapon.ammo;
 			//if (ammoLeft < capacity)
 			if (isMelee) {
@@ -66,13 +59,13 @@ class Main {
 		}
 
 		//Auto Bhop
-		if (this.settings.autoBhop.val && this.settings.autoBhop.val !== "off") {
-			if (this.downKeys.has("Space") || this.settings.autoBhop.val == "autoJump" || this.settings.autoBhop.val == "autoSlide") {
+		if(this.config.player.bhop != 'off') {
+			if(this.downKeys.has('Space') || this.config.player.bhop.startsWith('auto')){
 				this.controls.keys[this.controls.binds.jump.val] ^= 1;
-				if (this.controls.keys[this.controls.binds.jump.val]) {
-					this.controls.didPressed[this.controls.binds.jump.val] = 1;
-				}
-				if (this.downKeys.has("Space") || this.settings.autoBhop.val == "autoSlide") {
+				
+				if(this.controls.keys[this.controls.binds.jump.val])this.controls.didPressed[this.controls.binds.jump.val] = 1;
+				
+				if(this.downKeys.has('Space') || this.config.player.bhop == 'autoslide') {
 					if (this.me[vars.yVel] < -0.03 && this.me.canSlide) {
 						setTimeout(() => {
 							this.controls.keys[this.controls.binds.crouch.val] = 0;
@@ -85,7 +78,7 @@ class Main {
 		}
 
 		//Autoaim
-		if (this.settings.autoAim.val !== "off") {
+		if (this.config.aim.status !== "off") {
 			this.ray.setFromCamera(this.vec2, this.renderer.fpsCamera);
 			const playerMaps = []
 			let target = null, targets = this.game.players.list.filter(enemy => {
@@ -94,27 +87,15 @@ class Main {
 				return hostile
 			})
 
-			if (this.settings.fovBoxSize.val !== 'off') {
+			if(this.config.aim.fov != 'off') {
 				let scaledWidth = this.ctx.canvas.width / this.scale;
 				let scaledHeight = this.ctx.canvas.height / this.scale;
 				for (let i = 0; i < targets.length; i++) {
 					const t = targets[i];
-					const sp = this.world2Screen(new this.three.Vector3(t.x, t.y, t.z), scaledWidth, scaledHeight, t.height / 2);
-					let fovBox = null;
-					switch (this.settings.fovBoxSize.val) {
-						case 'large':
-							fovBox = [scaledWidth / 3, scaledHeight / 4, scaledWidth * (1 / 3), scaledHeight / 2]
-							break;
-							// medium
-						case 'medium':
-							fovBox = [scaledWidth * 0.4, scaledHeight / 3, scaledWidth * 0.2, scaledHeight / 3]
-							break
-							// small
-						case 'small':
-							fovBox = [scaledWidth * 0.45, scaledHeight * 0.4, scaledWidth * 0.1, scaledHeight * 0.2]
-							break
-					}
-					if (sp.x >= fovBox[0] && sp.x <= (fovBox[0] + fovBox[2]) && sp.y >= fovBox[1] && sp.y < (fovBox[1] + fovBox[3])) {
+					const sp = utils.pos2d(new this.three.Vector3(t.x, t.y, t.z), scaledWidth, scaledHeight, t.height / 2);
+					let fov_box = this.fov_box;
+					
+					if (sp.x >= fov_box[0] && sp.x <= (fov_box[0] + fov_box[2]) && sp.y >= fov_box[1] && sp.y < (fov_box[1] + fov_box[3])) {
 						target = targets[i]
 						break
 					}
@@ -127,7 +108,7 @@ class Main {
 				let obj = target[vars.objInstances];
 				let pos = obj.position.clone();
 				let yDire = (utils.getDir(this.me.z, this.me.x, pos.z||target.z, pos.x||target.x) || 0) * 1000;
-				let xDire = ((utils.getXDire(this.me.x, this.me.y, this.me.z, pos.x||target.x, pos.y||target.y - target[vars.crouchVal] * vars.consts.crouchDst + this.me[vars.crouchVal] * vars.consts.crouchDst + this.settings.aimOffset.val, pos.z||target.z) || 0) - vars.consts.recoilMlt * this.me[vars.recoilAnimY]) * 1000;
+				let xDire = ((utils.getXDire(this.me.x, this.me.y, this.me.z, pos.x||target.x, pos.y||target.y - target[vars.crouchVal] * vars.consts.crouchDst + this.me[vars.crouchVal] * vars.consts.crouchDst /*FIX AIMOFFSET + this.config.aim.offset*/, pos.z||target.z) || 0) - vars.consts.recoilMlt * this.me[vars.recoilAnimY]) * 1000;
 				let inCast = this.ray.intersectObjects(playerMaps, true).length//this.ray.intersectObjects(this.game.map.objects, true, obj) == obj;
 
 				let vis = pos.clone();
@@ -143,12 +124,11 @@ class Main {
 					this.me.inspecting = false;
 					this.me.inspectX = 0;
 				}
-				else if (!visible && this.settings.frustrumCheck.val) this.resetLookAt();
+				else if (!visible && this.config.aim.frustrum_check) this.resetLookAt();
 				else if (ammoLeft||isMelee) {
-					//input[vars.keys.scope] = this.settings.autoAim.val === "assist" || this.settings.autoAim.val === "correction" || this.settings.autoAim.val === "trigger" ? this.controls[vars.mouseDownR] : 0;
-					switch (this.settings.autoAim.val) {
+					switch (this.config.aim.status) {
 						case "quickScope":
-							input[vars.keys.scope] = (!visible && this.settings.frustrumCheck.val)?0:1;
+							input[vars.keys.scope] = (!visible && this.config.aim.frustrum_check)?0:1;
 							if (!this.me[vars.aimVal]||this.me.weapon.noAim) {
 								if (!this.me.canThrow||!isMelee) {
 									this.lookDir(xDire, yDire);
@@ -159,19 +139,19 @@ class Main {
 							}
 							break;
 						case "assist": case "easyassist":
-							if (input[vars.keys.scope] || this.settings.autoAim.val === "easyassist") {
-								if (!this.me.aimDir && visible || this.settings.autoAim.val === "easyassist") {
-									if (!this.me.canThrow||!isMelee) {
+							if (input[vars.keys.scope] || this.config.aim.status === "easyassist") {
+								if (!this.me.aimDir && visible || this.config.aim.status === "easyassist") {
+									if(!this.me.canThrow||!isMelee){
 										this.lookDir(xDire, yDire);
 									}
-									if (this.settings.autoAim.val === "easyassist" && this.controls[vars.mouseDownR]) input[vars.keys.scope] = 1;
+									if (this.config.aim.status === "easyassist" && this.controls[vars.mouseDownR]) input[vars.keys.scope] = 1;
 									input[vars.keys.ydir] = yDire
 									input[vars.keys.xdir] = xDire
 								}
 							}
 							break;
 						case "silent":
-							input[vars.keys.scope] = (!visible && this.settings.frustrumCheck.val)?0:1;
+							input[vars.keys.scope] = (!visible && this.config.aim.frustrum_check)?0:1;
 							if (!this.me[vars.aimVal]||this.me.weapon.noAim) {
 								if (!this.me.canThrow||!isMelee) input[vars.keys.shoot] = 1;
 							} else input[vars.keys.scope] = 1;
@@ -203,21 +183,33 @@ class Main {
 		
 		return input;
 	}
-
+	get fov_box(){
+		switch(this.config.aim.fov){
+			case'large':
+				return [scaledWidth / 3, scaledHeight / 4, scaledWidth * (1 / 3), scaledHeight / 2];
+				
+				break;
+			case'medium':
+				return [scaledWidth * 0.4, scaledHeight / 3, scaledWidth * 0.2, scaledHeight / 3];
+				
+				break;
+			case'small':
+				return [scaledWidth * 0.45, scaledHeight * 0.4, scaledWidth * 0.1, scaledHeight * 0.2];
+				
+				break;
+		}
+	}
 	onRender() {
 		let main = this;
 		let scaledWidth = this.ctx.canvas.width / this.scale;
 		let scaledHeight = this.ctx.canvas.height / this.scale;
 		let playerScale = (2 * vars.consts.armScale + vars.consts.chestWidth + vars.consts.armInset) / 2
 		let worldPosition = this.renderer.camera[vars.getWorldPosition]();
-		let espVal = this.settings.renderESP.val;
+		let espVal = this.config.esp.status;
 		
-		for (let iter = 0, length = this.game.players.list.length; iter < length; iter++) {
-			let player = this.game.players.list[iter];
-			if (!player || player[vars.isYou] || !player.active || !utils.isDefined(player[vars.objInstances]) ) {
-				continue;
-			}
-
+		for(let player of this.game.players.list){
+			if(!player || player[vars.isYou] || !player.active || !utils.isDefined(player[vars.objInstances]))continue;
+			
 			let isEnemy = !this.me.team || this.me.team != player.team;
 			let isRisky = player.isDev || player.isMod || player.isMapMod || player.canGlobalKick || player.canViewReports || player.partnerApp || player.canVerify || player.canTeleport || player.kpdData || player.fakeName || player.level >= 100;
 
@@ -235,19 +227,19 @@ class Main {
 						} else {
 							Object.defineProperty(obj, 'material', {
 								get() {
-									if (utils.isDefined(main.mesh) && main.settings.renderChams.val) {
-										return main.mesh[ isEnemy ? isRisky ? "#FFFF00" : main.settings.rainbowColor.val ? main.overlay.rainbow.col : main.settings.chamHostileCol.val||"#ff0000" : main.settings.chamFriendlyCol.val||"#00ff00"];
+									if (utils.isDefined(main.mesh) && main.config.esp.chams) {
+										return main.mesh[ isEnemy ? isRisky ? "#FFFF00" : main.config.esp.rainbow ? main.overlay.rainbow.col : main.config.esp.hostile_col : main.config.esp.friendly_col];
 									}
 									return this._material;
 								}, set(val) {return this._material}
 							});
 						}
 
-						obj.material.wireframe = !!main.settings.renderWireFrame.val;
+						obj.material.wireframe = main.config.esp.wireframe;
 					}
 				})
 			}
-
+			
 			//ESP
 			// the below variables correspond to the 2d box esps corners
 			let xmin = Infinity;
@@ -293,9 +285,9 @@ class Main {
 			const original_fillStyle = this.ctx.fillStyle;
 
 			//Tracers
-			if (this.settings.renderTracers.val) {
+			if(this.config.esp.tracers){
 				CRC2d.save.apply(this.ctx, []);
-				let screenPos = this.world2Screen(player[vars.objInstances].position);
+				let screenPos = utils.pos2d(player[vars.objInstances].position);
 				this.ctx.lineWidth = 1;
 				this.ctx.beginPath();
 				this.ctx.moveTo(this.ctx.canvas.width/2, this.ctx.canvas.height - (this.ctx.canvas.height - scaledHeight));
@@ -303,16 +295,16 @@ class Main {
 				this.ctx.strokeStyle = "rgba(0, 0, 0, 0.25)";
 				this.ctx.stroke();
 				this.ctx.lineWidth = 1;
-				this.ctx.strokeStyle = isEnemy ? isRisky ? "#FFFF00" : main.settings.espHostileCol.val||"#ff0000" : main.settings.espFriendlyCol.val||"#00ff00"//this.settings.rainbowColor.val ? this.overlay.rainbow.col : "#eb5656"
+				this.ctx.strokeStyle = isEnemy ? isRisky ? "#FFFF00" : main.config.esp.hostile_col||"#ff0000" : main.config.esp.friendly_col||"#00ff00"//this.settings.rainbowColor.val ? this.overlay.rainbow.col : "#eb5656"
 				this.ctx.stroke();
 				CRC2d.restore.apply(this.ctx, []);
 			}
 
 			CRC2d.save.apply(this.ctx, []);
-			if (espVal == "twoD" || espVal == "full") {
+			if (espVal == "box" || espVal == "full") {
 				// perfect box esp
 				this.ctx.lineWidth = 5;
-				this.ctx.strokeStyle = isEnemy ? isRisky ? "#FFFF00" : main.settings.espHostileCol.val||"#ff0000" : main.settings.espFriendlyCol.val||"#00ff00"//this.settings.rainbowColor.val ? this.overlay.rainbow.col : "#eb5656"
+				this.ctx.strokeStyle = isEnemy ? isRisky ? "#FFFF00" : main.config.esp.hostile_col||"#ff0000" : main.config.esp.friendly_col;
 				let distanceScale = Math.max(.3, 1 - utils.getD3D(worldPosition.x, worldPosition.y, worldPosition.z, player.x, player.y, player.z) / 600);
 				CRC2d.scale.apply(this.ctx, [distanceScale, distanceScale]);
 				let xScale = scaledWidth / distanceScale;
@@ -364,542 +356,13 @@ class Main {
 			this.ctx.fillStyle = original_fillStyle;
 		}
 
-		if (this.settings.fovBoxSize.val !== 'off') {
-			let fovBox = null;
-			switch (this.settings.fovBoxSize.val) {
-				case 'large':
-					fovBox = [scaledWidth / 3, scaledHeight / 4, scaledWidth * (1 / 3), scaledHeight / 2]
-					break;
-					// medium
-				case 'medium':
-					fovBox = [scaledWidth * 0.4, scaledHeight / 3, scaledWidth * 0.2, scaledHeight / 3]
-					break
-					// small
-				case 'small':
-					fovBox = [scaledWidth * 0.45, scaledHeight * 0.4, scaledWidth * 0.1, scaledHeight * 0.2]
-					break
-			}
+		if (this.config.aim.fov != 'off') {
 			CRC2d.save.apply(this.ctx, []);
 			this.ctx.strokeStyle = "red"
-			this.ctx.strokeRect(...fovBox)
+			this.ctx.strokeRect(...this.fov_box)
 			CRC2d.restore.apply(this.ctx, []);
 		}
 	}
-
-	createSettings() {
-
-		this.settings = {
-
-			// Render
-
-			renderESP: {
-				tab: "Render",
-				name: "Player ESP Type",
-				val: "off",
-				html: () =>
-				this.generateSetting("select", "renderESP", {
-					off: "Off",
-					walls: "Walls",
-					twoD: "2d",
-					full: "Full"
-				}),
-				set: (value) => {
-					this.nameTags=(value=="off")?undefined:true;
-					this.noNameTags=(value=="full")?true:undefined;
-				}
-			},
-			renderTracers: {
-				tab: "Render",
-				name: "Player Tracers",
-				val: false,
-				html: () => this.generateSetting("checkbox", "renderTracers"),
-			},
-			espHostileCol: {
-				tab: "Render",
-				name: "Hostile Color",
-				val: "#ff0000",
-				html: () => this.generateSetting("color", "espHostileCol"),
-			},
-			espFriendlyCol: {
-				tab: "Render",
-				name: "Friendly Color",
-				val: "#00ff00",
-				html: () => this.generateSetting("color", "espFriendlyCol"),
-			},
-			renderChams: {
-				tab: "Render",
-				pre: "<div class='separator'>Color Chams</div>",
-				name: "Player Chams",
-				val: false,
-				html: () => this.generateSetting("checkbox", "renderChams") //+
-			},
-			renderWireFrame: {
-				tab: "Render",
-				name: "Player Wireframe",
-				val: false,
-				html: () => this.generateSetting("checkbox", "renderWireFrame"),
-			},
-			rainbowColor: {
-				tab: "Render",
-				name: "Rainbow Color",
-				val: false,
-				html: () => this.generateSetting("checkbox", "rainbowColor"),
-			},
-			chamHostileCol: {
-				tab: "Render",
-				name: "Hostile Color",
-				val: "#ff0000",
-				html: () => this.generateSetting("color", "chamHostileCol"),
-			},
-			chamFriendlyCol: {
-				tab: "Render",
-				name: "Friendly Color",
-				val: "#00ff00",
-				html: () => this.generateSetting("color", "chamFriendlyCol"),
-			},
-			hideAdverts: {
-				tab: "Render",
-				pre: "<div class='separator'>Krunker UI</div>",
-				name: "Hide Advertisments",
-				val: true,
-				html: () => this.generateSetting("checkbox", "hideAdverts"),
-				set: (value, init) => {
-					if (value) this.mainCustomRule("insert", this.css.hideAdverts);
-					else if (!init) this.mainCustomRule("delete", this.css.hideAdverts);
-				}
-			},
-			hideStreams: {
-				tab: "Render",
-				name: "Hide Streams",
-				val: false,
-				html: () => this.generateSetting("checkbox", "hideStreams"),
-				set: (value) => { this.displayStyle("streamContainer", value) }
-			},
-			hideMerch: {
-				tab: "Render",
-				name: "Hide Merch",
-				val: false,
-				html: () => this.generateSetting("checkbox", "hideMerch"),
-				set: (value) => { this.displayStyle("merchHolder", value) }
-			},
-			hideNewsConsole: {
-				tab: "Render",
-				name: "Hide News Console",
-				val: false,
-				html: () => this.generateSetting("checkbox", "hideNewsConsole"),
-				set: (value) => { this.displayStyle("newsHolder", value) }
-			},
-			hideCookieButton: {
-				tab: "Render",
-				name: "Hide Security Manage Button",
-				val: false,
-				html: () => this.generateSetting("checkbox", "hideCookieButton"),
-				set: (value) => { this.displayStyle("onetrust-consent-sdk", value) }
-			},
-			//Rendering
-			showSkidBtn: {
-				tab: "Render",
-				pre: "<hr>",
-				name: "Show Menu Button",
-				val: true,
-				html: () => this.generateSetting("checkbox", "showSkidBtn"),
-				set: (value, init) => {
-					let button = document.getElementById("mainButton");
-					if (!utils.isDefined(button)) utils.create_button("Junk", "https://i.imgur.com/pA5e8hy.png", this.toggleMenu, value)
-					utils.wait_for(() => document.getElementById("mainButton")).then(button => { button.style.display = value ? "inherit" : "none" })
-				}
-			},
-			customCSS: {
-				tab: "Render",
-				pre: "<hr>",
-				name: "Custom CSS",
-				val: "",
-				html: () => this.generateSetting("url", "customCSS", "URL to CSS file"),
-				css: document.createElement("link"),
-				set: (value, init) => {
-					if (value && value.startsWith("http")&&value.endsWith(".css")) {
-						this.settings.customCSS.css.href = value
-					} else this.settings.customCSS.css.href = null
-					if (init && this.settings.customCSS.css) {
-						this.settings.customCSS.css.rel = "stylesheet"
-						try {
-							document.getElementsByTagName('head')[0].appendChild(this.settings.customCSS.css)
-						} catch(e) {
-							console.error(e)
-							this.settings.customCSS.css = null
-						}
-					}
-				}
-			},
-			customBillboard: {
-				tab: "Render",
-				name: "Custom Billboard Text",
-				val: "",
-				html: () =>
-				this.generateSetting(
-					"text",
-					"customBillboard",
-					"Custom Billboard Text"
-				),
-			},
-
-			// Weapon
-
-			autoReload: {
-				tab: "Weapon",
-				//pre: "<br><div class='setHed'>Weapon</div>",
-				name: "Auto Reload",
-				val: false,
-				html: () => this.generateSetting("checkbox", "autoReload"),
-			},
-			weaponZoom: {
-				tab: "Weapon",
-				name: "Weapon Zoom",
-				val: 1.0,
-				min: 0,
-				max: 50.0,
-				step: 0.01,
-				html: () => this.generateSetting("slider", "weaponZoom"),
-				set: (value) => utils.wait_for(() => this.renderer).then(renderer => renderer.adsFovMlt.fill(value))
-			},
-			weaponTrails: {
-				tab: "Weapon",
-				name: "Weapon Trails",
-				val: false,
-				html: () => this.generateSetting("checkbox", "weaponTrails"),
-				set: (value) => utils.wait_for(() => this.me).then(me => { me.weapon.trail = value })
-			},
-			autoAim: {
-				tab: "Weapon",
-				pre: "<div class='separator'>Auto Aim</div>",
-				name: "Auto Aim Type",
-				val: "off",
-				html: () =>
-				this.generateSetting("select", "autoAim", {
-					off: "Off",
-					correction: "Aim Correction",
-					assist: "Legit Aim Assist",
-					easyassist: "Easy Aim Assist",
-					silent: "Silent Aim",
-					trigger: "Trigger Bot",
-					quickScope: "Quick Scope"
-				}),
-			},
-
-			fovBoxSize: {
-				tab: "Weapon",
-				name: "FOV Box Type",
-				val: "off",
-				html: () =>
-				this.generateSetting("select", "fovBoxSize", {
-					off: "Off",
-					small: "Small",
-					medium: "Medium",
-					large: "Large"
-				})
-			},
-
-
-			aimOffset: {
-				tab: "Weapon",
-				name: "Aim Offset",
-				val: 0,
-				min: -4,
-				max: 1,
-				step: 0.01,
-				html: () => this.generateSetting("slider", "aimOffset"),
-				set: (value) => { if (this.settings.playStream.audio) this.settings.playStream.audio.volume = value;}
-			},
-			frustrumCheck: {
-				tab: "Weapon",
-				name: "Player Visible Check",
-				val: false,
-				html: () => this.generateSetting("checkbox", "frustrumCheck"),
-			},
-			wallPenetrate: {
-				tab: "Weapon",
-				name: "Aim through Penetratables",
-				val: false,
-				html: () => this.generateSetting("checkbox", "wallPenetrate"),
-			},
-
-			// Player
-
-			autoBhop: {
-				tab: "Player",
-				//pre: "<br><div class='setHed'>Player</div>",
-
-				name: "Auto Bhop Type",
-				val: "off",
-				html: () => this.generateSetting("select", "autoBhop", {
-					off: "Off",
-					autoJump: "Auto Jump",
-					keyJump: "Key Jump",
-					autoSlide: "Auto Slide",
-					keySlide: "Key Slide"
-				}),
-			},
-			skinUnlock: {
-				tab: "Player",
-				name: "Unlock Skins",
-				val: false,
-				html: () => this.generateSetting("checkbox", "skinUnlock"),
-			},
-
-			// GamePlay
-
-			autoActivateNuke: {
-				tab: "GamePlay",
-				name: "Auto Activate Nuke",
-				val: false,
-				html: () => this.generateSetting("checkbox", "autoActivateNuke"),
-			},
-			autoFindNew: {
-				tab: "GamePlay",
-				name: "New Lobby Finder",
-				val: false,
-				html: () => this.generateSetting("checkbox", "autoFindNew"),
-			},
-			autoClick: {
-				tab: "GamePlay",
-				name: "Auto Start Game",
-				val: false,
-				html: () => this.generateSetting("checkbox", "autoClick"),
-			},
-			noInActivity: {
-				tab: "GamePlay",
-				name: "No InActivity Kick",
-				val: true,
-				html: () => this.generateSetting("checkbox", "noInActivity"),
-			},
-
-			// Radio
-
-			playStream: {
-				tab: "Radio",
-				//pre: "<br><div class='setHed'>Radio Stream Player</div>",
-				name: "Stream Select",
-				val: "off",
-				html: () => this.generateSetting("select", "playStream", {
-					off: 'Off',
-					_2000s: 'General German/English',
-					_HipHopRNB: 'Hip Hop / RNB',
-					_Oldskool: 'Hip Hop Oldskool',
-					_Country: 'Country',
-					_Pop: 'Pop',
-					_Dance: 'Dance',
-					_Dubstep: 'DubStep',
-					_Lowfi: 'LoFi HipHop',
-					_Jazz: 'Jazz',
-					_Oldies: 'Golden Oldies',
-					_Club: 'Club',
-					_Folk: 'Folk',
-					_ClassicRock: 'Classic Rock',
-					_Metal: 'Heavy Metal',
-					_DeathMetal: 'Death Metal',
-					_Classical: 'Classical',
-					_Alternative: 'Alternative',
-				}),
-				set: (value) => {
-					if (value == "off") {
-						if ( this.settings.playStream.audio ) {
-							this.settings.playStream.audio.pause();
-							this.settings.playStream.audio.currentTime = 0;
-							this.settings.playStream.audio = null;
-						}
-						return;
-					}
-					let url = this.settings.playStream.urls[value];
-					if (!this.settings.playStream.audio) {
-						this.settings.playStream.audio = new Audio(url);
-						this.settings.playStream.audio.volume = this.settings.audioVolume.val||0.5
-					} else {
-						this.settings.playStream.audio.src = url;
-					}
-					this.settings.playStream.audio.load();
-					this.settings.playStream.audio.play();
-				},
-				urls: {
-					_2000s: 'http://0n-2000s.radionetz.de/0n-2000s.aac',
-					_HipHopRNB: 'https://stream-mixtape-geo.ntslive.net/mixtape2',
-					_Country: 'https://live.wostreaming.net/direct/wboc-waaifmmp3-ibc2',
-					_Dance: 'http://streaming.radionomy.com/A-RADIO-TOP-40',
-					_Pop: 'http://bigrradio.cdnstream1.com/5106_128',
-					_Jazz: 'http://strm112.1.fm/ajazz_mobile_mp3',
-					_Oldies: 'http://strm112.1.fm/60s_70s_mobile_mp3',
-					_Club: 'http://strm112.1.fm/club_mobile_mp3',
-					_Folk: 'https://freshgrass.streamguys1.com/irish-128mp3',
-					_ClassicRock: 'http://1a-classicrock.radionetz.de/1a-classicrock.mp3',
-					_Metal: 'http://streams.radiobob.de/metalcore/mp3-192',
-					_DeathMetal: 'http://stream.laut.fm/beatdownx',
-					_Classical: 'http://live-radio01.mediahubaustralia.com/FM2W/aac/',
-					_Alternative: 'http://bigrradio.cdnstream1.com/5187_128',
-					_Dubstep: 'http://streaming.radionomy.com/R1Dubstep?lang=en',
-					_Lowfi: 'http://streams.fluxfm.de/Chillhop/mp3-256',
-					_Oldskool: 'http://streams.90s90s.de/hiphop/mp3-128/',
-				},
-				audio: null,
-			},
-
-			audioVolume: {
-				tab: "Radio",
-				name: "Radio Volume",
-				val: 0.5,
-				min: 0,
-				max: 1,
-				step: 0.01,
-				html: () => this.generateSetting("slider", "audioVolume"),
-				set: (value) => { if (this.settings.playStream.audio) this.settings.playStream.audio.volume = value;}
-			},
-
-			// Dev
-
-		   saveGameJsBtn: {
-				tab: "Dev",
-				name: "Save Game Script",
-				val: false,
-				html: () => this.generateSetting("button", "saveGameJsBtn", { label:"Save", function: `${vars.key}.saveGame()`}),
-			},
-		}
-
-		async function getSavedSettings() {
-
-			async function getValue(key) {
-				let value = await GM.getValue(key, "Fuck");
-				if (value != "Fuck" && value != undefined) {
-					return value;
-				} else {
-					return new Promise((resolve) => {
-						window.setTimeout(() => resolve(getValue()), 10);
-					})
-				}
-			}
-
-			for (let key in main.settings) {
-				const value = await getValue(key);
-				main.settings[key].val = value !== null ? value : main.settings[key].val;
-				main.settings[key].def = main.settings[key].val;
-				if (main.settings[key].val == "false") main.settings[key].val = false;
-				if (main.settings[key].val == "true") main.settings[key].val = true;
-				if (main.settings[key].val == "undefined") main.settings[key].val = main.settings[key].def;
-				if (main.settings[key].set) main.settings[key].set(main.settings[key].val, true);
-			}
-
-		}
-
-		utils.wait_for(() => window.windows).then(() => {
-			let win = window.windows[11]; win.html = "";
-			win.header = Math.random(); // hash
-			win.gen = ()=> {
-				let tmpHTML = `<div class='wrapper'><div class="content"><div class="guild-icon" style="background-image: url(&quot;https://cdn.discordapp.com/icons/${this.discord.guild.id}/${this.discord.guild.icon}.webp?size=64&quot;);"></div><div class="guild-info" style="flex: 1 1 auto;"><div class="guild-name"> <a href="https://e9x.github.io/kru/inv">${this.discord.guild.name}</a> &nbsp;&nbsp;&nbsp;<div class="colorStandard size14 guildDetail"><div class="statusCounts"><i class="statusOnline status"></i><span class="count-30T-5k online-count">${this.discord.approximate_presence_count} Online</span>&nbsp;<i class="statusOffline status"></i><span class="count-30T-5k offline-count">${this.discord.approximate_member_count} Members</span></div></div></div></div><button type="button" class="d-button join-button" onmouseenter="playTick()" onclick="window.location.href='https://discord.com/invite/${this.discord.code}'"><div class="d-button-label">Join</div></button></div></div>`;
-				tmpHTML += '<div class="tab">'; this.tabs.forEach(tab => { tmpHTML += `<button class="tablinks" onclick="${vars.key}.tabChange(event, '${tab}')">${tab}</button>` }); tmpHTML +='</div>'
-				this.tabs.forEach(tab => {
-					tmpHTML += `<div id="${tab}" class="tabcontent"> ${this.tabContent(tab)} </div>`
-				})
-
-				return tmpHTML
-			}
-			for (const key in this.settings) {
-				this.settings[key].def = this.settings[key].val;
-				if (!this.settings[key].disabled) {
-					let tmpVal = this.getSavedVal(key);
-					this.settings[key].val = tmpVal !== null ? tmpVal : this.settings[key].val;
-					this.settings[key].val = this.settings[key].val;
-					if (this.settings[key].val == "false") this.settings[key].val = false;
-					if (this.settings[key].val == "true") this.settings[key].val = true;
-					if (this.settings[key].val == "undefined") this.settings[key].val = this.settings[key].def;
-					if (this.settings[key].set) this.settings[key].set(this.settings[key].val, true);
-				}
-			}
-			//return getSavedSettings();
-		})
-	}
-
-	toggleMenu() {
-		let lock = document.pointerLockElement || document.mozPointerLockElement;
-		if (lock) document.exitPointerLock();
-		window.showWindow(12);
-		if (utils.isDefined(window.SOUND)) window.SOUND.play(`tick_0`,0.1)
-	}
-
-	tabChange(evt, tabName) {
-		var i, tabcontent, tablinks;
-		tabcontent = document.getElementsByClassName("tabcontent");
-		for (i = 0; i < tabcontent.length; i++) {
-			tabcontent[i].style.display = "none";
-		}
-		tablinks = document.getElementsByClassName("tablinks");
-		for (i = 0; i < tablinks.length; i++) {
-			tablinks[i].className = tablinks[i].className.replace(" active", "");
-		}
-		document.getElementById(tabName).style.display = "block";
-		evt.currentTarget.className += " active";
-	}
-
-	tabContent(name) {
-		let tmpHTML = "";
-		for (let key in this.settings) {
-			if (this.settings[key].tab == name) {
-				if (this.settings[key].pre) tmpHTML += this.settings[key].pre;
-				tmpHTML += "<div class='settName' id='" + key + "_div' style='display:block'>" + this.settings[key].name + " " + this.settings[key].html() + "</div>";
-			}
-		}
-		return tmpHTML;
-	}
-
-	saveGame(){
-		var link = utils.add_ele('a', document.documentElement, { href: api.resolve({
-			target: api.api_v2,
-			endpoint: 'source',
-			query: { download: true },
-		}) });
-
-		link.click();
-
-		link.remove();
-	}
-
-	generateSetting(type, name, extra) {
-		switch (type) {
-			case 'button':
-				return `<input type="button" name="${type}" id="slid_utilities_${name}" class="settingsBtn" onclick="${extra.function}" value="${extra.label}" style="float:right;width:auto"/>`;
-			case 'checkbox':
-				return `<label class="switch"><input type="checkbox" onclick="${vars.key}.setSetting('${name}', this.checked)" ${this.settings[name].val ? 'checked' : ''}><span class="slider"></span></label>`;
-			case 'slider':
-				return `<span class='sliderVal' id='slid_utilities_${name}'>${this.settings[name].val}</span><div class='slidecontainer'><input type='range' min='${this.settings[name].min}' max='${this.settings[name].max}' step='${this.settings[name].step}' value='${this.settings[name].val}' class='sliderM' oninput="${vars.key}.setSetting('${name}', this.value)"></div>`
-				case 'select': {
-					let temp = `<select onchange="${vars.key}.setSetting(\x27${name}\x27, this.value)" class="inputGrey2">`;
-					for (let option in extra) {
-						temp += '<option value="' + option + '" ' + (option == this.settings[name].val ? 'selected' : '') + '>' + extra[option] + '</option>';
-					}
-					temp += '</select>';
-					return temp;
-				}
-			default:
-				return `<input type="${type}" name="${type}" id="slid_utilities_${name}"\n${'color' == type ? 'style="float:right;margin-top:5px"' : `class="inputGrey2" placeholder="${extra}"`}\nvalue="${this.settings[name].val}" oninput="${vars.key}.setSetting(\x27${name}\x27, this.value)"/>`;
-		}
-	}
-
-	setSetting(key, value) {
-		this.settings[key].val = value;
-		//await GM.setValue(key, value);
-		this.saveVal(key, value);
-		if (document.getElementById(`slid_utilities_${key}`)) document.getElementById(`slid_utilities_${key}`).innerHTML = value;
-		if (this.settings[key].set) this.settings[key].set(value);
-	}
-
-	saveVal(name, val) {
-		localStorage.setItem("krk_"+name, val);
-	}
-
-	deleteVal(name) {
-		localStorage.removeItem("krk_"+name);
-	}
-
-	getSavedVal(name) {
-		return localStorage.getItem("krk_"+name);
-	}
-
 	async gameHooks() {
 		let main = this;
 		
@@ -907,7 +370,7 @@ class Main {
 		
 		let toFind = {
 			overlay: ["render", "canvas"],
-			config: ["accAnnounce", "availableRegions", "assetCat"],
+			gconfig: ["accAnnounce", "availableRegions", "assetCat"],
 			three: ["ACESFilmicToneMapping", "TextureLoader", "ObjectLoader"],
 		};
 		
@@ -929,7 +392,7 @@ class Main {
 				alert("Failed To Find Export " + name);
 			}
 		} else {
-			Object.defineProperties(this.config, {
+			Object.defineProperties(this.gconfig, {
 				nameVisRate: {
 					value: 0,
 					writable: false
@@ -967,7 +430,8 @@ class Main {
 					return target[prop] ;
 				},
 			});
-
+			
+			utils.canvas = this.overlay.canvas;
 			this.ctx = this.overlay.canvas.getContext('2d');
 			this.overlay.render = new Proxy(this.overlay.render, {
 				apply: (target, that, args) => {
@@ -975,31 +439,6 @@ class Main {
 				}
 			});
 		}
-
-
-		const $origSkins = Symbol("origSkins"), $localSkins = Symbol("localSkins");
-		Object.defineProperties(Object.prototype, {
-			skins: {
-				set(fn) {
-					//console.log(this.toString())
-					//console.log(this)
-					this[$origSkins] = fn;
-					if (void 0 == this[$localSkins] || !this[$localSkins].length) {
-						this[$localSkins] = Array.apply(null, Array(5e3)).map((x, i) => {
-							return {
-								ind: i,
-								cnt: 0x1,
-							}
-						})
-					}
-					return fn;
-				},
-				get() {
-					return main.settings.skinUnlock.val && this.stats ? this[$localSkins] : this[$origSkins];
-				}
-			},
-		})
-		
 		utils.wait_for(() => this.ws).then(() => {
 			this.wsEvent = this.ws._dispatchEvent.bind(this.ws);
 			this.wsSend = this.ws.send.bind(this.ws);
@@ -1064,14 +503,13 @@ class Main {
 			})
 		})
 	}
-	
 	overlayRender(renderArgs, scale, game, controls, renderer, me){
 		let width = this.overlay.canvas.width / scale;
 		let height = this.overlay.canvas.height / scale;
 		
-		if (controls && typeof this.settings == "object" && this.settings.noInActivity.val) {
+		if (controls && typeof this.settings == "object" && this.___config.game.inactivity) {
 			controls.idleTimer = 0;
-			if (utils.isDefined(this.config)) this.config.kickTimer = Infinity;
+			if (utils.isDefined(this.gconfig))this.gconfig.kickTimer = Infinity;
 		}
 		if (me) {
 			if (me.active && me.health) controls.update();
@@ -1094,96 +532,23 @@ class Main {
 			this.ctx.restore();
 		}
 		
-		if (utils.isType(this.settings, 'object')) {
-			if (this.settings.hasOwnProperty('autoActivateNuke') && this.settings.autoActivateNuke.val) {
-				if (this.me && Object.keys(this.me.streaks).length) this.wsSend("k", 0);
-			}
-			if (this.settings.hasOwnProperty('autoClick') && this.settings.autoClick.val) {
-				if (window.endUI.style.display == "none" && window.windowHolder.style.display == "none") controls.toggle(true);
-			}
+		if(this.config.auto_nuke && this.me && Object.keys(this.me.streaks).length == 25)this.wsSend("k", 0);
+		
+		if(this.config.game.auto_start){
+			if(window.endUI.style.display == "none" && window.windowHolder.style.display == 'none')controls.toggle(true);
 		}
 	}
-	
-	gameLoad(source, tokenPromise){
-		new Function("WP_fetchMMToken", vars.key, vars.patch(source))(tokenPromise, this);
-	}
-	
-	mainCustomRule(action, rule) {
-		utils.wait_for(() => this.mainCustom).then(() => {
-			const rules = this.mainCustom.cssRules;
-			if (action == "insert") this.mainCustom.insertRule(rule);
-			else if (action == "delete") {
-				for (let i = 0; i < rules.length; i++) {
-					if (rules[i].cssText == rule) {
-						this.mainCustom.deleteRule(i);
-					}
-				}
-			} else console.error(action + " not Implemented for mainCustomRule")
-		})
-	}
-	
-	displayStyle(el, val) {
-		utils.wait_for(() => window[el], 5e3).then(node => {
-			if (node) node.style.display = val ? "none" : "inherit";
-			else log.error(el, " was not found in the window object");
-		})
-	}
-
-	stylesheets() {
-		// Get Main Custom CSS
-		new Array(...document.styleSheets).map(css => {
-			if (css.href) {
-				let arr = /http.*?krunker.io\/css\/(\w+.css).+/.exec(css.href);
-				if (arr && arr[1]) {
-					let name = arr[1];
-					if (name && name.includes("main_custom")) {
-						this.mainCustom = css;
-					}
-				}
-			}
-		})
-		let css = {
-			tabStyle: '.tab { overflow: hidden; border: 1px solid #ccc; background-image: linear-gradient(#2f3136, #f1f1f1, #2f3136); }',
-			btnStyle: '.tab button { background-color: inherit; float: left; border: none; outline: solid; cursor: pointer; padding: 14px 16px; transition: 0.3s; font-size: 17px; font-weight:500;color:black;text-shadow: 2px 2px #FFF;}',
-			btnHoverStyle: '.tab button:hover { background-color: #ddd; }',
-			activeTabStyle: '.tab button.active { background-color: #ccc; }',
-			tabContentStyle: '.tabcontent { display: none; padding: 6px 12px; border: 1px solid #ccc; border-top: none; animation: fadeEffect 1s; /* Fading effect takes 1 second */}',
-			zeroToFullOpacity: '@keyframes fadeEffect { from {opacity: 0;} to {opacity: 1;} }',
-
-			separator: `.separator{display:flex;align-items:center;text-align:center}.separator::before,.separator::after{content:'';flex:1;border-bottom:1px solid #000}.separator:not(:empty)::before{margin-right:.25em}.separator:not(:empty)::after{margin-left:.25em}`,
-
-			discordWrapper: `.wrapper{background:#2f3136;width:100%;}`,
-			discordContent: `.content{display:flex;-webkit-box-orient:horizontal;-webkit-box-direction:normal;flex-flow:row nowrap}`,
-			discordInfo: `.guild-info{flex:1 1 auto;min-width:1px;-webkit-box-orient:vertical;-webkit-box-direction:normal;flex-direction:column;flex-wrap:nowrap;display:flex;align-items:stretch;-webkit-box-align:stretch;justify-content:center;text-indent:0}`,
-			discordIcon: `.guild-icon{background-color:#333;margin-right:16px;flex:0 0 auto;width:50px;height:50px;border-radius:15px;position:relative;background-clip:padding-box;background-position:50%;background-size:100% 100%}`,
-			discordDesc: `.inv-desc{font-weight:700;margin:0;margin-bottom:12px;white-space:nowrap;text-overflow:ellipsis;overflow:hidden;color:#b9bbbe;text-transform:uppercase;font-size:12px;line-height:12px;flex:1}`,
-			discordName: `.guild-name{flex:1 1 auto;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;line-height:20px;align-items:center;display:flex;color:#FFF;font-weight:700}`,
-			discordNameHover: `.guild-name:hover{cursor:pointer;text-decoration:underline}`,
-			discordBtn: `.d-button{align-self:center;margin-left:10px;margin-top:4px;white-space:nowrap;flex:0 0 auto;position:relative;display:flex;justify-content:center;align-items:center;border-radius:3px;border:none;font-size:14px;font-weight:500;line-height:20px;height:43px;padding:2px 20px;user-select:none;transition:background-color .1s ease,color .1s ease;color:#FFF;background:#4B8;cursor:pointer}`,
-			discordBtnHover: `.d-button:hover{background:#3A7;}`,
-			discordBtnLabel: `.d-button-label{font-weight:500;color:white;text-shadow: 2px 2px #000;}`,
-			discordActive: `.d-button:active{background:#396}`,
-			discordInvDest: `.inviteDestination{margin:0}`,
-			discordDetail: `.guildDetail{margin:0;font-size:14px;white-space:nowrap;text-overflow:ellipsis;overflow:hidden;color:#b9bbbe;line-height:16px}`,
-			discordStatusCounts: `.statusCounts{display:flex;-webkit-box-align:center;align-items:center;font-weight:600}`,
-			discordStatus: `.status{display:block;margin-right:4px;width:8px;height:8px;border-radius:50%;flex:0 0 auto;font-style:italic}`,
-			discordStatusOnline: `.statusOnline{background:#43b581}`,
-			discordStatusOffline: `.statusOffline{background:#747f8d}`,
-			discordCount: `.count-30T-5k{-webkit-box-flex:0;flex:0 1 auto;margin-right:8px;color:#b9bbbe;white-space:nowrap;text-overflow:ellipsis;overflow:hidden}`,
-		}, style = document.createElement('style'); style.type = 'text/css'; document.documentElement.appendChild(style);
-		Object.entries(css).forEach(([name, rule], index) => {
-			style.appendChild(document.createTextNode(rule));
-		})
-
+	skins(ent){
+		return this.config.player.skins && ent != null && ent.stats ? this.skin_array : ent.skins;
 	}
 	eventHandlers() {
 		window.addEventListener('load', (event) => {
 			console.log('page is fully loaded');
 			
-			this.stylesheets();
+			utils.add_ele('style', document.documentElement, { textContent: require('./index.css') });
 			
 			api.on_instruct = () => {
-				if(this.settings.autoFindNew.val){
+				if(this.config.game.auto_lobby){
 					if(['Kicked', 'Banned', 'Disconnected', 'Error', 'Game is full'].some(text => target && target.innerHTML.includes(text))){
 						location = document.location.origin;
 					}
@@ -1225,30 +590,15 @@ class Main {
 		this.renderer.camera.updateProjectionMatrix();
 		this.renderer.updateFrustum();
 	}
-
 	resetLookAt() {
 		this.controls.yDr = this.controls[vars.pchObjc].rotation.x;
 		this.controls.xDr = this.controls.object.rotation.y;
 		this.renderer.camera.updateProjectionMatrix();
 		this.renderer.updateFrustum();
 	}
-
-	world2Screen (position) {
-		let pos = position.clone();
-		let scaledWidth = this.ctx.canvas.width / this.scale;
-		let scaledHeight = this.ctx.canvas.height / this.scale;
-		pos.project(this.renderer.camera);
-		pos.x = (pos.x + 1) / 2;
-		pos.y = (-pos.y + 1) / 2;
-		pos.x *= scaledWidth;
-		pos.y *= scaledHeight;
-		return pos;
-	}
-
 	getInView(entity){
-		return null == utils.obstructing(this.me, entity, (!this.me || this.me.weapon && this.me.weapon.pierce) && this.settings.wallPenetrate.val);
+		return null == utils.obstructing(this.me, entity, (!this.me || this.me.weapon && this.me.weapon.pierce) && this.config.aim.wallbangs);
 	}
-
 	getIsFriendly(entity) {
 		return (this.me && this.me.team ? this.me.team : this.me.spectating ? 0x1 : 0x0) == entity.team
 	}

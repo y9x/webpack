@@ -26,10 +26,11 @@ class Editor extends PanelDraggable {
 				name = input.split('/').slice(-1)[0],
 				tab = new Tab({ id: Tab.ID(), name: name, active: true }, this);
 			
+			tab.focus();
+			
 			await tab.set_value(style);
 			await tab.save();
-			
-			tab.focus();
+			await this.load();
 		}).catch(err => (alert('Loading failed: ' + err), 1)));
 		
 		this.actions.insertAdjacentHTML('beforeend', svg.save);

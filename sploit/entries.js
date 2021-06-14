@@ -13,7 +13,7 @@ config.add_section({
 	type: 'control',
 	default: true,
 	value: [{
-		name: 'Auto aim',
+		name: 'Aimbot Type',
 		type: 'rotate',
 		walk: 'aim.status',
 		vals: [
@@ -25,9 +25,10 @@ config.add_section({
 		],
 		key: 'binds.aim',
 	},{
-		name: 'Auto bhop',
+		name: 'Auto Bhop',
 		type: 'rotate',
 		walk: 'game.bhop',
+		key: 'binds.bhop',
 		vals: [
 			[ 'off', 'Off' ],
 			[ 'keyjump', 'Key jump' ],
@@ -35,11 +36,11 @@ config.add_section({
 			[ 'autoslide', 'Auto slide' ],
 			[ 'autojump', 'Auto jump' ],
 		],
-		key: 'binds.bhop',
 	},{
-		name: 'ESP mode',
+		name: 'ESP Mode',
 		type: 'rotate',
 		walk: 'esp.status',
+		key: 'binds.esp',
 		vals: [
 			[ 'off', 'Off' ],
 			[ 'box', 'Box' ],
@@ -47,7 +48,6 @@ config.add_section({
 			[ 'box_chams', 'Box & chams' ],
 			[ 'full', 'Full' ],
 		],
-		key: 'binds.esp',
 	},{
 		name: 'Tracers',
 		type: 'boolean',
@@ -74,11 +74,11 @@ config.add_section({
 		type: 'function',
 		value: () => config.css_editor.show(),
 	},{
-		name: 'Custom loading screen',
+		name: 'Custom Loading Screen',
 		type: 'boolean',
 		walk: 'game.custom_loading',
 	},{
-		name: 'Skins',
+		name: 'Unlock Skins',
 		type: 'boolean',
 		walk: 'game.skins',
 	},{

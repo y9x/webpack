@@ -123,24 +123,6 @@ class Utils {
 		
 		return { width: width, height: height};
 	}
-	box_rect(obj){
-		var box = new this.three.Box3().setFromObject(obj),
-			center = this.pos2d(box.getCenter()),
-			min = this.pos2d(box.min),
-			max = this.pos2d(box.max),
-			size = { width: max.x - min.x, height: max.y - min.y };
-		
-		return {
-			width: size.width,
-			height: size.height,
-			x: center.x,
-			y: center.y,
-			left: center.x - size.width / 2,
-			right: center.x + size.width / 2,
-			top: center.y - size.height / 2,
-			bottom: center.y + size.height / 2,
-		};
-	}
 	contains_point(point){
 		for(var ind = 0; ind < 6; ind++)if(this.world.frustum.planes[ind].distanceToPoint(point) < 0)return false;
 		return true;
@@ -200,10 +182,49 @@ class Utils {
 		
 		return node.textContent;
 	}
-	add_ele(node_name, parent, attributes){
+	node_tree(nodes, parent = document){
+		var output = {
+				parent: parent,
+			},
+			match_container = /^\$\s+>?/g,
+			match_parent = /^\^\s+>?/g;
+		
+		for(var label in nodes){
+			var value = nodes[label];
+			
+			if(value instanceof Node)output[label] = value;
+			else if(typeof value == 'object')output[label] = this.node_tree(value, output.container);
+			else if(match_container.test(nodes[label])){
+				if(!output.container){
+					console.warn('No container is available, could not access', value);
+					continue;
+				}
+				
+				output[label] = output.container.querySelector(nodes[label].replace(match_container, ''));
+			}else if(match_parent.test(nodes[label])){
+				if(!output.parent){
+					console.warn('No parent is available, could not access', value);
+					continue;
+				}
+				
+				output[label] = output.parent.querySelector(nodes[label].replace(match_parent, ''));
+			}else output[label] = parent.querySelector(nodes[label]);
+			
+			if(!output[label])console.warn('No node found, could not access', value);
+		}
+		
+		return output;
+	}
+	add_ele(node_name, parent, attributes = {}){
+		if(node_name == 'text')return parent.appendChild(Object.assign(document.createTextNode(''), attributes));
+		
+		if(attributes.style != null && typeof attributes.style == 'object')attributes.style = this.css(attributes.style);
+		
 		return Object.assign(parent.appendChild(document.createElement(node_name)), attributes);
 	}
-	crt_ele(node_name, attributes){
+	crt_ele(node_name, attributes = {}){
+		if(attributes.style != null && typeof attributes.style == 'object')attributes.style = this.css(attributes.style);
+		
 		return Object.assign(document.createElement(node_name), attributes);
 	}
 	string_key(key){

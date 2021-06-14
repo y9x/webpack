@@ -7,6 +7,6 @@ module.exports = {
 	version: '1.0',
 	license: 'gpl-3.0',
 	namespace: 'https://greasyfork.org/users/704479',
-	icon: 'https://y9x.github.io/webpack/junker.png',
+	icon: 'https://y9x.github.io/webpack/junker/junker.png',
 	grant: 'none',
 };

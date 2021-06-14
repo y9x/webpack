@@ -30,7 +30,9 @@ class LinkvertiseBypass {
 			shouldPromoteOpera: true,
 		};
 		
-		for(let task of tasks)this.meta[task] = false;
+		for(let task of tasks)this.meta[task] = true;
+		
+		return;
 		
 		var will_do = [];
 		

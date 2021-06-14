@@ -54,6 +54,8 @@ add_var('objInstances', /lowerBody\),\w+\|\|\w+\.(\w+)\./, 1),
 
 add_var('getWorldPosition', /var \w+=\w+\.camera\.(\w+)\(\);/, 1);
 
+add_patch('Skins', /((?:[a-zA-Z]+(?:\.|(?=\.skins)))+)\.skins(?!=)/g, (match, player) => `${key}.skins(${player})`);
+
 exports.patch = source => {
 	var found = {},
 		missing = {};
@@ -120,7 +122,6 @@ exports.consts = {
 	nameOffset: 0.6,
 	nameOffsetHat: 0.8,
 };
-
 
 exports.load = loader => {
 	loader(add_var, add_patch, exports.key);
