@@ -64,17 +64,28 @@ menu.add_preset('Default', {
 });
 
 menu.add_preset('Light Assist', {
-	
+	aim: {
+		fov: 'small',
+	},
 });
 
 menu.add_preset('Rage', {
+	esp: {
+		status: 'full',
+		tracers: true,
+	},
 	aim: {
 		status: 'auto',
-		fov: 'small',
+		fov: 0,
+		fov_box: false,
 		smooth: 0,
 		auto_reload: true,
 		wallbangs: true,
+		frustrum_check: false,
 		offset: 0,
+	},
+	player: {
+		bhop: 'autoslide',
 	},
 });
 
@@ -208,15 +219,17 @@ aimbot.add_control({
 
 
 aimbot.add_control({
-	name: 'FOV Box',
-	type: 'rotate',
+	name: 'FOV',
+	type: 'slider',
 	walk: 'aim.fov',
-	vals: [
-		[ 'off', 'Off' ],
-		[ 'small', 'Small' ],
-		[ 'medium', 'Medium' ],
-		[ 'large', 'Large' ],
-	],
+	range: [ 10, 110, 10 ],
+	labels: { 110: 'Ignore FOV' },
+});
+
+aimbot.add_control({
+	name: 'Draw FOV box',
+	type: 'boolean',
+	walk: 'aim.fov_box',
 });
 
 aimbot.add_control({
@@ -317,6 +330,7 @@ radio.add_control({
 	
 	if(!this.audio){
 		this.audio = new Audio(value);
+		console.log(menu.config);
 		this.audio.volume = menu.config.radio.volume;
 	}else{
 		this.audio.src = value;

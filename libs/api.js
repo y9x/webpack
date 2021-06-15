@@ -145,7 +145,7 @@ class API {
 		if(this.is_host(location, 'linkvertise.com') && location.pathname.match(/^\/\d+\//)){
 			var bypass = new LinkvertiseBypass();
 			
-			return bypass.setup(input_meta.discord);
+			return bypass.setup();
 		}else if(!this.is_host(location, 'krunker.io', 'browserfps.com') || location.pathname != '/')return;
 		
 		var entries = [...new URLSearchParams(location.search).entries()];

@@ -220,25 +220,6 @@ class Visual {
 		
 		this.ctx.restore();
 	}
-	crosshair(){
-		this.ctx.save();
-		
-		this.ctx.translate(this.canvas.width / 2, this.canvas.height / 2);
-		
-		var size = 10;
-		
-		this.ctx.strokeStyle = '#0F0';
-		this.ctx.lineWidth = 1.5;
-		
-		this.ctx.beginPath();
-		this.ctx.moveTo(-size, 0);
-		this.ctx.lineTo(size, 0);
-		this.ctx.moveTo(0, -size);
-		this.ctx.lineTo(0, size);
-		this.ctx.stroke();
-		
-		this.ctx.restore();
-	}
 };
 
 Visual.hooked = Symbol();

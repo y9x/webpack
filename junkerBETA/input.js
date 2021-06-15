@@ -72,9 +72,7 @@ class Input {
 						break
 					}
 				}
-			}
-
-			else target = targets.sort((p1, p2) => utils.getD3D(main.me.x, main.me.z, p1.x, p1.z) - utils.getD3D(main.me.x, main.me.z, p2.x, p2.z)).shift();
+			}else target = targets.sort((p1, p2) => utils.getD3D(main.me.x, main.me.z, p1.x, p1.z) - utils.getD3D(main.me.x, main.me.z, p2.x, p2.z)).shift();
 
 			if (target) {
 				let obj = target[vars.objInstances];
@@ -101,14 +99,17 @@ class Input {
 				else if (ammoLeft||isMelee) {
 					switch (main.config.aim.status) {
 						case'assist':
-							if(data.scope) {
-								if(!main.me.aimDir && visible){
-									if(main.config.aim.smooth)rot = this.smooth({ xD: rot.x, yD: rot.y });
+							if(data.scope && visible){
+								if(main.config.aim.smooth)rot = this.smooth({ xD: rot.x, yD: rot.y });
+								
+								this.aim_camera(rot, data);
+								
+								/*if(!main.me.aimDir && visible){
 									
 									// if(!main.me.canThrow||!isMelee)this.aim_camera(rot);
 									
-									this.aim_camera(rot, data);
-								}
+									
+								}*/
 							}
 							break;
 						case'auto':
@@ -150,26 +151,15 @@ class Input {
 		var mov = 17,
 			// default 0.0022
 			div = 10000,
-			turn = (50 - cheat.config.aim.smooth) / div,
-			speed = (50 - cheat.config.aim.smooth) / div,
-			x_ang = utils.getAngleDst(cheat.controls[vars.pchObjc].rotation.x, target.xD),
-			y_ang = utils.getAngleDst(cheat.controls.object.rotation.y, target.yD);
+			turn = (50 - main.config.aim.smooth) / div,
+			speed = (50 - main.config.aim.smooth) / div,
+			x_ang = utils.getAngleDst(main.controls[vars.pchObjc].rotation.x, target.xD),
+			y_ang = utils.getAngleDst(main.controls.object.rotation.y, target.yD);
 		
 		return {
-			y: cheat.controls.object.rotation.y + y_ang * mov * turn,
-			x: cheat.controls[vars.pchObjc].rotation.x + x_ang * mov * turn,
+			y: main.controls.object.rotation.y + y_ang * mov * turn,
+			x: main.controls[vars.pchObjc].rotation.x + x_ang * mov * turn,
 		};
-	}
-	lookDir(xDire, yDire) {
-		xDire = xDire / 1000
-		yDire = yDire / 1000
-		main.controls.object.rotation.y = yDire
-		main.controls[vars.pchObjc].rotation.x = xDire;
-		main.controls[vars.pchObjc].rotation.x = Math.max(-vars.consts.halfPI, Math.min(vars.consts.halfPI, main.controls[vars.pchObjc].rotation.x));
-		main.controls.yDr = (main.controls[vars.pchObjc].rotation.x % Math.PI).round(3);
-		main.controls.xDr = (main.controls.object.rotation.y % Math.PI).round(3);
-		utils.world.camera.updateProjectionMatrix();
-		utils.world.updateFrustum();
 	}
 	aim_input(rot, data){
 		data.xdir = rot.x * 1000;
@@ -177,8 +167,8 @@ class Input {
 	}
 	aim_camera(rot, data){
 		// updating camera will make a difference next tick, update current tick with aim_input
-		cheat.controls[vars.pchObjc].rotation.x = rot.x;
-		cheat.controls.object.rotation.y = rot.y;
+		main.controls[vars.pchObjc].rotation.x = rot.x;
+		main.controls.object.rotation.y = rot.y;
 		
 		this.aim_input(rot, data);
 	}

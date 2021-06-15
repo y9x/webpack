@@ -88,7 +88,7 @@ class SettingsAddon extends Addon {
 	handle_config(config){
 		var string = JSON.stringify(config);
 		
-		for(let preset in this.menu.presets)if(JSON.stringify(this.menu.presets[preset]) == string)return this.preset.value = preset;
+		for(let preset in this.menu.presets)if(JSON.stringify(utils.assign_deep(utils.clone_obj(this.menu.presets.Default), this.menu.presets[preset])) == string)return this.preset.value = preset;
 		
 		this.preset.value = 'Custom';
 	}

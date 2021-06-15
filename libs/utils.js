@@ -276,15 +276,16 @@ class Utils {
 		}
 		return el;
 	}
-	create_button(name, iconURL, fn, visible){
-		visible = visible ? "inherit":"none";
+	clone_obj(obj){
+		return JSON.parse(JSON.stringify(obj));
+	}
+	assign_deep(target, ...objects){
+		for(let ind in objects)for(let key in objects[ind]){
+			if(typeof objects[ind][key] == 'object' && objects[ind][key] != null && key in target)this.assign_deep(target[key], objects[ind][key]);
+			else if(typeof target == 'object' && target != null)Object.defineProperty(target, key, Object.getOwnPropertyDescriptor(objects[ind], key))
+		}
 		
-		var menu = document.querySelector("#menuItemContainer"),
-			icon = this.createElement("div",{"class":"menuItemIcon", "style":`background-image:url("${iconURL}");display:inherit;`}),
-			title = this.createElement("div",{"class":"menuItemTitle", "style":`display:inherit;`}, name),
-			host = this.createElement("div",{"id":"mainButton", "class":"menuItem", "onmouseenter":"playTick()", "onclick":"showWindow(12)", "style":`display:${visible};`},[icon, title]);
-		
-		if(menu)menu.append(host);
+		return target;
 	}
 }
 

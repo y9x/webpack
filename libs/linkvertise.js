@@ -6,18 +6,22 @@ var Utils = require('./utils'),
 
 class LinkvertiseBypass {
 	constructor(){
-		this.debug_redirect = true;
+		var interval = setInterval;
+		
+		eval('window').setInterval = (callback, delay) => interval(callback, delay == 1e3 ? 0 : delay);
+		
+		this.debug_redirect = false;
 		
 		this.beacon = new Set();
 		
 		this.debug = console.debug;
 		this.start = performance.now();
 		
-		this.force_all_tasks = true;
+		// this.force_all_tasks = true;
 		
-		this.pick_tasks();
+		// this.pick_tasks();
 		
-		this.debug('Will do', this.will_do.length, 'tasks:', this.will_do);
+		// this.debug('Will do', this.will_do.length, 'tasks:', this.will_do);
 	}
 	debug_list(title, obj){
 		var props = [];
@@ -78,29 +82,10 @@ class LinkvertiseBypass {
 		
 		return ~~(Math.random() * ((max + 1) - min)) + min;
 	}
-	setup(discord){
+	setup(){
 		this.hook();
 		this.setup_beacon();
 		this.observe();
-		this.page_cover(discord);
-	}
-	page_cover(discord){
-		var UI = require('./ui');
-		
-		UI.ready.then(() => new UI.Loading(discord));
-		
-		document.documentElement.style.overflow = 'hidden';
-		
-		var set_title = document.title;
-		
-		document.title = 'Krunker';
-		
-		Object.defineProperty(document, 'title', {
-			get: _ => set_title,
-			set: _ => set_title = _,
-			configurable: true,
-			enumerable: true,
-		});
 	}
 	is_done(){
 		return false;
@@ -173,12 +158,12 @@ class LinkvertiseBypass {
 	main(service){
 		this.is_done = service.isDone.bind(service);
 		
-		var meta;
+		/*var meta;
 		
 		Object.defineProperty(service, 'meta', {
 			get: _ => meta,
 			set: value => meta = Object.assign(value, this.meta),
-		});
+		});*/
 		
 		var oredir = service.redirect;
 
@@ -187,7 +172,7 @@ class LinkvertiseBypass {
 			
 			Promise.all(this.beacon).then(() => {
 				if(this.debug_redirect)this.debug_list(`Redirect called.`, {
-					Tasks: this.will_do.map(task => '\t' + task),
+					// Tasks: this.will_do.map(task => '\t' + task),
 					URLs: [...this.beacon].map(promise => promise.url).map(url => '\t' + url),
 					'Total time': performance.now() - this.start + ' MS',
 				});

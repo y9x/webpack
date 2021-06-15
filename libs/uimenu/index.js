@@ -2,16 +2,8 @@
 
 var { utils, store } = require('./consts'),
 	Window = require('./window/'),
-	MenuButton = require('./MenuButton'),
-	clone_obj = obj => JSON.parse(JSON.stringify(obj)),
-	assign_deep = (target, ...objects) => {
-		for(let ind in objects)for(let key in objects[ind]){
-			if(typeof objects[ind][key] == 'object' && objects[ind][key] != null && key in target)assign_deep(target[key], objects[ind][key]);
-			else if(typeof target == 'object' && target != null)Object.defineProperty(target, key, Object.getOwnPropertyDescriptor(objects[ind], key))
-		}
-		
-		return target;
-	};
+	MenuButton = require('./MenuButton');
+	MenuButton = require('./MenuButton');
 
 class UIMenu {
 	constructor(){
@@ -63,7 +55,7 @@ class UIMenu {
 		for(let addon of this.addons)addon.handle_preset(label, value);
 	}
 	async insert_config(data, save = false){
-		this.config = clone_obj(data);
+		this.config = utils.assign_deep(utils.clone_obj(this.presets.Default), data);
 		
 		if(save)await this.save_config();
 		
@@ -80,11 +72,6 @@ class UIMenu {
 		await store.set('junkconfig', this.config);
 	}
 	async load_config(){
-		for(let preset in this.presets){
-			if(preset == 'Default')continue;
-			this.presets[preset] = assign_deep(clone_obj(this.presets.Default), this.presets[preset]);
-		}
-		
 		this.insert_config(await store.get('junkconfig', 'object'));
 	}
 	static keybinds = new Set();
