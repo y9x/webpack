@@ -1,23 +1,16 @@
 'use strict';
 
-var LinkvertiseBypass = require('./linkvertise');
+var DataStore = require('./datastore'),
+	store = new DataStore();
 
 class API {
-	constructor(matchmaker_url, api_url, storage){
+	constructor(matchmaker_url, api_url){
 		this.matchmaker = matchmaker_url,
 		this.api = /*CHANGE*/0 ? 'http://localhost:7300/' : api_url,
 		
 		this.stacks = new Set();
 		
 		this.api_v2 = new URL('v2/', this.api);
-		
-		this.default_storage = {
-			get: key => localStorage.getItem('ss' + key),
-			set: (key, value) => localStorage.setItem('ss' + key, value),
-			default: true,
-		};
-		
-		this.storage = typeof storage == 'object' && storage != null ? storage : this.default_storage;
 		
 		this.meta = new Promise((resolve, reject) => {
 			this.meta_resolve = resolve;
@@ -142,20 +135,16 @@ class API {
 		return hosts.some(host => url.hostname == host || url.hostname.endsWith('.' + host));
 	}
 	async license(input_meta, input_key){
-		if(this.is_host(location, 'linkvertise.com') && location.pathname.match(/^\/\d+\//)){
-			var bypass = new LinkvertiseBypass();
-			
-			return bypass.setup();
-		}else if(!this.is_host(location, 'krunker.io', 'browserfps.com') || location.pathname != '/')return;
+		if(!this.is_host(location, 'krunker.io', 'browserfps.com') || location.pathname != '/')return;
 		
 		var entries = [...new URLSearchParams(location.search).entries()];
 		
 		if(entries.length == 1 && !entries[0][1]){
 			history.replaceState(null, null, '/');
-			this.storage.set('tgg', entries[0][0]);
+			store.set('tgg', entries[0][0]);
 		}
 		
-		var key = input_key || await this.storage.get('tgg');
+		var key = input_key || await store.get('tgg');
 		
 		var meta = await this.fetch({
 			target: this.api_v2,

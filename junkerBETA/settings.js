@@ -31,22 +31,22 @@ menu.add_preset('Default', {
 	aim: {
 		status: 'off',
 		auto_reload: false,
-		fov: 'off',
+		fov: 60,
+		hitchance: 100,
 		offset: 0,
-		smooth: 50,
+		smooth: 15,
 		wallbangs: false,
-		frustrum_check: true,
 	},
 	player: {
 		bhop: 'off',
 		skins: false,
 	},
 	ui: {
-		hide_adverts: true,
-		hide_streams: false,
-		hide_merch: false,
-		hide_news: false,
-		hide_cookie: false,
+		show_adverts: false,
+		show_streams: true,
+		show_merch: true,
+		show_news: true,
+		show_cookie: true,
 		show_button: true,
 		custom_css: '',
 	},
@@ -81,7 +81,6 @@ menu.add_preset('Rage', {
 		smooth: 0,
 		auto_reload: true,
 		wallbangs: true,
-		frustrum_check: false,
 		offset: 0,
 	},
 	player: {
@@ -89,8 +88,15 @@ menu.add_preset('Rage', {
 	},
 });
 
-var render = menu.window.add_tab('Render'),
-	esp = render.add_category('ESP');
+var render = menu.window.add_tab('Render');
+
+render.add_control({
+	name: 'Draw FOV box',
+	type: 'boolean',
+	walk: 'aim.fov_box',
+});
+
+var esp = render.add_category('ESP');
 
 esp.add_control({
 	name: 'Mode',
@@ -117,6 +123,12 @@ esp.add_control({
 });
 
 esp.add_control({
+	name: 'Tracers',
+	type: 'boolean',
+	walk: 'esp.tracers',
+});
+
+esp.add_control({
 	name: 'Chams',
 	type: 'boolean',
 	walk: 'esp.chams',
@@ -137,7 +149,7 @@ esp.add_control({
 var ui = render.add_category('UI');
 
 ui.add_control({
-	name: 'Show Menu Button',
+	name: 'Show Menu Button ( [F1] to show )',
 	type: 'boolean',
 	walk: 'ui.show_button',
 }).on('change', value => {
@@ -146,34 +158,34 @@ ui.add_control({
 });
 
 ui.add_control({
-	name: 'Hide Advertisments',
+	name: 'Show Advertisments',
 	type: 'boolean',
-	walk: 'ui.hide_adverts',
-}).on('change', async value => (await doc_body).classList[value ? 'add' : 'remove']('hide-adverts'));
+	walk: 'ui.show_adverts',
+}).on('change', async value => (await doc_body).classList[value ? 'remove' : 'add']('hide-adverts'));
 
 ui.add_control({
-	name: 'Hide Streams',
+	name: 'Show Streams',
 	type: 'boolean',
-	walk: 'ui.hide_adverts',
-}).on('change', async value => (await doc_body).classList[value ? 'add' : 'remove']('hide-streams'));
+	walk: 'ui.show_streams',
+}).on('change', async value => (await doc_body).classList[value ? 'remove' : 'add']('hide-streams'));
 
 ui.add_control({
-	name: 'Hide Merch',
+	name: 'Show Merch',
 	type: 'boolean',
-	walk: 'ui.hide_adverts',
-}).on('change', async value => (await doc_body).classList[value ? 'add' : 'remove']('hide-merch'));
+	walk: 'ui.show_merch',
+}).on('change', async value => (await doc_body).classList[value ? 'remove' : 'add']('hide-merch'));
 
 ui.add_control({
-	name: 'Hide News Console',
+	name: 'Show News Console',
 	type: 'boolean',
-	walk: 'ui.hide_adverts',
-}).on('change', async value => (await doc_body).classList[value ? 'add' : 'remove']('hide-news'));
+	walk: 'ui.show_news',
+}).on('change', async value => (await doc_body).classList[value ? 'remove' : 'add']('hide-news'));
 
 ui.add_control({
-	name: 'Hide Security Button',
+	name: 'Show Security Button',
 	type: 'boolean',
-	walk: 'ui.hide_adverts',
-}).on('change', async value => (await doc_body).classList[value ? 'add' : 'remove']('hide-security'));
+	walk: 'ui.show_cookie',
+}).on('change', async value => (await doc_body).classList[value ? 'remove' : 'add']('hide-security'));
 
 var weapon = menu.window.add_tab('Weapon');
 
@@ -203,9 +215,10 @@ aimbot.add_control({
 	type: 'rotate',
 	walk: 'aim.offset',
 	vals: [
-		[ 0, 'Head' ],
-		[ 0.5, 'Torso' ],
-		[ '0.8', 'Legs' ],
+		[ 'head', 'Head' ],
+		[ 'torso', 'Torso' ],
+		[ 'legs', 'Legs' ],
+		[ 'random', 'Random' ],
 	],
 });
 
@@ -216,32 +229,25 @@ aimbot.add_control({
 	range: [ 0, 50, 2 ],
 });
 
-
+aimbot.add_control({
+	name: 'Hitchance',
+	type: 'slider',
+	walk: 'aim.hitchance',
+	range: [ 10, 100, 5 ],
+});
 
 aimbot.add_control({
 	name: 'FOV',
 	type: 'slider',
 	walk: 'aim.fov',
 	range: [ 10, 110, 10 ],
-	labels: { 110: 'Ignore FOV' },
-});
-
-aimbot.add_control({
-	name: 'Draw FOV box',
-	type: 'boolean',
-	walk: 'aim.fov_box',
+	labels: { 110: 'Inf' },
 });
 
 aimbot.add_control({
 	name: 'Wallbangs',
 	type: 'boolean',
 	walk: 'aim.wallbangs',
-});
-
-aimbot.add_control({
-	name: 'Target in sight check',
-	type: 'boolean',
-	walk: 'aim.frustrum_check',
 });
 
 var player = menu.window.add_tab('Player');

@@ -63,23 +63,23 @@ class Input {
 			y: y_dire || 0,
 		};
 	}
-	smooth(target){
+	smooth(target, amount){
 		var mov = 17,
 			// default 0.0022
 			div = 10000,
-			turn = (50 - cheat.config.aim.smooth) / div,
-			speed = (50 - cheat.config.aim.smooth) / div,
-			x_ang = utils.getAngleDst(cheat.controls[vars.pchObjc].rotation.x, target.xD),
-			y_ang = utils.getAngleDst(cheat.controls.object.rotation.y, target.yD);
+			turn = amount / div,
+			speed = amount / div,
+			x_ang = utils.getAngleDst(main.controls[vars.pchObjc].rotation.x, target.xD),
+			y_ang = utils.getAngleDst(main.controls.object.rotation.y, target.yD);
 		
 		return {
-			y: cheat.controls.object.rotation.y + y_ang * mov * turn,
-			x: cheat.controls[vars.pchObjc].rotation.x + x_ang * mov * turn,
+			y: main.controls.object.rotation.y + y_ang * mov * turn,
+			x: main.controls[vars.pchObjc].rotation.x + x_ang * mov * turn,
 		};
 	}
 	modify(data){
 		// bhop
-		if(data.focused && cheat.config.game.bhop != 'off' && (data.keys.Space || cheat.config.game.bhop == 'autojump' || cheat.config.game.bhop == 'autoslide')){
+		if(data.focused && cheat.config.game.bhop != 'off' && (data.keys.Space || cheat.config.game.bhop.startsWith('auto'))){
 			cheat.controls.keys[cheat.controls.binds.jump.val] ^= 1;
 			if(cheat.controls.keys[cheat.controls.binds.jump.val])cheat.controls.didPressed[cheat.controls.binds.jump.val] = 1;
 			
@@ -87,7 +87,7 @@ class Input {
 		}
 		
 		// auto reload
-		if(!cheat.player.has_ammo && (cheat.config.aim.status == 'auto' || cheat.config.aim.auto_reload))data.reload = 1;
+		if(!cheat.player.has_ammo && (cheat.config.aim.status == 'auto' || cheat.config.aim.auto_reload))data.reload = true;
 		
 		// TODO: target once on aim
 		
@@ -115,7 +115,7 @@ class Input {
 			}
 			
 			if(cheat.config.aim.status == 'assist' && cheat.player.aim_press){
-				if(cheat.config.aim.smooth)rot = this.smooth({ xD: rot.x, yD: rot.y });
+				if(cheat.config.aim.smooth)rot = this.smooth({ xD: rot.x, yD: rot.y }, 50 - main.config.aim.smooth);
 				
 				this.aim_camera(rot, data);
 				

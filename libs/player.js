@@ -1,12 +1,12 @@
 'use strict';
 
-var cheat = require('./cheat'),
-	vars = require('../libs/vars'),
+var vars = require('../libs/vars'),
 	{ utils } = require('../libs/consts'),
 	{ Vector3 } = require('../libs/space');
 
 class Player {
-	constructor(entity){
+	constructor(cheat, entity){
+		this.cheat = cheat;
 		this.entity = typeof entity == 'object' && entity != null ? entity : {};
 		this.velocity = new Vector3();
 		this.position = new Vector3();
@@ -18,9 +18,6 @@ class Player {
 			legs: new Vector3(),
 		};
 	}
-	get x(){ console.warn('get X'); return this.position.x }
-	get y(){ console.warn('get Y'); return this.position.y }
-	get z(){ console.warn('get Z'); return this.position.z }
 	scale_rect(sx, sy){
 		var out = {},
 			horiz = [ 'y', 'height', 'top', 'bottom' ];
@@ -31,12 +28,12 @@ class Player {
 	}
 	get in_fov(){
 		if(!this.active)return false;
-		if(cheat.config.aim.fov == 110)return true;
+		if(this.cheat.config.aim.fov == 110)return true;
 		
 		var fov_bak = utils.world.camera.fov;
 		
 		// config fov is percentage of current fov
-		utils.world.camera.fov = cheat.config.aim.fov / fov_bak * 100;
+		utils.world.camera.fov = this.cheat.config.aim.fov / fov_bak * 100;
 		utils.world.camera.updateProjectionMatrix();
 		
 		utils.update_frustum();
@@ -78,10 +75,10 @@ class Player {
 	get risk(){ return this.entity.level >= 30 || this.entity.account && (this.entity.account.featured || this.entity.account.premiumT) }
 	get is_you(){ return this.entity[vars.isYou] }
 	get target(){
-		return cheat.target && this.entity == cheat.target.entity;
+		return this.cheat.target && this.entity == this.cheat.target.entity;
 	}
 	get can_melee(){
-		return this.weapon.melee && cheat.target && cheat.target.active && this.position.distance_to(cheat.target) <= 18 || false;
+		return this.weapon.melee && this.cheat.target && this.cheat.target.active && this.position.distance_to(this.cheat.target) <= 18 || false;
 	}
 	get reloading(){
 		// reloadTimer in var randomization array
@@ -103,7 +100,7 @@ class Player {
 	get can_shoot(){
 		return !this.reloading && this.has_ammo && (this.can_throw || !this.weapon.melee || this.can_melee);
 	}
-	get aim_press(){ return cheat.controls[vars.mouseDownR] || cheat.controls.keys[cheat.controls.binds.aim.val] }
+	get aim_press(){ return this.cheat.controls[vars.mouseDownR] || this.cheat.controls.keys[this.cheat.controls.binds.aim.val] }
 	get crouch(){ return this.entity[vars.crouchVal] || 0 }
 	get box_scale(){
 		var view = utils.camera_world(),	
@@ -134,9 +131,10 @@ class Player {
 	get max_health(){ return this.entity[vars.maxHealth] || 100 }
 	//  && (this.is_you ? true : this.chest && this.leg)
 	get active(){ return this.entity.active && this.entity.x != null && this.health > 0 && (this.is_you ? true : this.chest && this.leg) }
-	get teammate(){ return this.is_you || cheat.player && this.team && this.team == cheat.player.team }
+	get teammate(){ return this.is_you || this.cheat.player && this.team && this.team == this.cheat.player.team }
 	get enemy(){ return !this.teammate }
 	get team(){ return this.entity.team }
+	get streaks(){ return Object.keys(this.entity.streaks || {}) }
 	get did_shoot(){ return this.entity[vars.didShoot] }
 	get chest(){
 		return this.entity.lowerBody ? this.entity.lowerBody.children[0] : null;
@@ -237,14 +235,14 @@ class Player {
 			z: 0,
 		}));
 		
-		this.aim_point = cheat.aim_part == 'head' ? this.parts.hitbox_head : (this.parts[cheat.aim_part] || (console.error(cheat.aim_part, 'not registered'), Vector3.Blank));
+		this.aim_point = this.cheat.aim_part == 'head' ? this.parts.hitbox_head : (this.parts[this.cheat.aim_part] || (console.error(this.cheat.aim_part, 'not registered'), Vector3.Blank));
 		
 		this.world_pos = this.active ? this.obj[vars.getWorldPosition]() : { x: 0, y: 0, z: 0 };
 		
 		var camera_world = utils.camera_world();
 		
-		this.can_see = cheat.player &&
-			utils.obstructing(camera_world, this.aim_point, (!cheat.player || cheat.player.weapon && cheat.player.weapon.pierce) && cheat.config.aim.wallbangs)
+		this.can_see = this.cheat.player &&
+			utils.obstructing(camera_world, this.aim_point, (!this.cheat.player || this.cheat.player.weapon && this.cheat.player.weapon.pierce) && this.cheat.config.aim.wallbangs)
 		== null ? true : false;
 	}
 };

@@ -1,0 +1,7 @@
+body.hide-news #newsHolder,
+body.hide-security #onetrust-consent-sdk,
+body.hide-merch #merchHolder,
+body.hide-streams #streamContainer,
+body.hide-adverts #aContainer, body.hide-adverts #aHolder, body.hide-adverts #endAContainer, body.hide-adverts #aMerger {
+	display: none !important;
+}

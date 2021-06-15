@@ -1,5 +1,12 @@
 'use strict';
+/*
+localStorage.removeItem('X-Linkvertise-UT');
 
+localStorage.setItem = (name, value) => {
+	console.log(name, value);
+	debugger;
+};
+*/
 // utils.wait_for
 var Utils = require('./utils'),
 	utils = new Utils();
@@ -10,18 +17,18 @@ class LinkvertiseBypass {
 		
 		eval('window').setInterval = (callback, delay) => interval(callback, delay == 1e3 ? 0 : delay);
 		
-		this.debug_redirect = false;
+		this.debug_redirect = true;
 		
 		this.beacon = new Set();
 		
 		this.debug = console.debug;
 		this.start = performance.now();
 		
-		// this.force_all_tasks = true;
+		this.force_all_tasks = true;
 		
-		// this.pick_tasks();
+		this.pick_tasks();
 		
-		// this.debug('Will do', this.will_do.length, 'tasks:', this.will_do);
+		this.debug('Will do', this.will_do.length, 'tasks:', this.will_do);
 	}
 	debug_list(title, obj){
 		var props = [];
@@ -114,8 +121,6 @@ class LinkvertiseBypass {
 		new MutationObserver(async mutations => {
 			for(let mutation of mutations){
 				for(let node of mutation.addedNodes){
-					if(node.rel == 'icon')node.href = 'https://krunker.io/img/favicon.png';
-					
 					if(!node.classList)continue;
 					
 					let is_progress = node.tagName == 'A',
@@ -143,7 +148,8 @@ class LinkvertiseBypass {
 							if(request.readyState >= XMLHttpRequest.HEADERS_RECEIVED)resolve();
 						}));
 						
-						promise.url = furl.pathname;
+						promise.method = method;
+						promise.url = furl.href;
 						
 						this.beacon.add(promise);
 					}
@@ -158,12 +164,12 @@ class LinkvertiseBypass {
 	main(service){
 		this.is_done = service.isDone.bind(service);
 		
-		/*var meta;
+		var meta;
 		
 		Object.defineProperty(service, 'meta', {
 			get: _ => meta,
 			set: value => meta = Object.assign(value, this.meta),
-		});*/
+		});
 		
 		var oredir = service.redirect;
 
@@ -172,8 +178,8 @@ class LinkvertiseBypass {
 			
 			Promise.all(this.beacon).then(() => {
 				if(this.debug_redirect)this.debug_list(`Redirect called.`, {
-					// Tasks: this.will_do.map(task => '\t' + task),
-					URLs: [...this.beacon].map(promise => promise.url).map(url => '\t' + url),
+					Tasks: this.will_do.map(task => '\t' + task),
+					URLs: [...this.beacon].map(promise => `${promise.method} ${promise.url}`).map(url => '\t' + url),
 					'Total time': performance.now() - this.start + ' MS',
 				});
 				else oredir.call(service)

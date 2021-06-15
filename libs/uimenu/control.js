@@ -205,11 +205,20 @@ class SliderControl extends Control {
 			step: this.data.range[2],
 		});
 		
+		this.input.addEventListener('focus', () => (this.input_focused = true, this.interact()));
+		this.input.addEventListener('blur', () => (this.input_focused = false, this.interact()));
+		
 		this.slider.addEventListener('input', () => this.interact(this.value = this.slider.value));
-		this.input.addEventListener('input', () => this.interact(this.value = this.input.value));
+		this.input.addEventListener('input', () => this.interact(this.value = +this.input.value));
 	}
 	interact(){
-		this.input.value = this.slider.value = this.value;
+		var label = !this.input_focused && this.data.labels && this.data.labels[this.value] || this.value;
+		
+		this.input.type = typeof label == 'string' ? 'text' : 'number';
+		
+		this.input.value = label;
+		
+		this.slider.value = this.value;
 	}
 	update(init){
 		super.update(init);

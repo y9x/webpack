@@ -25,14 +25,14 @@ class Cheat {
 		this.y_offset_types = ['head', 'torso', 'legs'];
 		
 		this.y_offset_rand = 'head';
-
+		
 		setInterval(() => this.y_offset_rand = this.y_offset_types[~~(Math.random() * this.y_offset_types.length)], 2000);
 	}
 	get config(){
 		return this.ui.config;
 	}
 	add(entity){
-		return entity[this.hooked] || (entity[this.hooked] = new Player(entity));
+		return entity[this.hooked] || (entity[this.hooked] = new Player(this, entity));
 	}
 	pick_target(){
 		return this.game.players.list.map(ent => this.add(ent)).filter(player => player.can_target).sort((ent_1, ent_2) => this.sorts[this.config.aim.target_sorting || 'dist2d'](ent_1, ent_2) * (ent_1.frustum ? 1 : 0.5))[0]
@@ -44,7 +44,7 @@ class Cheat {
 
 module.exports = new Cheat();
 
-Player = require('./player');
+Player = require('../libs/player');
 
 /*Object.assign(window.eval('window'), {
 	cheat: exports,

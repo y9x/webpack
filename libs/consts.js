@@ -51,7 +51,7 @@ exports.supported_store = exports.firefox ? 'firefox' : 'chrome';
 
 exports.addon_url = query => exports.firefox ? 'https://addons.mozilla.org/en-US/firefox/search/?q=' + encodeURIComponent(query) : 'https://chrome.google.com/webstore/search/' + encodeURI(query);
 
-var api = new API(exports.mm_url, exports.api_url, exports.store);
+var api = new API(exports.mm_url, exports.api_url);
 
 if(!exports.is_frame){
 	if(exports.krunker)api.observe();

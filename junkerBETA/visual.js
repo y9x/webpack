@@ -9,6 +9,21 @@ class Visual {
 	constructor(){
 		this.materials = {};
 	}
+	tick(){
+		
+	}
+	tracer(player){
+		this.ctx.strokeStyle = player.esp_color;
+		this.ctx.lineWidth = 1.75;
+		this.ctx.lineCap = 'round';
+		
+		this.ctx.beginPath();
+		// bottom center
+		this.ctx.moveTo(this.canvas.width / 2, this.canvas.height);
+		// target center
+		this.ctx.lineTo(player.rect.x, player.rect.bottom);
+		this.ctx.stroke();
+	}
 	fov(fov){
 		var width = (this.canvas.width * fov) / 100,
 			height = (this.canvas.height * fov) / 100;

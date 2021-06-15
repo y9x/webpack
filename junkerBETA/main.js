@@ -8,8 +8,8 @@ var CRC2d = CanvasRenderingContext2D.prototype,
 vars.load(require('./vars'));
 
 class Main {
-	constructor() {
-		global[vars.key] = this;
+	constructor(){
+		this.hooked = Symbol();
 		
 		this.utils = utils;
 		
@@ -19,7 +19,12 @@ class Main {
 		
 		this.skins = [...Array(5000)].map((e, i) => ({ ind: i, cnt: 1 }));
 	}
+	add(entity){
+		return entity[this.hooked] || (entity[this.hooked] = new Player(this, entity));
+	}
 	async load(){
+		utils.add_ele('style', document.documentElement, { textContent: require('./index.css') });
+		
 		var Visual = require('./visual');
 		
 		var Input = require('./input'),
@@ -28,6 +33,12 @@ class Main {
 		this.input = new Input();
 		
 		this.visual = new Visual();
+		
+		this.y_offset_types = ['head', 'torso', 'legs'];
+		
+		this.y_offset_rand = 'head';
+		
+		setInterval(() => this.y_offset_rand = this.y_offset_types[~~(Math.random() * this.y_offset_types.length)], 2000);
 		
 		var token_promise = api.token(),
 			config_promise = this.menu.load_config(),
@@ -134,9 +145,9 @@ class Main {
 				render(orig, overlay){
 					self.overlay = overlay;
 					
-					utils.canvas = document.querySelector('#game-overlay');
+					self.visual.canvas = utils.canvas = document.querySelector('#game-overlay');
 					
-					self.ctx = utils.canvas.getContext('2d');
+					self.visual.ctx = self.ctx = utils.canvas.getContext('2d');
 					
 					overlay.render = function(...args){
 						orig.call(this, ...args);
@@ -152,6 +163,9 @@ class Main {
 	get config(){
 		return this.menu.config;
 	}
+	get aim_part(){
+		return this.config.aim.offset != 'random' ? this.config.aim.offset : this.y_offset_rand;
+	}
 	onRender() {
 		if(this.config.aim.fov_box)this.visual.fov(this.config.aim.fov);
 		
@@ -162,148 +176,29 @@ class Main {
 		let worldPosition = utils.camera_world();
 		let espVal = this.config.esp.status;
 		
-		for(let player of this.game.players.list){
-			if(!player || player[vars.isYou] || !player.active || !utils.isDefined(player[vars.objInstances]))continue;
+		if(main.game && main.world)for(let ent of main.game.players.list){
+			let player = main.add(ent);
 			
-			let isEnemy = !this.me.team || this.me.team != player.team;
-			let isRisky = player.isDev || player.isMod || player.isMapMod || player.canGlobalKick || player.canViewReports || player.partnerApp || player.canVerify || player.canTeleport || player.kpdData || player.fakeName || player.level >= 100;
-
-			// Chams
-			if(!player[vars.objInstances].visible)Object.defineProperty(player[vars.objInstances], 'visible', {
-				value: true,
-				writable: false
-			});
-			else player[vars.objInstances].traverse(obj => {
-				if(obj && obj.type == 'Mesh' && obj.hasOwnProperty('material')){
-					if(!obj.hasOwnProperty('_material'))obj._material = obj.material;
-					else Object.defineProperty(obj, 'material', {
-						get(){
-							if (utils.isDefined(main.mesh) && main.config.esp.chams) {
-								return main.mesh[ isEnemy ? isRisky ? "#FFFF00" : main.config.esp.rainbow ? main.overlay.rainbow.col : main.config.esp.hostile_col : main.config.esp.friendly_col];
-							}
-							return this._material;
-						},
-						set(val){
-							return this._material;
-						}
-					});
-					
-					obj.material.wireframe = main.config.esp.wireframe;
-				}
-			});
+			if(player.is_you)main.player = player;
 			
-			//ESP
-			// the below variables correspond to the 2d box esps corners
-			let xmin = Infinity;
-			let xmax = -Infinity;
-			let ymin = Infinity;
-			let ymax = -Infinity;
-			let position = null;
-			let br = false;
-			for (let j = -1; !br && j < 2; j+=2) {
-				for (let k = -1; !br && k < 2; k+=2) {
-					for (let l = 0; !br && l < 2; l++) {
-						if (position = player[vars.objInstances].position.clone()) {
-							position.x += j * playerScale;
-							position.z += k * playerScale;
-							position.y += l * (player.height - player[vars.crouchVal] * vars.consts.crouchDst);
-							if (!utils.contains_point(position)) {
-								br = true;
-								break;
-							}
-							position.project(this.world.camera);
-							xmin = Math.min(xmin, position.x);
-							xmax = Math.max(xmax, position.x);
-							ymin = Math.min(ymin, position.y);
-							ymax = Math.max(ymax, position.y);
-						}
-					}
-				}
-			}
-
-			if(br)continue;
+			if(!player.active)continue;
 			
-			xmin = (xmin + 1) / 2;
-			ymin = (ymin + 1) / 2;
-			xmax = (xmax + 1) / 2;
-			ymax = (ymax + 1) / 2;
-
-			// save and restore these variables later so they got nothing on us
-			const original_strokeStyle = this.ctx.strokeStyle;
-			const original_lineWidth = this.ctx.lineWidth;
-			const original_font = this.ctx.font;
-			const original_fillStyle = this.ctx.fillStyle;
-
-			//Tracers
-			if(this.config.esp.tracers){
-				CRC2d.save.apply(this.ctx, []);
-				let screenPos = utils.pos2d(player[vars.objInstances].position);
-				this.ctx.lineWidth = 1;
-				this.ctx.beginPath();
-				this.ctx.moveTo(utils.canvas.width/2, utils.canvas.height - (utils.canvas.height - scaledHeight));
-				this.ctx.lineTo(screenPos.x, screenPos.y);
-				this.ctx.strokeStyle = "rgba(0, 0, 0, 0.25)";
-				this.ctx.stroke();
-				this.ctx.lineWidth = 1;
-				this.ctx.strokeStyle = isEnemy ? isRisky ? "#FFFF00" : main.config.esp.hostile_col||"#ff0000" : main.config.esp.friendly_col||"#00ff00"//this.settings.rainbowColor.val ? this.overlay.rainbow.col : "#eb5656"
-				this.ctx.stroke();
-				CRC2d.restore.apply(this.ctx, []);
+			player.tick();
+			
+			if(!player.frustum || player.is_you)continue;
+			
+			if(main.config.esp.tracers)this.visual.tracer(player);
+			
+			/*visual.cham(player);
+			
+			if(['box', 'box_chams', 'full'].includes(main.config.esp.status))visual.box(player);
+			
+			if(main.config.esp.status == 'full'){
+				visual.health(player);
+				visual.text(player);
 			}
-
-			CRC2d.save.apply(this.ctx, []);
-			if (espVal == "box" || espVal == "full") {
-				// perfect box esp
-				this.ctx.lineWidth = 5;
-				this.ctx.strokeStyle = isEnemy ? isRisky ? "#FFFF00" : main.config.esp.hostile_col||"#ff0000" : main.config.esp.friendly_col;
-				let distanceScale = Math.max(.3, 1 - utils.getD3D(worldPosition.x, worldPosition.y, worldPosition.z, player.x, player.y, player.z) / 600);
-				CRC2d.scale.apply(this.ctx, [distanceScale, distanceScale]);
-				let xScale = scaledWidth / distanceScale;
-				let yScale = scaledHeight / distanceScale;
-				CRC2d.beginPath.apply(this.ctx, []);
-				ymin = yScale * (1 - ymin);
-				ymax = yScale * (1 - ymax);
-				xmin = xScale * xmin;
-				xmax = xScale * xmax;
-				CRC2d.moveTo.apply(this.ctx, [xmin, ymin]);
-				CRC2d.lineTo.apply(this.ctx, [xmin, ymax]);
-				CRC2d.lineTo.apply(this.ctx, [xmax, ymax]);
-				CRC2d.lineTo.apply(this.ctx, [xmax, ymin]);
-				CRC2d.lineTo.apply(this.ctx, [xmin, ymin]);
-				CRC2d.stroke.apply(this.ctx, []);
-
-				if (espVal == "full") {
-					// health bar
-					this.ctx.fillStyle = "#000000";
-					let barMaxHeight = ymax - ymin;
-					CRC2d.fillRect.apply(this.ctx, [xmin - 7, ymin, -10, barMaxHeight]);
-					this.ctx.fillStyle = player.health > 75 ? "green" : player.health > 40 ? "orange" : "red";
-					CRC2d.fillRect.apply(this.ctx, [xmin - 7, ymin, -10, barMaxHeight * (player.health / player[vars.maxHealth])]);
-					// info
-					this.ctx.font = "Bold 48px Tahoma";
-					this.ctx.fillStyle = "white";
-					this.ctx.strokeStyle='black';
-					this.ctx.lineWidth = 1;
-					let x = xmax + 7;
-					let y = ymax;
-					CRC2d.fillText.apply(this.ctx, [player.name||player.alias, x, y]);
-					CRC2d.strokeText.apply(this.ctx, [player.name||player.alias, x, y]);
-					this.ctx.font = "Bold 30px Tahoma";
-					this.ctx.fillStyle = "#cccccc";
-					y += 35;
-					CRC2d.fillText.apply(this.ctx, [player.weapon.name, x, y]);
-					CRC2d.strokeText.apply(this.ctx, [player.weapon.name, x, y]);
-					y += 35;
-					this.ctx.fillStyle = player.health > 75 ? "green" : player.health > 40 ? "orange" : "red";
-					CRC2d.fillText.apply(this.ctx, [player.health + ' HP', x, y]);
-					CRC2d.strokeText.apply(this.ctx, [player.health + ' HP', x, y]);
-				}
-			}
-
-			CRC2d.restore.apply(this.ctx, []);
-			this.ctx.strokeStyle = original_strokeStyle;
-			this.ctx.lineWidth = original_lineWidth;
-			this.ctx.font = original_font;
-			this.ctx.fillStyle = original_fillStyle;
+			
+			if(main.config.esp.labels)visual.label(player);*/
 		}
 	}
 	overlayRender(scale, game, controls, world, me){
@@ -319,19 +214,25 @@ class Main {
 			me.account = Object.assign(me, {premiumT: true});*/
 			
 			this.scale = scale;
-			this.me = me;
+			this.me = this.add(me);
 			
 			this.ctx.save();
-			this.ctx.scale(scale, scale);
+			// this.ctx.scale(scale, scale);
 			// this.ctx.clearRect(0, 0, width, height);
 			this.visual.tick();
 			this.onRender();
-			this.ctx.restore();
+			// this.ctx.restore();
 		}
 		
-		if(this.config.auto_nuke && this.me && Object.keys(this.me.streaks).length == 25)this.wsSend("k", 0);
+		if(this.config.auto_nuke && this.me && this.me.streaks.length == 25)this.wsSend("k", 0);
 		
 		if(this.config.game.auto_start && window.endUI.style.display == "none" && window.windowHolder.style.display == 'none')controls.toggle(true);
+	}
+	dist_2d(p1, p2){
+		return utils.dist_center(p1.rect) - utils.dist_center(p2.rect);
+	}
+	pick_target(){
+		return this.game.players.list.map(ent => this.add(ent)).filter(player => player.can_target).sort((p1, p2) => this.dist_2d(p1, p2) * (p1.frustum ? 1 : 0.5))[0]
 	}
 	eventHandlers(){
 		api.on_instruct = () => {
@@ -342,18 +243,10 @@ class Main {
 			}
 		};
 	}
-	getInView(entity){
-		return null == utils.obstructing(this.me, entity, (!this.me || this.me.weapon && this.me.weapon.pierce) && this.config.aim.wallbangs);
-	}
-	getIsFriendly(entity) {
-		return (this.me && this.me.team ? this.me.team : this.me.spectating ? 0x1 : 0x0) == entity.team
-	}
 };
 
 var main = module.exports = new Main();
 
-window.main = main;
-
 main.load();
 
-Player = require('./player');
+Player = require('../libs/player');
