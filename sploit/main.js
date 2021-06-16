@@ -81,6 +81,7 @@ UI.ready.then(async () => {
 	
 	// migrate
 	if(typeof cheat.config.aim.smooth == 'object')cheat.config.aim.smooth = cheat.config.aim.smooth.value;
+	if(cheat.config.aim.smooth > 1)cheat.config.aim.smooth = 0;
 	if(typeof cheat.config.esp.walls == 'object')cheat.config.esp.walls = 100;
 	
 	if(cheat.config.aim.target == 'feet')cheat.config.aim.target == 'legs';

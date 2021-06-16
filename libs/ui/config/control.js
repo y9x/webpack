@@ -183,9 +183,11 @@ class SliderControl extends Control {
 					max_val = this.data.range[1],
 					unit = this.data.range[2],
 					perc = ((event.pageX - slider_box.x) / slider_box.width) * 100,
-					value = Math.max((((max_val)*perc/100)).toFixed(2), min_val);
+					value = Math.max((((max_val)*perc/100)), min_val);
 				
 				if(unit)value = rtn(value, unit);
+				
+				value = +value.toFixed(2);
 				
 				if(event.clientX <= slider_box.x)value = perc = min_val;
 				else if(event.clientX >= slider_box.x + slider_box.width)value = max_val, perc = 100;
@@ -210,7 +212,7 @@ class SliderControl extends Control {
 		super.update();
 		this.button.style.display = 'none';
 		this.background.style.width = ((this.value / this.data.range[1]) * 100) + '%';
-		this.slider.dataset.value = this.data.labels && this.data.labels[this.value] || this.value + (this.data.unit == null ? '%' : this.data.unit);
+		this.slider.dataset.value = this.data.labels && this.data.labels[this.value] || this.value + (this.data.unit == false ? '' : this.data.unit == null ? '%' : this.data.unit);
 		this.label.textContent = this.name + ':';
 	}
 };

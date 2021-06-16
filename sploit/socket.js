@@ -13,7 +13,7 @@ class Socket extends WebSocket {
 			var [ label, ...data ] = msgpack.decode(new Uint8Array(event.data)), client;
 			
 			if(label == 'io-init')store.socket_id = data[0];
-			else if(cheat.config.game.skins && label == 0 && store.skin_cache && (client = data[0].indexOf(store.socket_id)) != -1){
+			else if(cheat.config.player.skins && label == 0 && store.skin_cache && (client = data[0].indexOf(store.socket_id)) != -1){
 				// loadout
 				data[0][client + 12] = store.skin_cache[2];
 				

@@ -34,10 +34,3 @@ class Cheat {
 };
 
 module.exports = new Cheat();
-
-/*Object.assign(window.eval('window'), {
-	cheat: exports,
-	cheat_vars: vars,
-	cheat_utils: utils,
-	cheat_consts: require('../libs/consts'),
-});*/

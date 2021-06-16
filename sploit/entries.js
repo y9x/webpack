@@ -27,7 +27,7 @@ config.add_section({
 	},{
 		name: 'Auto Bhop',
 		type: 'rotate',
-		walk: 'game.bhop',
+		walk: 'player.bhop',
 		key: 'binds.bhop',
 		vals: [
 			[ 'off', 'Off' ],
@@ -80,7 +80,7 @@ config.add_section({
 	},{
 		name: 'Unlock Skins',
 		type: 'boolean',
-		walk: 'game.skins',
+		walk: 'player.skins',
 	},{
 		name: 'Wireframe',
 		type: 'boolean',
@@ -104,6 +104,7 @@ config.add_section({
 		type: 'slider',
 		walk: 'aim.smooth',
 		range: [ 0, 1, 0.2 ],
+		unit: false,
 		labels: { 0: 'Off' },
 	},{
 		name: 'Target FOV',
@@ -276,12 +277,15 @@ config.default_config = {
 		tracers: false,
 	},
 	game: {
-		bhop: 'off',
 		wireframe: false,
 		auto_respawn: false,
 		adblock: true,
 		custom_loading: true,
 		inactivity: true,
+	},
+	player: {
+		bhop: 'off',
+		skins: false,
 	},
 };
 
