@@ -73,7 +73,7 @@ menu.add_preset('Assist', {
 		smooth: 0.6,
 	},
 	player: {
-		bhop: 'keyjump',
+		bhop: 'keyslide',
 	},
 });
 

@@ -125,8 +125,8 @@ class Player {
 		return '#' + ('000000' + (hp_red * 65536 + hp_green * 256 + 0 * 1).toString(16)).slice(-6);
 	}
 	get esp_color(){
-		// isEnemy ? isRisky ? "#FFFF00" : main.config.esp.hostile_col||"#ff0000" : main.config.esp.friendly_col||"#00ff00"
-		//this.settings.rainbowColor.val ? this.overlay.rainbow.col : "#eb5656"
+		if(this.cheat.config.esp.rainbow)return this.cheat.overlay.rainbow.col || '#eb5656';
+		
 		var hex = utils.parse_color(this.cheat.config.color[this.enemy ? this.risk ? 'risk' : 'hostile' : 'friendly']),
 			increase = this.can_see ? 0x00 : -0x77;
 		

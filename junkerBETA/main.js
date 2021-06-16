@@ -1,7 +1,6 @@
  'use strict';
 
-var CRC2d = CanvasRenderingContext2D.prototype,
-	{ api, meta, utils } = require('../libs/consts'),
+var { api, meta, utils } = require('../libs/consts'),
 	vars = require('../libs/vars'),
 	Input = require('../libs/input'),
 	Player = require('../libs/player'),
@@ -199,8 +198,6 @@ class Main {
 		}
 		
 		if(this.config.auto_nuke && this.player && this.player.streaks.length == 25)this.socket.send("k", 0);
-		
-		if(this.config.game.auto_start && window.endUI.style.display == "none" && window.windowHolder.style.display == 'none')controls.toggle(true);
 	}
 	dist2d(p1, p2){
 		return utils.dist_center(p1.rect) - utils.dist_center(p2.rect);
@@ -209,11 +206,11 @@ class Main {
 		return this.game.players.list.map(ent => this.add(ent)).filter(player => player.can_target).sort((p1, p2) => this.dist2d(p1, p2) * (p1.frustum ? 1 : 0.5))[0]
 	}
 	eventHandlers(){
-		api.on_instruct = () => {
-			if(this.config.game.auto_lobby){
-				if(['Kicked', 'Banned', 'Disconnected', 'Error', 'Game is full'].some(text => target && target.innerHTML.includes(text))){
-					location = document.location.origin;
-				}
+		api.on_instruct = () => {	
+			if(this.config.game.auto_lobby && api.has_instruct('connection error', 'game is full', 'kicked by vote', 'disconnected'))location.href = '/';
+			else if(this.config.game.auto_start && api.has_instruct('to play') && (!this.player || !this.player.active)){
+				this.controls.locklessChange(true);
+				this.controls.locklessChange(false);
 			}
 		};
 	}
