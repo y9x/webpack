@@ -168,6 +168,13 @@ class Hex {
 		for(let ind in this.hex)this.hex[ind] = Math.max(Math.min(this.hex[ind], 255), 0);
 		return this;
 	}
+	set(r, g, b){
+		this.hex[0] = r;
+		this.hex[1] = g;
+		this.hex[2] = b;
+		
+		return this;
+	}
 	set_style(string){
 		let hex_index = 0,
 			offset = string[0] == '#' ? 1 : 0,

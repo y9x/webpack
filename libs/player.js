@@ -14,6 +14,7 @@ class Player {
 		this.velocity = new Vector3();
 		this.position = new Vector3();
 		this.esp_hex = new Hex();
+		this.hp_hex = new Hex();
 		
 		this.parts = {
 			hitbox_head: new Vector3(),
@@ -117,13 +118,6 @@ class Player {
 	}
 	get can_target(){
 		return this.active && this.can_see && this.enemy && this.in_fov;
-	}
-	get hp_color(){
-		var hp_perc = (this.health / this.max_health) * 100,
-			hp_red = hp_perc < 50 ? 255 : Math.round(510 - 5.10 * hp_perc),
-			hp_green = hp_perc < 50 ? Math.round(5.1 * hp_perc) : 255;
-		
-		return '#' + ('000000' + (hp_red * 65536 + hp_green * 256 + 0 * 1).toString(16)).slice(-6);
 	}
 	get ping(){ return this.entity.ping }
 	get jump_bob_y(){ return this.entity.jumpBobY }
@@ -261,7 +255,17 @@ class Player {
 		
 		if(!this.can_see)this.esp_hex.sub_scalar(0x77);
 		
+		
 		this.esp_color = this.esp_hex.toString();
+		
+		var hp_perc = (this.health / this.max_health) * 100,
+			hp_red = hp_perc < 50 ? 255 : Math.round(510 - 5.10 * hp_perc),
+			hp_green = hp_perc < 50 ? Math.round(5.1 * hp_perc) : 255,
+			hp_blue = 0;
+
+		this.hp_hex.set(hp_red, hp_green, hp_blue);
+		
+		this.hp_color = this.hp_hex.toString();
 	}
 };
 
