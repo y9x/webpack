@@ -2,7 +2,7 @@
 
 var vars = require('../libs/vars'),
 	{ utils } = require('../libs/consts'),
-	{ Vector3 } = require('../libs/space'),
+	{ Vector3, Hex } = require('../libs/space'),
 	random_target = 0;
 
 setInterval(() => random_target = Math.random(), 2000);
@@ -13,6 +13,7 @@ class Player {
 		this.entity = typeof entity == 'object' && entity != null ? entity : {};
 		this.velocity = new Vector3();
 		this.position = new Vector3();
+		this.esp_hex = new Hex();
 		
 		this.parts = {
 			hitbox_head: new Vector3(),
@@ -123,16 +124,6 @@ class Player {
 			hp_green = hp_perc < 50 ? Math.round(5.1 * hp_perc) : 255;
 		
 		return '#' + ('000000' + (hp_red * 65536 + hp_green * 256 + 0 * 1).toString(16)).slice(-6);
-	}
-	get esp_color(){
-		if(this.cheat.config.esp.rainbow)return this.cheat.overlay.rainbow.col || '#eb5656';
-		
-		var hex = utils.parse_color(this.cheat.config.color[this.enemy ? this.risk ? 'risk' : 'hostile' : 'friendly']),
-			increase = this.can_see ? 0x00 : -0x77;
-		
-		for(let color of hex)color = Math.max(Math.min(color + increase, 0xFF), 0);
-		
-		return utils.format_color(hex);
 	}
 	get ping(){ return this.entity.ping }
 	get jump_bob_y(){ return this.entity.jumpBobY }
@@ -265,6 +256,12 @@ class Player {
 		this.can_see = this.cheat.player &&
 			utils.obstructing(camera_world, this.aim_point, (!this.cheat.player || this.cheat.player.weapon && this.cheat.player.weapon.pierce) && this.cheat.config.aim.wallbangs)
 		== null ? true : false;
+		
+		this.esp_hex.set_style(this.cheat.config.esp.rainbow ? this.cheat.overlay.rainbow.col : this.cheat.config.color[this.enemy ? this.risk ? 'risk' : 'hostile' : 'friendly']);
+		
+		if(!this.can_see)this.esp_hex.sub_scalar(0x77);
+		
+		this.esp_color = this.esp_hex.toString();
 	}
 };
 
