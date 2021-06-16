@@ -77,29 +77,52 @@ class SettingsAddon extends Addon {
 			},
 		});
 		
-		this.ready();
-	}
-	handle_preset(label){
-		utils.add_ele('option', this.preset, {
+		this.search.addEventListener('input', () => {
+			if(!this.search.value)return [...this.menu.window.tabs][0].show();
+				
+			for(let tab of this.menu.window.tabs){
+				tab.hide();
+				
+				for(let category of tab.categories){
+					category.hide();
+					
+					for(let control of category.controls){
+						control.hide_content();
+						
+						if(control.name.toLowerCase().includes(this.search.value.toLowerCase())){
+							control.show_content();
+							tab.show_content();
+							category.show();
+						}
+					}
+				}
+			}
+		});
+		
+		this.menu.on('preset', label => utils.add_ele('option', this.preset, {
 			value: label,
 			textContent: label,
-		});
+		}));
+		
+		this.menu.on('config', () => this.handle_config());
+		
+		this.menu.on('control', control => control.on('change', (value, init) => {
+			if(!init)this.handle_config();
+		}));
+		
+		this.menu.on('tab-shown', () => this.search.value = '');
+		
+		this.menu.window.header.prepend(this.config);
+		this.menu.window.header.prepend(this.search);
+		
+		this.ready();
 	}
-	handle_config(config){
-		var string = JSON.stringify(config);
+	handle_config(){
+		var string = JSON.stringify(this.menu.config);
 		
 		for(let preset in this.menu.presets)if(JSON.stringify(utils.assign_deep(utils.clone_obj(this.menu.presets.Default), this.menu.presets[preset])) == string)return this.preset.value = preset;
 		
 		this.preset.value = 'Custom';
-	}
-	handle_header(header){
-		header.prepend(this.config);
-		header.prepend(this.search);
-	}
-	handle_control(control){
-		control.on('change', (value, init) => {
-			if(!init)this.handle_config(this.menu.config);
-		});
 	}
 };
 

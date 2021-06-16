@@ -182,6 +182,29 @@ class Utils {
 		
 		return node.textContent;
 	}
+	// 0.003 ms once v8 optimized
+	parse_color(string){
+		var hex = [];
+		var offset = string[0] == '#' ? 1 : 0;
+		var chunk = string.length - offset < 5 ? 1 : 2;
+		
+		for(let index = offset; index < string.length; index += chunk){
+			let part = string.substr(index, chunk);
+			
+			if(chunk == 1)part += part;	
+			
+			hex.push(parseInt(part, 16));
+		}
+
+		return hex;
+	}
+	format_color(colors){
+		var string = '#';
+		
+		for(let color of colors)string += color.toString(16).padStart(2, 0);
+		
+		return string;
+	}
 	node_tree(nodes, parent = document){
 		var output = {
 				parent: parent,

@@ -1,5 +1,7 @@
 'use strict';
 
+var EventLite  = require('event-lite');
+
 class Addon {
 	constructor(menu, args){
 		this.menu = menu;
@@ -8,16 +10,12 @@ class Addon {
 		this.create(...args);
 	}
 	ready(){
-		this.handle_header(this.window.header);
 		console.info(this.name, 'loaded');
+		this.emit('ready');
 	}
 	create(){}
-	handle_preset(){}
-	handle_config(){}
-	handle_header(){}
-	handle_tab(){}
-	handle_preset(){}
-	handle_control(){}
 };
+
+EventLite.mixin(Addon.prototype);
 
 module.exports = Addon;

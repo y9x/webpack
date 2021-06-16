@@ -2,16 +2,16 @@
 
 var UI = require('../libs/ui/'),
 	vars = require('../libs/vars'),
+	Visual = require('../libs/visual'),
+	Input = require('../libs/input'),
 	cheat = require('./cheat'),
-	Visual = require('./visual'),
-	Input = require('./input'),
 	Socket = require('./socket'),
-	input = new Input(),
-	visual = new Visual(),
+	input = new Input(cheat),
+	visual = new Visual(cheat),
 	{ utils, proxy_addons, supported_store, addon_url, meta, api, store } = require('../libs/consts'),
 	process = () => {
 		try{
-			visual.tick();
+			visual.tick(UI);
 			
 			if(cheat.config.game.overlay)visual.overlay();
 			

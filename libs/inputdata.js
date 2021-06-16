@@ -1,23 +1,25 @@
 'use strict';
 
-var vars = require('./vars');
+var vars = require('./vars'),
+	keys = {};
 
 class InputData {
 	constructor(array){
 		this.array = array;
+	}
+	get keys(){
+		return keys;
 	}
 	get focused(){
 		return document.pointerLockElement != null;
 	}
 };
 
-InputData.prototype.keys = {};
+document.addEventListener('keydown', event => keys[event.code] = true);
 
-window.addEventListener('keydown', event => InputData.prototype.keys[event.code] = true);
+document.addEventListener('keyup', event => delete keys[event.code]);
 
-window.addEventListener('keyup', event => delete InputData.prototype.keys[event.code]);
-
-window.addEventListener('blur', InputData.prototype.keys = {});
+window.addEventListener('blur', () => keys = {});
 
 InputData.previous = {};
 
@@ -35,3 +37,5 @@ for(let prop in vars.keys){
 }
 
 module.exports = InputData;
+
+window.InputData = InputData;

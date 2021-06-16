@@ -2,7 +2,10 @@
 
 var vars = require('../libs/vars'),
 	{ utils } = require('../libs/consts'),
-	{ Vector3 } = require('../libs/space');
+	{ Vector3 } = require('../libs/space'),
+	random_target = 0;
+
+setInterval(() => random_target = Math.random());
 
 class Player {
 	constructor(cheat, entity){
@@ -18,6 +21,71 @@ class Player {
 			legs: new Vector3(),
 		};
 	}
+	get distance_scale(){
+		var world_pos = utils.camera_world();
+		
+		return Math.max(.3, 1 - utils.getD3D(world_pos.x, world_pos.y, world_pos.z, this.x, this.y, this.z) / 600);
+	}
+	calc_rect(){
+		let playerScale = (2 * vars.consts.armScale + vars.consts.chestWidth + vars.consts.armInset) / 2;
+		let xmin = Infinity;
+		let xmax = -Infinity;
+		let ymin = Infinity;
+		let ymax = -Infinity;
+		let position = null;
+		let broken = false;
+		
+		for(let var1 = -1; !broken && var1 < 2; var1+=2){
+			for(let var2 = -1; !broken && var2 < 2; var2+=2){
+				for(let var3 = 0; !broken && var3 < 2; var3++){
+					if (position = this.obj.position.clone()) {
+						position.x += var1 * playerScale;
+						position.z += var2 * playerScale;
+						position.y += var3 * (this.height - this.crouch * vars.consts.crouchDst);
+						if(!utils.contains_point(position)){
+							broken = true;
+							break;
+						}
+						position.project(this.cheat.world.camera);
+						xmin = Math.min(xmin, position.x);
+						xmax = Math.max(xmax, position.x);
+						ymin = Math.min(ymin, position.y);
+						ymax = Math.max(ymax, position.y);
+					}
+				}
+			}
+		}
+
+		// if(broken)continue;
+		
+		xmin = (xmin + 1) / 2;
+		xmax = (xmax + 1) / 2;
+		
+		ymin = (ymin + 1) / 2;
+		ymax = (ymax + 1) / 2;
+		
+		ymin = -(ymin - 0.5) + 0.5;
+		ymax = -(ymax - 0.5) + 0.5;
+		
+		xmin *= utils.canvas.width;
+		xmax *= utils.canvas.width;
+		ymin *= utils.canvas.height;
+		ymax *= utils.canvas.height;
+		
+		var obj = {
+			left: xmin,
+			top: ymax,
+			right: xmax,
+			bottom: ymin,
+			width: xmax - xmin,
+			height: ymin - ymax,
+		};
+		
+		obj.x = obj.left + obj.width / 2;
+		obj.y = obj.top + obj.height / 2;
+		
+		return obj;
+	}
 	scale_rect(sx, sy){
 		var out = {},
 			horiz = [ 'y', 'height', 'top', 'bottom' ];
@@ -26,9 +94,10 @@ class Player {
 		
 		return out;
 	}
-	get in_fov(){
+	calc_in_fov(){
 		if(!this.active)return false;
 		if(this.cheat.config.aim.fov == 110)return true;
+		if(!this.frustum)return false;
 		
 		var fov_bak = utils.world.camera.fov;
 		
@@ -37,7 +106,7 @@ class Player {
 		utils.world.camera.updateProjectionMatrix();
 		
 		utils.update_frustum();
-		var ret = this.frustum;
+		var ret = utils.contains_point(this.aim_point);
 		
 		utils.world.camera.fov = fov_bak;
 		utils.world.camera.updateProjectionMatrix();
@@ -47,9 +116,6 @@ class Player {
 	get can_target(){
 		return this.active && this.can_see && this.enemy && this.in_fov;
 	}
-	get frustum(){
-		return this.is_you || this.active && utils.contains_point(this.aim_point);
-	}
 	get hp_color(){
 		var hp_perc = (this.health / this.max_health) * 100,
 			hp_red = hp_perc < 50 ? 255 : Math.round(510 - 5.10 * hp_perc),
@@ -58,12 +124,14 @@ class Player {
 		return '#' + ('000000' + (hp_red * 65536 + hp_green * 256 + 0 * 1).toString(16)).slice(-6);
 	}
 	get esp_color(){
-		// teammate = green, enemy = red, risk + enemy = orange
-		var hex = this.enemy ? this.risk ? [ 0xFF, 0x77, 0x00 ] : [ 0xFF, 0x00, 0x00 ] : [ 0x00, 0xFF, 0x00 ],
-			inc = this.can_see ? 0x00 : -0x77,
-			part_str = part => Math.max(Math.min(part + inc, 0xFF), 0).toString(16).padStart(2, 0);
+		// isEnemy ? isRisky ? "#FFFF00" : main.config.esp.hostile_col||"#ff0000" : main.config.esp.friendly_col||"#00ff00"
+		//this.settings.rainbowColor.val ? this.overlay.rainbow.col : "#eb5656"
+		var hex = utils.parse_color(this.cheat.config.color[this.enemy ? this.risk ? 'risk' : 'hostile' : 'friendly']),
+			increase = this.can_see ? 0x00 : -0x77;
 		
-		return '#' + hex.map(part_str).join('');
+		for(let color of hex)color = Math.max(Math.min(color + increase, 0xFF), 0);
+		
+		return utils.format_color(hex);
 	}
 	get ping(){ return this.entity.ping }
 	get jump_bob_y(){ return this.entity.jumpBobY }
@@ -104,14 +172,12 @@ class Player {
 	get crouch(){ return this.entity[vars.crouchVal] || 0 }
 	get box_scale(){
 		var view = utils.camera_world(),	
-			center = this.box.getCenter(),
 			a = side => Math.min(1, (this.rect[side] / utils.canvas[side]) * 10);
 		
 		return [ a('width'), a('height') ];
 	}
 	get dist_scale(){
 		var view = utils.camera_world(),	
-			center = this.box.getCenter(),
 			scale = Math.max(0.65, 1 - utils.getD3D(view.x, view.y, view.z, this.position.x, this.position.y, this.position.z) / 600);
 		
 		return [ scale, scale ];
@@ -130,7 +196,7 @@ class Player {
 	get scale(){ return this.entity.scale }
 	get max_health(){ return this.entity[vars.maxHealth] || 100 }
 	//  && (this.is_you ? true : this.chest && this.leg)
-	get active(){ return this.entity.active && this.entity.x != null && this.health > 0 && (this.is_you ? true : this.chest && this.leg) }
+	get active(){ return this.entity.active && this.entity.x != null && this.health > 0 && (this.is_you ? true : this.chest && this.leg) && true }
 	get teammate(){ return this.is_you || this.cheat.player && this.team && this.team == this.cheat.player.team }
 	get enemy(){ return !this.teammate }
 	get team(){ return this.entity.team }
@@ -150,61 +216,6 @@ class Player {
 		this.parts.hitbox_head.copy(this.position).set_y(this.position.y + this.height - (this.crouch * vars.consts.crouchDst));
 		
 		if(this.is_you)return;
-		
-		var box = this.box = new utils.three.Box3();
-		
-		box.expandByObject(this.chest);
-		
-		var add_obj = obj => obj.visible && obj.traverse(obj => {
-			if(obj.type == 'Mesh' && obj.visible)box.expandByObject(obj);
-		});
-		
-		for(var obj of this.entity.legMeshes)add_obj(obj);
-		for(var obj of this.entity.upperBody.children)add_obj(obj);
-		
-		var bounds = {
-			center: utils.pos2d(box.getCenter()),
-			min: {
-				x:  Infinity,
-				y: Infinity,
-			},
-			max: {
-				x: -Infinity,
-				y: -Infinity,
-			},
-		};
-		
-		for(var vec of [
-			{ x: box.min.x, y: box.min.y, z: box.min.z },
-			{ x: box.min.x, y: box.min.y, z: box.max.z },
-			{ x: box.min.x, y: box.max.y, z: box.min.z },
-			{ x: box.min.x, y: box.max.y, z: box.max.z },
-			{ x: box.max.x, y: box.min.y, z: box.min.z },
-			{ x: box.max.x, y: box.min.y, z: box.max.z },
-			{ x: box.max.x, y: box.max.y, z: box.min.z },
-			{ x: box.max.x, y: box.max.y, z: box.max.z },
-		]){
-			if(!utils.contains_point(vec))continue;
-			
-			var td  = utils.pos2d(vec);
-			
-			if(td.x < bounds.min.x)bounds.min.x = td.x;
-			else if(td.x > bounds.max.x)bounds.max.x = td.x;
-			
-			if(td.y < bounds.min.y)bounds.min.y = td.y;
-			else if(td.y > bounds.max.y)bounds.max.y = td.y;
-		}
-		
-		this.rect = {
-			x: bounds.center.x,
-			y: bounds.center.y,
-			left: bounds.min.x,
-			top: bounds.min.y,
-			right: bounds.max.x,
-			bottom: bounds.max.y,
-			width: bounds.max.x - bounds.min.x,
-			height: bounds.max.y - bounds.min.y,
-		};
 		
 		var head_size = 1.5,
 			chest_box = new utils.three.Box3().setFromObject(this.chest),
@@ -235,7 +246,16 @@ class Player {
 			z: 0,
 		}));
 		
-		this.aim_point = this.cheat.aim_part == 'head' ? this.parts.hitbox_head : (this.parts[this.cheat.aim_part] || (console.error(this.cheat.aim_part, 'not registered'), Vector3.Blank));
+		var keys = [ 'head', 'torso', 'legs' ];
+		
+		var part = this.cheat.config.aim.offset == 'random' ? keys[~~(random_target * keys.length)] : this.cheat.config.aim.offset;
+		
+		this.aim_point = part == 'head' ? this.parts.hitbox_head : (this.parts[part] || (console.error(part, 'not registered'), Vector3.Blank));
+		
+		this.frustum = utils.contains_point(this.aim_point);
+		this.in_fov = this.calc_in_fov();
+		
+		this.rect = this.calc_rect();
 		
 		this.world_pos = this.active ? this.obj[vars.getWorldPosition]() : { x: 0, y: 0, z: 0 };
 		

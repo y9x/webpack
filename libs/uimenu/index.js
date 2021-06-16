@@ -2,11 +2,11 @@
 
 var { utils, store } = require('./consts'),
 	Window = require('./window/'),
-	MenuButton = require('./MenuButton');
-	MenuButton = require('./MenuButton');
+	MenuButton = require('./MenuButton'),
+	EventLite  = require('event-lite');
 
 class UIMenu {
-	constructor(){
+	constructor(label, icon){
 		new MutationObserver((mutations, observer) => {
 			for(let mutation of mutations){
 				for(let node of mutation.addedNodes){
@@ -26,7 +26,7 @@ class UIMenu {
 		
 		this.window = new Window(this);
 		
-		this.button = new MenuButton('Junk', 'https://y9x.github.io/webpack/junker/junker.png');
+		this.button = new MenuButton(label, icon);
 		
 		this.button.on('click', () => {
 			this.window.show();
@@ -52,7 +52,7 @@ class UIMenu {
 	add_preset(label, value){
 		this.presets[label] = value;
 		
-		for(let addon of this.addons)addon.handle_preset(label, value);
+		this.emit('preset', label, value);
 	}
 	async insert_config(data, save = false){
 		this.config = utils.assign_deep(utils.clone_obj(this.presets.Default), data);
@@ -61,7 +61,7 @@ class UIMenu {
 		
 		this.window.update(true);
 		
-		for(let addon of this.addons)addon.handle_config(this.config);
+		this.emit('config');
 	}
 	async load_preset(preset){
 		if(!this.presets.hasOwnProperty(preset))throw new Error('Invalid preset:', preset);
@@ -76,6 +76,8 @@ class UIMenu {
 	}
 	static keybinds = new Set();
 };
+
+EventLite.mixin(UIMenu.prototype);
 
 window.addEventListener('keydown', event => {
 	if(event.repeat || ['TEXTAREA', 'INPUT'].includes((document.activeElement || {}).tagName))return;

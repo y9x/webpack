@@ -7,6 +7,8 @@ class Category {
 	constructor(tab, label){
 		this.tab = tab;
 		
+		this.controls = new Set();
+		
 		if(label){
 			this.header = utils.add_ele('div', this.tab.content, {
 				className: 'setHed',
@@ -25,25 +27,48 @@ class Category {
 		
 		if(label)this.expand();
 	}
+	update(init = false){
+		for(let control of this.controls)control.update(init);
+	}
 	toggle(){
 		if(this.collapsed)this.expand();
 		else this.collapse();
 	}
 	collapse(){
 		this.collapsed = true;
-		this.content.style.display = 'none';
-		this.header_status.textContent = 'keyboard_arrow_right';
+		this.update();
 	}
 	expand(){
 		this.collapsed = false;
-		this.content.style.display = 'block';
-		this.header_status.textContent = 'keyboard_arrow_down';
+		this.update();
+	}
+	update(init){
+		this.content.style.display = this.collapsed ? 'none' : 'block';
+		
+		if(this.header){
+			this.header.style.display = 'block';
+			this.header_status.textContent = 'keyboard_arrow_' + (this.collapsed ? 'right' : 'down');
+		}
+		
+		for(let control of this.controls)control.update(init);
+	}
+	show(){
+		this.expand();
+		if(this.header)this.header.style.display = 'block';
+	}
+	hide(){
+		this.content.style.display = 'none';
+		if(this.header)this.header.style.display = 'none';
+	}
+	fix(){
+		this.update();
+		for(let control of this.controls)control.show_content();
 	}
 	add_control(data){
 		for(let type of Control.Types)if(type.id == data.type){
 			let control = new type(data, this);
 			
-			this.tab.controls.add(control);
+			this.controls.add(control);
 			
 			return control;
 		}
@@ -63,7 +88,7 @@ class Tab {
 		
 		tick(this.button);
 		
-		this.controls = new Set();
+		this.categories = new Set();
 		
 		this.content = utils.add_ele('div', window.container, { id: 'settHolder' });
 		
@@ -72,28 +97,43 @@ class Tab {
 		this.button.addEventListener('click', () => this.show());
 	}
 	add_category(label){
-		return this.last_category = new Category(this, label);
+		var category = this.last_category = new Category(this, label);
+		
+		this.categories.add(category);
+		
+		return category;
 	}
 	add_control(data){
-		if(!this.last_category || !this.last_category.is_default){
-			this.last_category = this.add_category();
-			this.last_category.is_default = true;
+		var category = this.last_category;
+		
+		if(!category || !category.is_default){
+			category = this.add_category();
+			category.is_default = true;
 		}
 		
-		return this.last_category.add_control(data);
+		return category.add_control(data);
 	}
-	update(init = false){
-		for(let control of this.controls)control.update(init);
+	update(init){
+		for(let category of this.categories)category.update(init);
 	}
 	show(){
 		this.visible = true;
 		for(let tab of this.window.tabs)if(tab != this)tab.hide();
 		this.button.classList.add('tabANew');
-		this.content.style.display = 'block';
+		this.show_content();
+		this.window.menu.emit('tab-shown');
+		
+		for(let category of this.categories)category.fix();
 	}
 	hide(){
 		this.visible = false;
 		this.button.classList.remove('tabANew');
+		this.hide_content();
+	}
+	show_content(){
+		this.content.style.display = 'block';
+	}
+	hide_content(){
 		this.content.style.display = 'none';
 	}
 };

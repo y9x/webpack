@@ -1,18 +1,16 @@
 'use strict';
 
-var UI = require('../libs/ui/'),
-	vars = require('../libs/vars'),
-	cheat = require('./cheat'),
+var vars = require('../libs/vars'),
 	{ utils } = require('../libs/consts');
 
 class Visual {
-	constructor(){
+	constructor(cheat){
+		this.cheat = cheat;
 		this.materials = {};
 	}
-	tick(){
+	tick(UI){
 		this.canvas = UI.canvas;
 		this.ctx = UI.ctx;
-		
 		this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
 	}
 	draw_text(text_x, text_y, font_size, lines){
@@ -42,7 +40,7 @@ class Visual {
 		this.ctx.globalAlpha = 1;
 	}
 	walls(){
-		cheat.world.scene.children.forEach(obj => {
+		this.cheat.world.scene.children.forEach(obj => {
 			if(obj.type != 'Mesh' || !obj.dSrc || obj.material[Visual.hooked])return;
 			
 			obj.material[Visual.hooked] = true;
@@ -52,11 +50,11 @@ class Visual {
 			
 			Object.defineProperties(obj.material, {
 				opacity: {
-					get: _ => opac * cheat.config.esp.walls / 100,
+					get: _ => opac * this.cheat.config.esp.walls / 100,
 					set: _ => opac = _,
 				},
 				transparent: {
-					get: _ => cheat.config.esp.walls != 100 ? true : otra,
+					get: _ => this.cheat.config.esp.walls != 100 ? true : otra,
 					set: _ => otra = _,
 				},
 			});
@@ -72,9 +70,9 @@ class Visual {
 		this.ctx.lineWidth = 2.6;
 		
 		var data = {
-			Player: cheat.player ? this.axis_join(cheat.player.position) : null,
-			PlayerV: cheat.player ? this.axis_join(cheat.player.velocity) : null,
-			Target: cheat.target ? this.axis_join(cheat.target.position) : null,
+			Player: this.cheat.player ? this.axis_join(this.cheat.player.position) : null,
+			PlayerV: this.cheat.player ? this.axis_join(this.cheat.player.velocity) : null,
+			Target: this.cheat.target ? this.axis_join(this.cheat.target.position) : null,
 		};
 		
 		var lines = [];
@@ -126,7 +124,7 @@ class Visual {
 		this.ctx.stroke();
 	}
 	get can_draw_chams(){
-		return cheat.config.esp.status == 'chams' || cheat.config.esp.status == 'box_chams' || cheat.config.esp.status == 'full';
+		return this.cheat.config.esp.status == 'chams' || this.cheat.config.esp.status == 'box_chams' || this.cheat.config.esp.status == 'full';
 	}
 	cham(player){
 		if(!player.obj[Visual.hooked]){
@@ -156,7 +154,7 @@ class Visual {
 						color: player.esp_color,
 					}))) : orig_mat;
 					
-					material.wireframe = !!cheat.config.game.wireframe;
+					material.wireframe = !!this.cheat.config.game.wireframe;
 					
 					return material;
 				},

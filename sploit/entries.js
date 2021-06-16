@@ -103,8 +103,7 @@ config.add_section({
 		name: 'Smoothness',
 		type: 'slider',
 		walk: 'aim.smooth',
-		unit: 'U',
-		range: [ 0, 50, 2 ],
+		range: [ 0, 1, 0.2 ],
 		labels: { 0: 'Off' },
 	},{
 		name: 'Target FOV',
@@ -265,6 +264,11 @@ config.default_config = {
 		fov_box: false,
 		fov: 60,
 	},
+	color: {
+		risk: '#FF7700',
+		hostile: '#FF0000',
+		friendly: '#00FF00',
+	},
 	esp: {
 		status: 'off',
 		walls: 100,
@@ -306,6 +310,5 @@ config.css_editor = new UI.Editor({
 		`<p>For further help, search or post on the forum found by <a target="_blank" href="${meta.forum}">clicking here</a>.<p>`,
 	].join(''),
 });
-
 
 module.exports = config;

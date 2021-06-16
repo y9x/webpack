@@ -1,40 +1,43 @@
 'use strict';
 
-var UI = require('../libs/ui/'),
-	vars = require('../libs/vars'),
-	main = require('./main'),
-	{ utils } = require('../libs/consts');
+var OVisual = require('../libs/visual');
 
-class Visual {
-	constructor(){
-		this.materials = {};
-	}
-	tick(){
+class Visual extends OVisual {
+	tick(){}
+	text(player){
+		this.ctx.save();
+		this.ctx.scale(...player.dist_scale);
 		
-	}
-	tracer(player){
-		this.ctx.strokeStyle = player.esp_color;
-		this.ctx.lineWidth = 1.75;
-		this.ctx.lineCap = 'round';
+		var rect = player.scale_rect(...player.dist_scale);
 		
-		this.ctx.beginPath();
-		// bottom center
-		this.ctx.moveTo(this.canvas.width / 2, this.canvas.height);
-		// target center
-		this.ctx.lineTo(player.rect.x, player.rect.bottom);
-		this.ctx.stroke();
-	}
-	fov(fov){
-		var width = (this.canvas.width * fov) / 100,
-			height = (this.canvas.height * fov) / 100;
+		this.ctx.font = 'Bold 17px Tahoma';
+		this.ctx.fillStyle = 'white';
+		this.ctx.strokeStyle = 'black';
+		this.ctx.lineWidth = 1;
 		
-		this.ctx.fillStyle = '#F00';
-		this.ctx.globalAlpha = 0.4;
-		this.ctx.fillRect((this.canvas.width - width) / 2, (this.canvas.height - height) / 2, width, height);
-		this.ctx.globalAlpha = 1;
+		let x = rect.right + 7,
+			y = rect.top,
+			name = player.name || player.alias;
+		
+		this.ctx.fillText(name, x, y);
+		this.ctx.strokeText(name, x, y);
+		
+		y += 16;
+		
+		this.ctx.font = `Bold 15px Tahoma`;
+		this.ctx.fillStyle = "#cccccc";
+		
+		this.ctx.fillText(player.weapon.name, x, y);
+		this.ctx.strokeText(player.weapon.name, x, y);
+		
+		y += 16;
+		
+		this.ctx.fillStyle = player.hp_color;
+		this.ctx.fillText(player.health + ' HP', x, y);
+		this.ctx.strokeText(player.health + ' HP', x, y);
+		
+		this.ctx.restore();
 	}
 };
-
-Visual.hooked = Symbol();
 
 module.exports = Visual;

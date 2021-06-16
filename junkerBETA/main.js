@@ -3,7 +3,9 @@
 var CRC2d = CanvasRenderingContext2D.prototype,
 	{ api, meta, utils } = require('../libs/consts'),
 	vars = require('../libs/vars'),
-	Player;
+	Input = require('../libs/input'),
+	Player = require('../libs/player'),
+	Visual = require('./visual');
 
 vars.load(require('./vars'));
 
@@ -25,14 +27,11 @@ class Main {
 	async load(){
 		utils.add_ele('style', document.documentElement, { textContent: require('./index.css') });
 		
-		var Visual = require('./visual');
+		var self = this;
 		
-		var Input = require('./input'),
-			self = this;
+		this.input = new Input(this);
 		
-		this.input = new Input();
-		
-		this.visual = new Visual();
+		this.visual = new Visual(this);
 		
 		this.y_offset_types = ['head', 'torso', 'legs'];
 		
@@ -80,8 +79,7 @@ class Main {
 					});
 				},
 				set socket(socket){
-					self.wsEvent = socket._dispatchEvent.bind(socket);
-					self.wsSend = socket.send.bind(socket);
+					self.socket = socket;
 					
 					socket.send = new Proxy(socket.send, {
 						apply(target, that, [type, ...msg]){
@@ -149,8 +147,10 @@ class Main {
 					
 					self.visual.ctx = self.ctx = utils.canvas.getContext('2d');
 					
+					orig = orig.bind(overlay);
+					
 					overlay.render = function(...args){
-						orig.call(this, ...args);
+						orig(...args);
 						self.overlayRender(...args);
 					};
 				}
@@ -163,23 +163,22 @@ class Main {
 	get config(){
 		return this.menu.config;
 	}
-	get aim_part(){
-		return this.config.aim.offset != 'random' ? this.config.aim.offset : this.y_offset_rand;
-	}
-	onRender() {
+	overlayRender(scale){
+		let width = utils.canvas.width / scale;
+		let height = utils.canvas.height / scale;
+		
+		this.scale = scale;
+		
+		// this.ctx.scale(scale, scale);
+		// this.ctx.clearRect(0, 0, width, height);
+		this.visual.tick();
+		
 		if(this.config.aim.fov_box)this.visual.fov(this.config.aim.fov);
-		
-		let main = this;
-		let scaledWidth = utils.canvas.width / this.scale;
-		let scaledHeight = utils.canvas.height / this.scale;
-		let playerScale = (2 * vars.consts.armScale + vars.consts.chestWidth + vars.consts.armInset) / 2
-		let worldPosition = utils.camera_world();
-		let espVal = this.config.esp.status;
-		
-		if(main.game && main.world)for(let ent of main.game.players.list){
-			let player = main.add(ent);
+	
+		if(this.game && this.world)for(let ent of this.game.players.list){
+			let player = this.add(ent);
 			
-			if(player.is_you)main.player = player;
+			if(player.is_you)this.player = player;
 			
 			if(!player.active)continue;
 			
@@ -187,52 +186,27 @@ class Main {
 			
 			if(!player.frustum || player.is_you)continue;
 			
-			if(main.config.esp.tracers)this.visual.tracer(player);
+			if(this.config.esp.tracers)this.visual.tracer(player);
 			
-			/*visual.cham(player);
+			if(['box', 'box_chams', 'full'].includes(this.config.esp.status))this.visual.box(player);
 			
-			if(['box', 'box_chams', 'full'].includes(main.config.esp.status))visual.box(player);
-			
-			if(main.config.esp.status == 'full'){
-				visual.health(player);
-				visual.text(player);
+			if(this.config.esp.status == 'full'){
+				this.visual.health(player);
+				this.visual.text(player);
 			}
 			
-			if(main.config.esp.labels)visual.label(player);*/
-		}
-	}
-	overlayRender(scale, game, controls, world, me){
-		let width = utils.canvas.width / scale;
-		let height = utils.canvas.height / scale;
-		
-		if (me) {
-			/*if (me.active && me.health) controls.update();
-			if (me.banned) Object.assign(me, {banned: false});
-			if (me.isHacker) Object.assign(me, {isHacker: 0});
-			if (me.kicked) Object.assign(me, {kicked: false});
-			if (me.kickedByVote) Object.assign(me, {kickedByVote: false});
-			me.account = Object.assign(me, {premiumT: true});*/
-			
-			this.scale = scale;
-			this.me = this.add(me);
-			
-			this.ctx.save();
-			// this.ctx.scale(scale, scale);
-			// this.ctx.clearRect(0, 0, width, height);
-			this.visual.tick();
-			this.onRender();
-			// this.ctx.restore();
+			this.visual.cham(player);
 		}
 		
-		if(this.config.auto_nuke && this.me && this.me.streaks.length == 25)this.wsSend("k", 0);
+		if(this.config.auto_nuke && this.player && this.player.streaks.length == 25)this.socket.send("k", 0);
 		
 		if(this.config.game.auto_start && window.endUI.style.display == "none" && window.windowHolder.style.display == 'none')controls.toggle(true);
 	}
-	dist_2d(p1, p2){
+	dist2d(p1, p2){
 		return utils.dist_center(p1.rect) - utils.dist_center(p2.rect);
 	}
 	pick_target(){
-		return this.game.players.list.map(ent => this.add(ent)).filter(player => player.can_target).sort((p1, p2) => this.dist_2d(p1, p2) * (p1.frustum ? 1 : 0.5))[0]
+		return this.game.players.list.map(ent => this.add(ent)).filter(player => player.can_target).sort((p1, p2) => this.dist2d(p1, p2) * (p1.frustum ? 1 : 0.5))[0]
 	}
 	eventHandlers(){
 		api.on_instruct = () => {
@@ -249,4 +223,4 @@ var main = module.exports = new Main();
 
 main.load();
 
-Player = require('../libs/player');
+window.main = main;

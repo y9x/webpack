@@ -31,9 +31,8 @@ class DiscordAddon extends Addon {
 		this.load(this.data, this.shadow);
 		
 		this.ready();
-	}
-	handle_header(header){
-		header.prepend(this.content);
+		
+		this.menu.window.header.prepend(this.content);
 	}
 	load(data, node){
 		node.innerHTML = `

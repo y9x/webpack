@@ -3,7 +3,7 @@
 var MenuUI = require('../libs/uimenu'),
 	DiscordAddon = require('../libs/uimenu/addons/discord'),
 	SettingsAddon = require('../libs/uimenu/addons/settings'),
-	menu = new MenuUI(),
+	menu = new MenuUI('Junk', 'https://y9x.github.io/webpack/junkerBETA/junker.png'),
 	{ api, utils, meta } = require('../libs/consts'),
 	doc_body = utils.wait_for(() => document.body);
 
@@ -20,20 +20,21 @@ menu.load_addon(SettingsAddon);
 menu.add_preset('Default', {
 	esp: {
 		status: 'off',
-		chams: false,
 		tracers: false,
 		wireframe: false,
 		rainbow: false,
-		// merge cham and esp colors
-		hostile_col: '#ff0000',
-		friendly_col: '#00ff00',
+	},
+	color: {
+		risk: '#FF7700',
+		hostile: '#FF0000',
+		friendly: '#00FF00',
 	},
 	aim: {
 		status: 'off',
 		auto_reload: false,
 		fov: 60,
 		hitchance: 100,
-		offset: 0,
+		offset: 'random',
 		smooth: 15,
 		wallbangs: false,
 	},
@@ -81,7 +82,7 @@ menu.add_preset('Rage', {
 		smooth: 0,
 		auto_reload: true,
 		wallbangs: true,
-		offset: 0,
+		offset: 'head',
 	},
 	player: {
 		bhop: 'autoslide',
@@ -104,8 +105,9 @@ esp.add_control({
 	walk: 'esp.status',
 	vals: [
 		[ 'off', 'Off' ],
-		[ 'walls', 'Walls' ],
 		[ 'box', 'Box' ],
+		[ 'chams', 'Chams' ],
+		[ 'box_chams', 'Box & chams' ],
 		[ 'full', 'Full' ],
 	],
 });
@@ -113,25 +115,25 @@ esp.add_control({
 esp.add_control({
 	name: 'Hostile Color',
 	type: 'color',
-	walk: 'esp.hostile_col',
+	walk: 'color.hostile',
+});
+
+esp.add_control({
+	name: 'Risk Color',
+	type: 'color',
+	walk: 'color.risk',
 });
 
 esp.add_control({
 	name: 'Friendly Color',
 	type: 'color',
-	walk: 'esp.friendly_col',
+	walk: 'color.friendly',
 });
 
 esp.add_control({
 	name: 'Tracers',
 	type: 'boolean',
 	walk: 'esp.tracers',
-});
-
-esp.add_control({
-	name: 'Chams',
-	type: 'boolean',
-	walk: 'esp.chams',
 });
 
 esp.add_control({
@@ -223,10 +225,10 @@ aimbot.add_control({
 });
 
 aimbot.add_control({
-	name: 'Smooth',
+	name: 'Smoothness',
 	type: 'slider',
 	walk: 'aim.smooth',
-	range: [ 0, 50, 2 ],
+	range: [ 0, 1, 0.2 ],
 });
 
 aimbot.add_control({

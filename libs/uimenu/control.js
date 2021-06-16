@@ -15,7 +15,7 @@ class Control {
 		
 		this.create();
 		
-		for(let addon of this.menu.addons)addon.handle_control(this);
+		this.menu.emit('control', this);
 	}
 	label_text(text){
 		this.label.nodeValue = text;
@@ -57,6 +57,12 @@ class Control {
 	update(init){
 		if(init)this.emit('change', this.value, true);
 		this.label_text(this.name);
+	}
+	show_content(){
+		this.content.style.display = 'block';
+	}
+	hide_content(){
+		this.content.style.display = 'none';
 	}
 };
 
