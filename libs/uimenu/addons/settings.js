@@ -21,7 +21,7 @@ class SettingsAddon extends Addon {
 		utils.add_ele('div', this.config, {
 			className: 'settingsBtn',
 			textContent: 'Reset',
-		}).addEventListener('click', () => this.menu.reset_config());
+		}).addEventListener('click', () => this.menu.load_preset('Default'));
 		
 		utils.add_ele('div', this.config, {
 			className: 'settingsBtn',

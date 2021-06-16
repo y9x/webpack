@@ -6,7 +6,7 @@ var os = require('os'),
 	webpack = require('webpack'),
 	dist = path.join(__dirname, 'dist'),
 	hosts = [ 'krunker.io', '*.browserfps.com', 'linkvertise.com' ],
-	targets = [ 'sploit', 'junker' ];
+	targets = [ 'sploit', 'junkerBETA' ];
 
 var create_script = basename => {
 	var folder = path.join(__dirname, basename),
