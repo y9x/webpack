@@ -1,13 +1,14 @@
 'use strict';
 
-var MenuUI = require('../libs/uimenu'),
+var meta = require('./meta'),
+	UIMenu = require('../libs/uimenu'),
 	DiscordAddon = require('../libs/uimenu/addons/discord'),
 	SettingsAddon = require('../libs/uimenu/addons/settings'),
-	menu = new MenuUI('Junk', 'https://y9x.github.io/webpack/junkerBETA/junker.png'),
+	menu = new UIMenu('Junk', meta.icon),
 	{ api, utils, meta } = require('../libs/consts'),
 	doc_body = utils.wait_for(() => document.body);
 
-MenuUI.keybinds.add({
+UIMenu.keybinds.add({
 	code: 'F1',
 	interact(){
 		document.exitPointerLock();
