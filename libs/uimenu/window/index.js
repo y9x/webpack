@@ -20,13 +20,11 @@ class Window {
 		
 		this.node = this.content.attachShadow({ mode: 'closed' });
 		
-		this.style = utils.add_ele('style', this.node);
+		this.styles = new Set();
 		
-		this.appended = new WeakSet();
-		
-		this.update_style();
-		
-		setInterval(() => this.update_style(), 100);
+		new MutationObserver((mutations, observer) => {
+			for(let mutation of mutations)for(let node of mutation.addedNodes)if(['LINK', 'STYLE'].includes(node.tagName))this.update_styles();
+		}).observe(document, { childList: true, subtree: true });
 		
 		this.holder = utils.add_ele('div', this.node, {
 			id: 'windowHolder',
@@ -60,18 +58,28 @@ class Window {
 		
 		this.hide();
 	}
+	update_styles(){
+		for(let style of this.styles)style.remove(), this.styles.delete(style);
+		
+		for(let sheet of document.styleSheets){
+			let style = utils.add_ele('style', this.node);
+			
+			this.styles.add(style);
+			
+			if(sheet.href)style.textContent += '@import url(' + JSON.stringify(sheet.href) + ');\n';
+			else try{
+				for(let rule of sheet.cssRules)style.textContent += rule.cssText + '\n';
+			}catch(err){
+				console.error(err);
+			}
+		}
+	}
 	add_tab(label){
 		var tab = new Tab(this, label);
 		
 		this.tabs.add(tab);
 		
 		return tab;
-	}
-	update_style(){
-		for(let node of document.querySelectorAll('link, style'))if(!this.appended.has(node)){
-			this.appended.add(node);
-			this.node.append(node.cloneNode(true));
-		}
 	}
 	attach(ui_base){
 		ui_base.appendChild(this.content);

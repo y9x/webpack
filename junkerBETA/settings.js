@@ -35,7 +35,7 @@ menu.add_preset('Default', {
 		fov: 60,
 		hitchance: 100,
 		offset: 'random',
-		smooth: 15,
+		smooth: 0,
 		wallbangs: false,
 	},
 	player: {
@@ -49,7 +49,7 @@ menu.add_preset('Default', {
 		show_news: true,
 		show_cookie: true,
 		show_button: true,
-		custom_css: '',
+		css: '',
 	},
 	game: {
 		custom_billboard: '',
@@ -64,9 +64,15 @@ menu.add_preset('Default', {
 	},
 });
 
-menu.add_preset('Light Assist', {
+menu.add_preset('Assist', {
 	aim: {
-		fov: 'small',
+		status: 'assist',
+		fov: 70,
+		offset: 'random',
+		smooth: 0.6,
+	},
+	player: {
+		bhop: 'keyjump',
 	},
 });
 
@@ -78,7 +84,6 @@ menu.add_preset('Rage', {
 	aim: {
 		status: 'auto',
 		fov: 0,
-		fov_box: false,
 		smooth: 0,
 		auto_reload: true,
 		wallbangs: true,
@@ -149,6 +154,19 @@ esp.add_control({
 });
 
 var ui = render.add_category('UI');
+
+var css = utils.add_ele('link', document.documentElement, {
+	rel: 'stylesheet',
+});
+
+ui.add_control({
+	name: 'Custom CSS',
+	type: 'textbox',
+	walk: 'ui.css',
+	placeholder: 'CSS Url',
+}).on('change', value => {
+	if(value != '')css.href = value;
+});
 
 ui.add_control({
 	name: 'Show Menu Button ( [F1] to show )',

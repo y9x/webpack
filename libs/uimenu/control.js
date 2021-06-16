@@ -182,9 +182,22 @@ class KeybindControl extends Control {
 
 class TextBoxControl extends Control {
 	static id = 'textbox';
-	update(){
-		this.button.style.display = 'none';
-		this.input.value = ('' + this.value).substr(0, this.data.max_length);
+	create(){
+		this.input = utils.add_ele('input', this.content, {
+			className: 'inputGrey2',
+			placeholder: this.data.placeholder || '',
+			style: {
+				display: 'inline-block',
+				width: '220px',
+			},
+		});
+		
+		this.input.addEventListener('change', () => this.value = this.input.value);
+	}
+	update(init){
+		super.update(init);
+		
+		if(init)this.input.value = this.value;
 	}
 };
 

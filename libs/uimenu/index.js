@@ -8,11 +8,9 @@ var { utils, store } = require('./consts'),
 class UIMenu {
 	constructor(label, icon){
 		new MutationObserver((mutations, observer) => {
-			for(let mutation of mutations){
-				for(let node of mutation.addedNodes){
-					if(node.id == 'menuItemContainer')this.attach(node);
-					else if(node.id == 'uiBase')this.window.attach(node);
-				}
+			for(let mutation of mutations)for(let node of mutation.addedNodes){
+				if(node.id == 'menuItemContainer')this.attach(node);
+				else if(node.id == 'uiBase')this.window.attach(node);
 			}
 		}).observe(document, { childList: true, subtree: true });
 		

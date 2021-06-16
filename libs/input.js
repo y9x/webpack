@@ -137,7 +137,7 @@ class Input {
 					1: 0.01, // light
 				};
 				
-				let spd = window.spd || smooth_map[this.cheat.config.aim.smooth];
+				let spd = smooth_map[this.cheat.config.aim.smooth] || (console.warn(this.cheat.config.aim.smooth, 'not registered'), 1);
 				
 				/*
 				50 => 0.005

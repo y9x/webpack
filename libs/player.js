@@ -110,6 +110,7 @@ class Player {
 		
 		utils.world.camera.fov = fov_bak;
 		utils.world.camera.updateProjectionMatrix();
+		utils.update_frustum();
 		
 		return ret;
 	}

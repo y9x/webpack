@@ -258,7 +258,7 @@ config.default_config = {
 		status: 'off',
 		offset: 'random',
 		target_sorting: 'dist2d',
-		smooth: 15,
+		smooth: 0.2,
 		hitchance: 100,
 		// percentage of screen
 		fov_box: false,
