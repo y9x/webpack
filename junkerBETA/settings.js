@@ -10,6 +10,7 @@ var MenuUI = require('../libs/uimenu'),
 MenuUI.keybinds.add({
 	code: 'F1',
 	interact(){
+		document.exitPointerLock();
 		menu.window.show();
 	},
 });
