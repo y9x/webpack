@@ -5,7 +5,7 @@ var vars = require('../libs/vars'),
 	{ Vector3 } = require('../libs/space'),
 	random_target = 0;
 
-setInterval(() => random_target = Math.random());
+setInterval(() => random_target = Math.random(), 2000);
 
 class Player {
 	constructor(cheat, entity){
