@@ -222,65 +222,21 @@ class Utils {
 		return output;
 	}
 	add_ele(node_name, parent, attributes = {}){
-		if(node_name == 'text')return parent.appendChild(Object.assign(document.createTextNode(''), attributes));
+		var crt = this.crt_ele(node_name, attributes);
 		
-		if(attributes.style != null && typeof attributes.style == 'object')attributes.style = this.css(attributes.style);
+		if(typeof parent == 'function')this.wait_for(parent).then(data => data.appendChild(crt));
+		else if(typeof node == 'object' && node != null && node.appendChild)parent.appendChild(crt);
+		else throw new Error('Parent is not resolvable to a DOM element');
 		
-		return Object.assign(parent.appendChild(document.createElement(node_name)), attributes);
+		return crt;
 	}
 	crt_ele(node_name, attributes = {}){
 		if(attributes.style != null && typeof attributes.style == 'object')attributes.style = this.css(attributes.style);
 		
-		return Object.assign(document.createElement(node_name), attributes);
+		return Object.assign(node_name == 'text' ? document.createTextNode('') : document.createElement(node_name), attributes);
 	}
 	string_key(key){
 		return key.replace(/^(Key|Digit|Numpad)/, '');
-	}
-	// Junker
-	
-	isType(item, type){
-		return typeof item === type;
-	}
-	isDefined(object){
-		return !this.isType(object, "undefined") && object !== null;
-	}
-	isURL(str){
-		return /^https?:\/\/(?:www\.)?[-a-zA-Z0-9@:%._\+~#=]{1,256}\.[a-zA-Z0-9()]{1,6}\b([-a-zA-Z0-9()@:%_\+.~#?&//=]*)$/gm.test(str);
-	}
-	objectHas(obj, arr){
-		return arr.some(prop => obj.hasOwnProperty(prop));
-	}
-	createObserver(elm, check, callback, onshow = true){
-		return new MutationObserver((mutationsList, observer) => {
-			if (check == 'src' || onshow && mutationsList[0].target.style.display == 'block' || !onshow) {
-				callback(mutationsList[0].target);
-			}
-		}).observe(elm, check == 'childList' ? {childList: true} : {attributes: true, attributeFilter: [check]});
-	}
-	createElement(element, attribute, inner){
-		if (!this.isDefined(element)) {
-			return null;
-		}
-		if (!this.isDefined(inner)) {
-			inner = "";
-		}
-		let el = document.createElement(element);
-		if (this.isType(attribute, 'object')) {
-			for (let key in attribute) {
-				el.setAttribute(key, attribute[key]);
-			}
-		}
-		if (!Array.isArray(inner)) {
-			inner = [inner];
-		}
-		for (let i = 0; i < inner.length; i++) {
-			if (inner[i].tagName) {
-				el.appendChild(inner[i]);
-			} else {
-				el.appendChild(document.createTextNode(inner[i]));
-			}
-		}
-		return el;
 	}
 	clone_obj(obj){
 		return JSON.parse(JSON.stringify(obj));

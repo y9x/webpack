@@ -25,7 +25,7 @@ class Main {
 		return entity[this.hooked] || (entity[this.hooked] = new Player(this, entity));
 	}
 	async load(){
-		utils.add_ele('style', document.documentElement, { textContent: require('./index.css') });
+		utils.add_ele('style', () => document.documentElement, { textContent: require('./index.css') });
 		
 		var self = this;
 		

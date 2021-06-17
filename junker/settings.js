@@ -157,9 +157,7 @@ esp.add_control({
 
 var ui = render.add_category('UI');
 
-var css = utils.add_ele('link', document.documentElement, {
-	rel: 'stylesheet',
-});
+var css = utils.add_ele('link', () => document.documentElement, { rel: 'stylesheet' }); 
 
 ui.add_control({
 	name: 'Custom CSS',
