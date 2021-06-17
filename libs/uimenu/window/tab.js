@@ -27,9 +27,6 @@ class Category {
 		
 		if(label)this.expand();
 	}
-	update(init = false){
-		for(let control of this.controls)control.update(init);
-	}
 	toggle(){
 		if(this.collapsed)this.expand();
 		else this.collapse();

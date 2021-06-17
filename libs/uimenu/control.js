@@ -152,18 +152,18 @@ class FunctionControl extends Control {
 
 class KeybindControl extends Control {
 	static id = 'keybind';
-	constructor(...args){
-		super(...args);
-		
-		this.input = utils.add_ele('input', this.container, { className: 'keybind', placeholder: 'Press a key' });
+	create(){
+		this.input = utils.add_ele('input', this.content, {
+			className: 'inputGrey2',
+			placeholder: 'Press a key',
+			style: {
+				display: 'inline-block',
+				width: '220px',
+			},
+		});
 		
 		this.input.addEventListener('focus', () => {
 			this.input.value = '';
-		});
-		
-		this.input.addEventListener('blur', () => {
-			this.panel.update();
-			this.update();
 		});
 		
 		this.input.addEventListener('keydown', event => {
@@ -171,12 +171,16 @@ class KeybindControl extends Control {
 			this.value = event.code == 'Escape' ? null : event.code;
 			this.input.blur();
 		});
+
+		this.input.addEventListener('blur', () => {
+			this.category.update();
+			this.update();
+		});
 	}
-	update(){
-		super.update();
-		this.button.style.display = 'none';
-		this.label_text(this.name + ':');
-		this.input.value = this.value ? utils.string_key(this.value) : 'Unset';
+	update(init){
+		super.update(init);
+		
+		this.input.value = utils.string_key(this.value);
 	}
 };
 

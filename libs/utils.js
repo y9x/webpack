@@ -11,8 +11,14 @@ class Utils {
 		
 		this.pi2 = Math.PI * 2;
 		this.halfpi = Math.PI / 2;
+		
 		// planned mobile client
-		this.mobile = [ 'android', 'webos', 'iphone', 'ipad', 'ipod', 'blackberry', 'iemobile', 'opera mini' ].some(ua => navigator.userAgent.includes(ua));
+		this.mobile = false;
+		
+		if(typeof navigator == 'object' && navigator != null)for(let ua of [ 'android', 'webos', 'iphone', 'ipad', 'ipod', 'blackberry', 'iemobile', 'opera mini' ])if(navigator.userAgent.includes(ua)){
+			this.mobile = true;
+			break;
+		}
 	}
 	dist_center(pos){
 		return Math.hypot((window.innerWidth / 2) - pos.x, (window.innerHeight / 2) - pos.y);

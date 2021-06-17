@@ -40,7 +40,6 @@ class Main {
 		setInterval(() => this.y_offset_rand = this.y_offset_types[~~(Math.random() * this.y_offset_types.length)], 2000);
 		
 		var token_promise = api.token(),
-			config_promise = this.menu.load_config(),
 			args = {
 				[vars.key]: {
 					game: game => {
@@ -109,7 +108,7 @@ class Main {
 				WP_fetchMMToken: api.token(),
 			};
 		
-		await config_promise;
+		await this.menu.load_config();
 		
 		new Function(...Object.keys(args), vars.patch(await api.source()))(...Object.values(args));
 	}

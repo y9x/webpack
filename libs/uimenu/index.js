@@ -1,12 +1,17 @@
 'use strict';
 
 var { utils, store } = require('./consts'),
+	DataStore = require('../datastore'),
 	Window = require('./window/'),
 	MenuButton = require('./MenuButton'),
 	EventLite  = require('event-lite');
 
 class UIMenu {
-	constructor(label, icon){
+	constructor(label, icon, key, store = new DataStore()){
+		this.store = store;
+		
+		this.config_key = key;
+		
 		new MutationObserver((mutations, observer) => {
 			for(let mutation of mutations)for(let node of mutation.addedNodes){
 				if(node.id == 'menuItemContainer')this.attach(node);
@@ -67,10 +72,10 @@ class UIMenu {
 		this.insert_config(this.presets[preset], true);
 	}
 	async save_config(){
-		await store.set('junkconfig', this.config);
+		await this.store.set(this.config_key, this.config);
 	}
 	async load_config(){
-		this.insert_config(await store.get('junkconfig', 'object'));
+		this.insert_config(await this.store.get(this.config_key, 'object'));
 	}
 	static keybinds = new Set();
 };
