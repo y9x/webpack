@@ -8,7 +8,7 @@ class InputData {
 		this.array = array;
 	}
 	get keys(){
-		return keys;
+		return document.activeElement.tagName == 'INPUT' ? {} : keys;
 	}
 	get focused(){
 		return document.pointerLockElement != null;
