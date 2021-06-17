@@ -122,7 +122,7 @@ UI.ready.then(async () => {
 			},
 			world(world){ cheat.world = utils.world = world },
 			can_see: inview => cheat.config.esp.status == 'full' ? false : (cheat.config.esp.nametags || inview),
-			skins: ent => cheat.config.game.skins && typeof ent == 'object' && ent != null && ent.stats ? cheat.skins : ent.skins,
+			skins: ent => cheat.config.player.skins && typeof ent == 'object' && ent != null && ent.stats ? cheat.skins : ent.skins,
 			input: input.push.bind(input),
 			timer: (object, property, timer) => Object.defineProperty(object, property, {
 				get: _ => cheat.config.game.inactivity ? 0 : timer,
