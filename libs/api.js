@@ -166,6 +166,6 @@ class API {
 		
 		return location.replace(meta.license);
 	}
-}
+};
 
 module.exports = API;
