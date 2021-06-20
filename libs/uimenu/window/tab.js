@@ -61,9 +61,9 @@ class Category {
 		this.update();
 		for(let control of this.controls)control.show_content();
 	}
-	add_control(data){
+	add_control(name, data){
 		for(let type of Control.Types)if(type.id == data.type){
-			let control = new type(data, this);
+			let control = new type(name, data, this);
 			
 			this.controls.add(control);
 			
@@ -100,7 +100,7 @@ class Tab {
 		
 		return category;
 	}
-	add_control(data){
+	add_control(...args){
 		var category = this.last_category;
 		
 		if(!category || !category.is_default){
@@ -108,7 +108,7 @@ class Tab {
 			category.is_default = true;
 		}
 		
-		return category.add_control(data);
+		return category.add_control(...args);
 	}
 	update(init){
 		for(let category of this.categories)category.update(init);

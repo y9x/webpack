@@ -6,11 +6,11 @@ var vars = require('./vars'),
 	{ api, utils } = require('./consts');
 
 class Input {
-	constructor(cheat){
-		this.cheat = cheat;
+	constructor(data){
+		this.data = data;
 	}
 	push(array){
-		if(this.cheat.player && this.cheat.controls)try{
+		if(this.data.player && this.data.controls)try{
 			var data = new InputData(array);
 			
 			this.modify(data);
@@ -28,36 +28,36 @@ class Input {
 	}
 	aim_camera(rot, data){
 		// updating camera will make a difference next tick, update current tick with aim_input
-		this.cheat.controls[vars.pchObjc].rotation.x = rot.x;
-		this.cheat.controls.object.rotation.y = rot.y;
+		this.data.controls[vars.pchObjc].rotation.x = rot.x;
+		this.data.controls.object.rotation.y = rot.y;
 		
 		this.aim_input(rot, data);
 	}
 	correct_aim(rot, data){
-		if(data.shoot)data.shoot = !this.cheat.player.shot;
+		if(data.shoot)data.shoot = !this.data.player.shot;
 		
-		if(!data.reload && this.cheat.player.has_ammo && data.shoot && !this.cheat.player.shot)this.aim_input(rot, data);
+		if(!data.reload && this.data.player.has_ammo && data.shoot && !this.data.player.shot)this.aim_input(rot, data);
 	}
 	enemy_sight(){
-		if(this.cheat.player.shot)return;
+		if(this.data.player.shot)return;
 		
 		var raycaster = new utils.three.Raycaster();
 		
-		raycaster.setFromCamera({ x: 0, y: 0 }, this.cheat.world.camera);
+		raycaster.setFromCamera({ x: 0, y: 0 }, utils.world.camera);
 		
-		if(this.cheat.player.aimed && raycaster.intersectObjects(this.cheat.game.players.list.map(ent => this.cheat.add(ent)).filter(ent => ent.can_target).map(ent => ent.obj), true).length)return true;
+		if(this.data.player.aimed && raycaster.intersectObjects(this.data.added_players.filter(ent => ent.can_target).map(ent => ent.obj), true).length)return true;
 	}
 	calc_rot(player){
 		var camera = utils.camera_world(),
 			target = player.aim_point;
 		
-		// target.add(player.velocity);
+		// target.position.add(player.velocity);
 		
 		var x_dire = utils.getXDire(camera.x, camera.y, camera.z, target.x, target.y
-			- this.cheat.player.jump_bob_y
+			- this.data.player.jump_bob_y
 			, target.z)
-			- this.cheat.player.land_bob_y * 0.1
-			- this.cheat.player.recoil_y * vars.consts.recoilMlt,
+			- this.data.player.land_bob_y * 0.1
+			- this.data.player.recoil_y * vars.consts.recoilMlt,
 			y_dire = utils.getDir(camera.z, camera.x, target.z, target.x);
 		
 		return {
@@ -66,18 +66,18 @@ class Input {
 		};
 	}
 	smooth(target, setup){
-		var x_ang = utils.getAngleDst(this.cheat.controls[vars.pchObjc].rotation.x, target.x),
-			y_ang = utils.getAngleDst(this.cheat.controls.object.rotation.y, target.y);
+		var x_ang = utils.getAngleDst(this.data.controls[vars.pchObjc].rotation.x, target.x),
+			y_ang = utils.getAngleDst(this.data.controls.object.rotation.y, target.y);
 		
 		// camChaseSpd used on .object
 		
 		return {
-			y: this.cheat.controls.object.rotation.y + y_ang * setup.speed,
-			x: this.cheat.controls[vars.pchObjc].rotation.x + x_ang * setup.turn,
+			y: this.data.controls.object.rotation.y + y_ang * setup.speed,
+			x: this.data.controls[vars.pchObjc].rotation.x + x_ang * setup.turn,
 		};
 	}
 	bhop(data){
-		var status = this.cheat.config.player.bhop,
+		var status = this.data.bhop,
 			auto = status.startsWith('auto'),
 			key = status.startsWith('key'),
 			slide = status.endsWith('slide'),
@@ -86,45 +86,45 @@ class Input {
 		if(!data.focused)return;
 		
 		if(jump && (auto || data.keys.Space)){
-			this.cheat.controls.keys[this.cheat.controls.binds.jump.val] ^= 1;
-			if(this.cheat.controls.keys[this.cheat.controls.binds.jump.val])this.cheat.controls.didPressed[this.cheat.controls.binds.jump.val] = 1;
+			this.data.controls.keys[this.data.controls.binds.jump.val] ^= 1;
+			if(this.data.controls.keys[this.data.controls.binds.jump.val])this.data.controls.didPressed[this.data.controls.binds.jump.val] = 1;
 		}
 		
-		if(slide && (auto || data.keys.Space) && this.cheat.player.velocity.y < -0.02 && this.cheat.player.can_slide)setTimeout(() => this.cheat.controls.keys[this.cheat.controls.binds.crouch.val] = 0, 325), this.cheat.controls.keys[this.cheat.controls.binds.crouch.val] = 1;
+		if(slide && (auto || data.keys.Space) && this.data.player.velocity.y < -0.02 && this.data.player.can_slide)setTimeout(() => this.data.controls.keys[this.data.controls.binds.crouch.val] = 0, 325), this.data.controls.keys[this.data.controls.binds.crouch.val] = 1;
 	}
 	modify(data){
 		// bhop
 		this.bhop(data);
 		
 		// auto reload
-		if(!this.cheat.player.has_ammo && (this.cheat.config.aim.status == 'auto' || this.cheat.config.aim.auto_reload))data.reload = true;
+		if(!this.data.player.has_ammo && (this.data.aim == 'auto' || this.data.auto_reload))data.reload = true;
 		
 		// TODO: target once on aim
 		
-		data.could_shoot = this.cheat.player.can_shoot;
+		data.could_shoot = this.data.player.can_shoot;
 		
-		var nauto = this.cheat.player.weapon_auto || this.cheat.player.weapon.burst || !data.shoot || !InputData.previous.could_shoot || !InputData.previous.shoot,
-			hitchance = (Math.random() * 100) < this.cheat.config.aim.hitchance,
-			can_target = this.cheat.config.aim.status == 'auto' || data.scope || data.shoot;
+		var nauto = this.data.player.weapon_auto || this.data.player.weapon.burst || !data.shoot || !InputData.previous.could_shoot || !InputData.previous.shoot,
+			hitchance = (Math.random() * 100) < this.data.hitchance,
+			can_target = this.data.aim == 'auto' || data.scope || data.shoot;
 		
-		if(this.cheat.player.weapon.burst)this.cheat.player.shot = this.cheat.player.did_shoot;
+		if(this.data.player.weapon.burst)this.data.player.shot = this.data.player.did_shoot;
 		
-		if(can_target)this.cheat.target = this.cheat.pick_target();
+		if(can_target)this.data.pick_target();
 		
-		if(this.cheat.player.can_shoot)if(this.cheat.config.aim.status == 'trigger')data.shoot = this.enemy_sight() || data.shoot;
-		else if(this.cheat.config.aim.status != 'off' && this.cheat.target && this.cheat.player.health){
-			var rot = this.calc_rot(this.cheat.target);
+		if(this.data.player.can_shoot)if(this.data.aim == 'trigger')data.shoot = this.enemy_sight() || data.shoot;
+		else if(this.data.aim != 'off' && this.data.target && this.data.player.health){
+			var rot = this.calc_rot(this.data.target);
 			
-			if(hitchance)if(this.cheat.config.aim.status == 'correction' && nauto)this.correct_aim(rot, data);
-			else if(this.cheat.config.aim.status == 'auto'){
-				if(this.cheat.player.can_aim)data.scope = 1;
+			if(hitchance)if(this.data.aim == 'correction' && nauto)this.correct_aim(rot, data);
+			else if(this.data.aim == 'auto'){
+				if(this.data.player.can_aim)data.scope = 1;
 				
-				if(this.cheat.player.aimed)data.shoot = !this.cheat.player.shot;
+				if(this.data.player.aimed)data.shoot = !this.data.player.shot;
 				
 				this.correct_aim(rot, data);
 			}
 			
-			if(this.cheat.config.aim.status == 'assist' && this.cheat.player.aim_press){
+			if(this.data.aim == 'assist' && this.data.player.aim_press){
 				var smooth_map = {
 					// step: 2
 					// min: 0
@@ -142,7 +142,7 @@ class Input {
 					1: 0.01, // light
 				};
 				
-				let spd = smooth_map[this.cheat.config.aim.smooth] || (console.warn(this.cheat.config.aim.smooth, 'not registered'), 1);
+				let spd = smooth_map[this.data.aim_smooth] || (console.warn(this.data.aim_smooth, 'not registered'), 1);
 				
 				/*
 				50 => 0.005
@@ -159,14 +159,13 @@ class Input {
 				
 				this.aim_camera(rot, data);
 				
-				// offset aim rather than revert to any previous camera rotation
-				if(data.shoot && !this.cheat.player.shot && !hitchance)data.ydir = 0;
+				if(data.shoot && !this.data.player.shot && !hitchance)data.xdir = 0;
 			}
 		}
 		
-		if(this.cheat.player.can_shoot && data.shoot && !this.cheat.player.shot){
-			this.cheat.player.shot = true;
-			setTimeout(() => this.cheat.player.shot = false, this.cheat.player.weapon.rate + 2);
+		if(this.data.player.can_shoot && data.shoot && !this.data.player.shot){
+			this.data.player.shot = true;
+			setTimeout(() => this.data.player.shot = false, this.data.player.weapon.rate + 2);
 		}
 	}
 };

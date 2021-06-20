@@ -1,6 +1,7 @@
 'use strict';
 
-var { keybinds, global_listen, utils, store } = require('../consts'),
+var { utils, store } = require('../consts'),
+	DataStore = require('../../datastore'),
 	PanelDraggable = require('../paneldraggable'),
 	Control = require('./control'),
 	clone_obj = obj => JSON.parse(JSON.stringify(obj)),
@@ -14,24 +15,18 @@ var { keybinds, global_listen, utils, store } = require('../consts'),
 	};
 
 class Section {
-	constructor(data, panel){
-		this.data = data;
-		
+	constructor(name, panel){
 		this.panel = panel;
 		
 		this.node = utils.add_ele('section', this.panel.sections_con);
 		
-		this.default = data.default || false;
-		this.type = data.type;
-		this.name = data.name;
+		this.name = name;
 		
 		this.controls = new Set();
 		
-		this.data = data;
+		this.button = utils.add_ele('div', this.panel.sidebar_con, { className: 'open', textContent: this.name });
 		
-		utils.add_ele('div', this.panel.sidebar_con, { className: 'open-section', textContent: this.name }).addEventListener('click', () => this.interact());
-		
-		this.create_ui();
+		this.button.addEventListener('click', () => this.interact());
 		
 		this.hide();
 	}
@@ -43,32 +38,42 @@ class Section {
 	get visible(){
 		return !this.node.classList.contains('hidden');
 	}
-	update(){
+	update(init){
 		for(let control of this.controls)try{
-			control.update();
+			control.emit('change', control.value, init);
+			
+			control.update(init);
 		}catch(err){
 			console.error(err);
 		}
 	}
-	show(dont_save){
+	show(init){
+		this.button.classList.add('active');
+		
 		this.node.classList.remove('hidden');
-		this.update();
+		this.update(init);
 		
 		this.panel.config.section = this.name;
-		if(!dont_save)this.panel.save_config();
+		if(!init)this.panel.save_config();
 	}
 	hide(){
+		this.button.classList.remove('active');
+		
 		this.node.classList.add('hidden');
 	}
 };
 
 class ControlSection extends Section {
 	static id = 'control';
-	create_ui(){
-		for(let data of this.data.value)this.add_control(data);
-	}
-	add_control(data){
-		for(let type of Control.Types)if(type.id == data.type)return this.controls.add(new type(data, this));
+	add_control(name, data){
+		for(let type of Control.Types)if(type.id == data.type){
+			let control = new type(name, data, this);
+			
+			this.controls.add(control);
+			
+			return control;
+		}
+		
 		throw new TypeError('Unknown type: ' + data.type);
 	}
 };
@@ -86,73 +91,78 @@ Section.Types = [
 ];
 
 class Config extends PanelDraggable {
-	constructor(data){
-		super(data, 'config');	
+	constructor(title, key, store = new DataStore()){
+		super({}, 'config');	
 		
-		this.default_config = {};
+		this.store = store;
+		
+		this.config_key = key;
+		
+		this.presets = new Map();
 		
 		this.sections = new Set();
 		
-		this.title = this.listen_dragging(utils.add_ele('div', this.node, { textContent: data.title, className: 'title' }));
+		this.title = this.listen_dragging(utils.add_ele('div', this.node, { textContent: title, className: 'title' }));
 		
-		utils.add_ele('div', this.title, { className: 'version', textContent: 'v' + data.version });
-		
+		this.sidebar_con = utils.add_ele('div', this.node, { className: 'tabs' });
 		this.sections_con = utils.add_ele('div', this.node, { className: 'sections' });
-		this.sidebar_con = utils.add_ele('div', this.sections_con, { className: 'sidebar' });
-		
-		keybinds.push(this.toggle_bind = {
-			code: [ 'F1' ],
-			interact: () => {
-				// this.save_config();
-				
-				if(this.visible)this.hide();
-				else this.show();
-			},
-		});
-		
-		this.footer = utils.add_ele('footer', this.node);
 		
 		this.apply_bounds();
 	}
 	get default_section(){
-		var defaults,
-			active_config;
+		var first;
 		
-		for(let section of this.sections)if(section.visible)return section;
-		else if(section.default)defaults = section;
-		else if(section.name == this.config.section)active_config = section;
+		for(let section of this.sections){
+			if(section.visible)return section;
+			if(!first)first = section;
+			if(section.name == this.config.section)return section;
+		}
 		
-		return active_config || defaults;
+		return first;
 	}
-	update(start){
+	update(init){
 		this.apply_bounds();
 		
-		this.default_section.show(start);
+		for(let section of this.sections){
+			section.update(init);
+			
+			if(section == this.default_section)section.show();
+			else section.hide();
+		}
 		
-		for(let section of this.sections)if(section != this.default_section)section.hide();
+		// this.toggle_bind.code = [ 'F1', this.config.binds.toggle ];
 		
-		this.toggle_bind.code = [ 'F1', this.config.binds.toggle ];
+		// var bind = this.toggle_bind.code.map(utils.string_key).map(x => '[' + x + ']').join(' or ');
 		
-		var bind = this.toggle_bind.code.map(utils.string_key).map(x => '[' + x + ']').join(' or ');
-		
-		this.footer.textContent = `Press ${bind} to toggle`;
+		// this.footer.textContent = `Press ${bind} to toggle`;
 	}
-	add_section(data){
-		for(let type of Section.Types)if(type.id == data.type)return this.sections.add(new type(data, this));
-		throw new TypeError('Unknown type: ' + data.type);
-	}
-	async reset_config(){
-		this.config = clone_obj(this.default_config);
-		this.update(false);
+	add_tab(name){
+		var tab = new ControlSection(name, this);
 		
-		await this.save_config();
+		this.sections.add(tab);
+		
+		return tab;
+	}
+	add_preset(label, value){
+		this.presets.set(label, value);
+	}
+	async insert_config(data, save = false){
+		this.config = utils.assign_deep(utils.clone_obj(this.presets.get('Default')), data);
+		
+		if(save)await this.save_config();
+		
+		this.update(true);
+	}
+	async load_preset(preset){
+		if(!this.presets.has(preset))throw new Error('Invalid preset:', preset);
+		
+		this.insert_config(this.presets.get(preset), true);
 	}
 	async save_config(){
-		await store.set('config', this.config);
+		await this.store.set(this.config_key, this.config);
 	}
 	async load_config(){
-		this.config = assign_deep(clone_obj(this.default_config), await store.get('config', 'object'));
-		this.update(true);
+		this.insert_config(await this.store.get(this.config_key, 'object'));
 		
 		setTimeout(() => {
 			this.pos = { x: 1, y: this.center_side('height') };

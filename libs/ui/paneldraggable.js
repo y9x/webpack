@@ -1,17 +1,17 @@
 'use strict';
 
-var { global_listen, frame, panels, utils, store } = require('./consts'),
+var { frame, panels, utils, store } = require('./consts'),
 	Panel = require('./panel');
 
 class PanelDraggable extends Panel {
-	constructor(data, type){
-		super(data, type);
+	constructor(type){
+		super(type);
 		
 		this.pos = { x: 0, y: 0 };
 		
 		window.addEventListener('resize', () => this.apply_bounds());
 		
-		global_listen('mousemove', event => {
+		window.addEventListener('mousemove', event => {
 			var pos = { x: event.pageX, y: event.pageY };
 			
 			if(this.prev_pos && this.dragging){
@@ -24,7 +24,7 @@ class PanelDraggable extends Panel {
 			this.prev_pos = pos;
 		});
 		
-		global_listen('mouseup', () => {
+		window.addEventListener('mouseup', () => {
 			if(!this.dragging)return;
 			this.pos = this.within_bounds();
 			this.apply_bounds();

@@ -12,13 +12,11 @@ class Utils {
 		this.pi2 = Math.PI * 2;
 		this.halfpi = Math.PI / 2;
 		
-		// planned mobile client
-		this.mobile = false;
-		
-		if(typeof navigator == 'object' && navigator != null)for(let ua of [ 'android', 'webos', 'iphone', 'ipad', 'ipod', 'blackberry', 'iemobile', 'opera mini' ])if(navigator.userAgent.includes(ua)){
-			this.mobile = true;
-			break;
-		}
+		this.mobile_uas = [ 'android', 'webos', 'iphone', 'ipad', 'ipod', 'blackberry', 'iemobile', 'opera mini' ];
+	}
+	get mobile(){
+		if(typeof navigator == 'object' && navigator != null)for(let ua of this.mobile_uas)if(navigator.userAgent.includes(ua))return true;
+		return false;
 	}
 	dist_center(pos){
 		return Math.hypot((window.innerWidth / 2) - pos.x, (window.innerHeight / 2) - pos.y);
@@ -225,15 +223,27 @@ class Utils {
 		var crt = this.crt_ele(node_name, attributes);
 		
 		if(typeof parent == 'function')this.wait_for(parent).then(data => data.appendChild(crt));
-		else if(typeof node == 'object' && node != null && node.appendChild)parent.appendChild(crt);
+		else if(typeof parent == 'object' && parent != null && parent.appendChild)parent.appendChild(crt);
 		else throw new Error('Parent is not resolvable to a DOM element');
 		
 		return crt;
 	}
 	crt_ele(node_name, attributes = {}){
-		if(attributes.style != null && typeof attributes.style == 'object')attributes.style = this.css(attributes.style);
+		var after = {};
 		
-		return Object.assign(node_name == 'text' ? document.createTextNode('') : document.createElement(node_name), attributes);
+		for(let prop in attributes)if(typeof attributes[prop] == 'object' && attributes[prop] != null)after[prop] = attributes[prop], delete attributes[prop];
+	
+		var node;
+		
+		if(node_name == 'raw')node = this.crt_ele('div', { innerHTML: attributes.html }).firstChild;
+		else if(node_name == 'text')node = document.createTextNode('');
+		else node = document.createElement(node_name)
+		
+		Object.assign(node, attributes);
+		
+		for(let prop in after)Object.assign(node[prop], after[prop]);
+		
+		return node;
 	}
 	string_key(key){
 		return key.replace(/^(Key|Digit|Numpad)/, '');
@@ -248,6 +258,19 @@ class Utils {
 		}
 		
 		return target;
+	}
+	redirect(name, from, to){
+		var proxy = Symbol();
+		
+		to.addEventListener(name, event => {
+			if(event[proxy])return;
+			event.stopImmediatePropagation();
+			event.preventDefault();
+		});
+		
+		from.addEventListener(name, event => to.dispatchEvent(Object.assign(new(event.constructor)(name, event), {
+			[proxy]: true,
+		})));
 	}
 }
 

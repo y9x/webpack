@@ -2,292 +2,14 @@
 
 var { api, utils, meta } = require('../libs/consts.js'),
 	UI = require('../libs/ui'),
-	meta = require('./meta'),
-	config = new UI.Config({
-		version: meta.version,
-		title: 'Sploit',
-	});
-
-config.add_section({
-	name: 'Main',
-	type: 'control',
-	default: true,
-	value: [{
-		name: 'Aimbot Type',
-		type: 'rotate',
-		walk: 'aim.status',
-		vals: [
-			[ 'off', 'Off' ],
-			[ 'trigger', 'Triggerbot' ],
-			[ 'correction', 'Correction' ],
-			[ 'assist', 'Assist' ],
-			[ 'auto', 'Automatic' ],
-		],
-		key: 'binds.aim',
-	},{
-		name: 'Auto Bhop',
-		type: 'rotate',
-		walk: 'player.bhop',
-		key: 'binds.bhop',
-		vals: [
-			[ 'off', 'Off' ],
-			[ 'keyjump', 'Key jump' ],
-			[ 'keyslide', 'Key slide' ],
-			[ 'autoslide', 'Auto slide' ],
-			[ 'autojump', 'Auto jump' ],
-		],
-	},{
-		name: 'ESP Mode',
-		type: 'rotate',
-		walk: 'esp.status',
-		key: 'binds.esp',
-		vals: [
-			[ 'off', 'Off' ],
-			[ 'box', 'Box' ],
-			[ 'chams', 'Chams' ],
-			[ 'box_chams', 'Box & chams' ],
-			[ 'full', 'Full' ],
-		],
-	},{
-		name: 'Tracers',
-		type: 'boolean',
-		walk: 'esp.tracers',
-		key: 'binds.tracers',
-	},{
-		name: 'Nametags',
-		type: 'boolean',
-		walk: 'esp.nametags',
-		key: 'binds.nametags',
-	},{
-		name: 'Overlay',
-		type: 'boolean',
-		walk: 'game.overlay',
-		key: 'binds.overlay',
-	}],
-});
-
-config.add_section({
-	name: 'Game',
-	type: 'control',
-	value: [{
-		name: 'Custom CSS',
-		type: 'function',
-		value: () => config.css_editor.show(),
-	},{
-		name: 'Custom Loading Screen',
-		type: 'boolean',
-		walk: 'game.custom_loading',
-	},{
-		name: 'Unlock Skins',
-		type: 'boolean',
-		walk: 'player.skins',
-	},{
-		name: 'Wireframe',
-		type: 'boolean',
-		walk: 'game.wireframe',
-	},{
-		name: 'Auto respawn',
-		type: 'boolean',
-		walk: 'game.auto_respawn',
-	},{
-		name: 'Remove inactivity',
-		type: 'boolean',
-		walk: 'game.inactivity',
-	}],
-});
-
-config.add_section({
-	name: 'Aim',
-	type: 'control',
-	value: [{
-		name: 'Smoothness',
-		type: 'slider',
-		walk: 'aim.smooth',
-		range: [ 0, 1, 0.2 ],
-		unit: false,
-		labels: { 0: 'Off' },
-	},{
-		name: 'Target FOV',
-		type: 'slider',
-		walk: 'aim.fov',
-		range: [ 10, 110, 10 ],
-		labels: { 110: 'Ignore FOV' },
-	},{
-		name: 'Hitchance',
-		type: 'slider',
-		walk: 'aim.hitchance',
-		range: [ 10, 100, 5 ],
-	},{
-		name: 'Target sort',
-		type: 'rotate',
-		walk: 'aim.target_sorting',
-		vals: [
-			[ 'dist2d', 'Distance 2D' ],
-			[ 'dist3d', 'Distance 3D' ],
-			[ 'hp', 'Health' ],
-		],
-	},{
-		name: 'Offset',
-		type: 'rotate',
-		walk: 'aim.offset',
-		vals: [
-			[ 'head', 'Head' ],
-			[ 'torso', 'Torso' ],
-			[ 'legs', 'Legs' ],
-			[ 'random', 'Random' ],
-		],
-	},{
-		name: 'Draw FOV box',
-		type: 'boolean',
-		walk: 'aim.fov_box',
-	},{
-		name: 'Auto reload',
-		type: 'boolean',
-		walk: 'aim.auto_reload',
-	},{
-		name: 'Wallbangs',
-		type: 'boolean',
-		walk: 'aim.wallbangs',
-	}],
-});
-
-config.add_section({
-	name: 'Esp',
-	type: 'control',
-	value: [{
-		name: 'Wall opacity',
-		type: 'slider',
-		walk: 'esp.walls',
-		range: [ 0, 100, 5 ],
-	},{
-		name: 'Labels',
-		type: 'boolean',
-		walk: 'esp.labels',
-	}]
-});
-
-config.add_section({
-	name: 'Binds',
-	type: 'control',
-	value: [{
-		name: 'Toggle',
-		type: 'keybind',
-		walk: 'binds.toggle',
-	},{
-		name: 'Auto aim',
-		type: 'keybind',
-		walk: 'binds.aim',
-	},{
-		name: 'Auto bhop',
-		type: 'keybind',
-		walk: 'binds.bhop',
-	},{
-		name: 'ESP mode',
-		type: 'keybind',
-		walk: 'binds.esp',
-	},{
-		name: 'Tracers',
-		type: 'keybind',
-		walk: 'binds.tracers',
-	},{
-		name: 'Nametags',
-		type: 'keybind',
-		walk: 'binds.nametags',
-	},{
-		name: 'Overlay',
-		type: 'keybind',
-		walk: 'binds.overlay',
-	},
-	{
-		name: 'Reset',
-		type: 'keybind',
-		walk: 'binds.reset',
-	}],
-});
-
-config.add_section({
-	name: 'Settings',
-	type: 'control',
-	value: [{
-		name: 'GitHub',
-		type: 'link',
-		value: meta.github,
-	},{
-		name: 'Discord',
-		type: 'link',
-		value: meta.discord,
-	},{
-		name: 'Forum',
-		type: 'link',
-		value: meta.forum,
-	},{
-		name: 'Save Krunker script',
-		type: 'function',
-		value(){
-			var link = utils.add_ele('a', document.documentElement, { href: api.resolve({
-				target: api.api_v2,
-				endpoint: 'source',
-				query: { download: true },
-			}) });
-			
-			link.click();
-			
-			link.remove();
-		},
-	},{
-		name: 'Reset Settings',
-		type: 'function',
-		async value(){
-			config.reset_config();
-		},
-		bind: 'binds.reset',
-	}],
-});
-
-config.default_config = {
-	binds: {
-		reverse_cam: 'KeyF',
-		toggle: 'KeyC',
-		aim: 'Digit3',
-		bhop: 'Digit4',
-		esp: 'Digit5',
-		tracers: 'Digit6',
-		nametags: 'Digit7',
-		overlay: 'Digit8',
-	},
-	aim: {
-		status: 'off',
-		offset: 'random',
-		target_sorting: 'dist2d',
-		smooth: 0.2,
-		hitchance: 100,
-		// percentage of screen
-		fov_box: false,
-		fov: 60,
-	},
-	color: {
-		risk: '#FF7700',
-		hostile: '#FF0000',
-		friendly: '#00FF00',
-	},
-	esp: {
-		status: 'off',
-		walls: 100,
-		labels: false,
-		tracers: false,
-	},
-	game: {
-		wireframe: false,
-		auto_respawn: false,
-		adblock: true,
-		custom_loading: true,
-		inactivity: true,
-	},
-	player: {
-		bhop: 'off',
-		skins: false,
-	},
-};
+	Keybind = require('../libs/keybind'),
+	config = new UI.Config('Sploit', 'config'),
+	binds = {
+		toggle: new Keybind().add_callback(() => {
+			if(config.visible)config.hide();
+			else document.exitPointerLock(), config.show();
+		}),
+	};
 
 config.css_editor = new UI.Editor({
 	help: [
@@ -314,5 +36,264 @@ config.css_editor = new UI.Editor({
 		`<p>For further help, search or post on the forum found by <a target="_blank" href="${meta.forum}">clicking here</a>.<p>`,
 	].join(''),
 });
+
+config.add_preset('Default', {
+	binds: {
+		reverse_cam: 'KeyF',
+		toggle: 'KeyC',
+		aim: 'Digit3',
+		bhop: 'Digit4',
+		esp: 'Digit6',
+		overlay: 'Digit7',
+	},
+	aim: {
+		status: 'off',
+		offset: 'random',
+		target_sorting: 'dist2d',
+		smooth: 0.2,
+		hitchance: 100,
+		// percentage of screen
+		fov_box: false,
+		fov: 60,
+	},
+	color: {
+		risk: '#FF7700',
+		hostile: '#FF0000',
+		friendly: '#00FF00',
+	},
+	esp: {
+		wireframe: false,
+		status: 'off',
+		walls: 100,
+		labels: false,
+		tracers: false,
+	},
+	game: {
+		auto_nuke: false,
+		auto_lobby: false,
+		auto_start: false,
+		inactivity: true,
+		custom_loading: true,
+		inactivity: true,
+	},
+	player: {
+		bhop: 'off',
+		skins: false,
+	},
+});
+
+var render = config.add_tab('Render');
+
+render.add_control('ESP Mode', {
+	name: 'ESP Mode',
+	type: 'rotate',
+	walk: 'esp.status',
+	key: 'binds.esp',
+	value: {
+		off: 'Off',
+		box: 'Box',
+		chams: 'Chams',
+		box_chams: 'Box & Chams',
+		full: 'Full',
+	},
+});
+
+render.add_control('Draw FOV box', {
+	type: 'boolean',
+	walk: 'aim.fov_box',
+});
+
+render.add_control('Nametags', {
+	type: 'boolean',
+	walk: 'esp.nametags',
+});
+
+render.add_control('Tracers', {
+	type: 'boolean',
+	walk: 'esp.tracers',
+});
+
+render.add_control('Wireframe', {
+	type: 'boolean',
+	walk: 'esp.wireframe',
+});
+
+render.add_control('Wall Opacity', {
+	type: 'slider',
+	walk: 'esp.walls',
+	min: 0,
+	max: 100,
+	step: 10,
+});
+
+render.add_control('Overlay', {
+	type: 'boolean',
+	walk: 'game.overlay',
+	key: 'binds.overlay',
+});
+
+var weapon = config.add_tab('Weapon');
+
+weapon.add_control('Aimbot Mode', {
+	type: 'rotate',
+	walk: 'aim.status',
+	value: {
+		off: 'Off',
+		trigger: 'Triggerbot',
+		correction: 'Correction',
+		assist: 'Assist',
+		auto: 'Automatic',
+	},
+	key: 'binds.aim',
+});
+
+weapon.add_control('Target', {
+	type: 'rotate',
+	walk: 'aim.offset',
+	value: {
+		head: 'Head',
+		torso: 'Torso',
+		legs: 'Legs',
+		random: 'Random',
+	},
+});
+
+weapon.add_control('Target Sorting', {
+	type: 'rotate',
+	walk: 'aim.target_sorting',
+	value: {
+		dist2d: 'Crosshair',
+		dist3d: 'Distance',
+		hp: 'Health',
+	},
+});
+
+weapon.add_control('Target FOV', {
+	type: 'slider',
+	walk: 'aim.fov',
+	min: 10,
+	max: 110,
+	step: 10,
+	labels: {
+		110: 'Inf',
+	},
+});
+
+weapon.add_control('Smoothness', {
+	type: 'slider',
+	walk: 'aim.smooth',
+	min: 0,
+	max: 1,
+	step: 0.2,
+	labels: { 0: 'Off' },
+});
+
+weapon.add_control('Hitchance', {
+	type: 'slider',
+	walk: 'aim.hitchance',
+	min: 10,
+	max: 100,
+	step: 10,
+});
+
+weapon.add_control('Auto reload', {
+	type: 'boolean',
+	walk: 'aim.auto_reload',
+});
+
+weapon.add_control('Wallbangs', {
+	type: 'boolean',
+	walk: 'aim.wallbangs',
+});
+
+var player = config.add_tab('Player');
+
+player.add_control('Auto Bhop Mode', {
+	type: 'rotate',
+	walk: 'player.bhop',
+	value: {
+		off: 'Off',
+		keyjump: 'Key Jump',
+		keyslide: 'Key Slide',
+		autoslide: 'Auto Slide',
+		autojump: 'Auto Jump',
+	},
+	key: 'binds.bhop',
+});
+
+player.add_control('Unlock Skins', {
+	type: 'boolean',
+	walk: 'player.skins',
+});
+
+render.add_control('Custom CSS', {
+	type: 'function',
+	value(){ config.css_editor.show() },
+});
+
+var game = config.add_tab('Game');
+
+game.add_control('Custom Loading Screen', {
+	type: 'boolean',
+	walk: 'game.custom_loading',
+});
+
+game.add_control('Auto Activate Nuke', {
+	type: 'boolean',
+	walk: 'game.auto_nuke',
+});
+
+game.add_control('Auto Start Match', {
+	type: 'boolean',
+	walk: 'game.auto_start',
+});
+
+game.add_control('New Lobby Finder', {
+	type: 'boolean',
+	walk: 'game.auto_lobby',
+});
+
+game.add_control('No Inactivity kick', {
+	type: 'boolean',
+	walk: 'game.inactivity',
+});
+
+var info = config.add_tab('Info');
+
+info.add_control('GitHub', {
+	type: 'link',
+	value: meta.github,
+});
+
+info.add_control('Discord', {
+	type: 'link',
+	value: meta.discord,
+});
+
+info.add_control('Forum', {
+	type: 'link',
+	value: meta.forum,
+});
+
+info.add_control('Download Game', {
+	type: 'link',
+	value: api.resolve({
+		target: api.api_v2,
+		endpoint: 'source',
+		query: { download: true },
+	}),
+});
+
+info.add_control('Reset Settings', {
+	type: 'function',
+	value(){ config.load_preset('Default') },
+});
+
+var interf = config.add_tab('Interface');
+
+interf.add_control('Menu Toggle', {
+	type: 'keybind',
+	walk: 'binds.toggle',
+}).on('change', value => binds.toggle.set_key('F1', value));
 
 module.exports = config;

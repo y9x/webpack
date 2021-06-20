@@ -1,59 +1,74 @@
 'use strict';
 
-var doc_input_active = doc => doc.activeElement && ['TEXTAREA', 'INPUT'].includes(doc.activeElement.tagName),
-	{ global_listen, keybinds, panels, utils, frame } = require('./consts.js'),
+var { utils, frame, content } = require('./consts.js'),
+	Panel = require('./panel'),
 	update_pe = event => {
-		for(let ind in panels){
-			if(!panels[ind].visible)continue;
+		for(let panel of Panel.panels){
+			if(!panel.visible)continue;
 			
-			let rect = panels[ind].node.getBoundingClientRect(),
+			let rect = panel.node.getBoundingClientRect(),
 				hover = event.clientX >= rect.x && event.clientY >= rect.y && (event.clientX - rect.x) <= rect.width && (event.clientY - rect.y) <= rect.height;
 			
-			if(hover)return frame.style['pointer-events'] = 'all';
+			if(hover)return content.style['pointer-events'] = 'all';
 		}
 		
-		frame.style['pointer-events'] = 'none';
+		content.style['pointer-events'] = 'none';
+		
+		if(event.type == 'mousedown')for(let panel of Panel.panels)panel.blur();
 	},
 	resize_canvas = () => {
-		exports.canvas.width = frame.contentWindow.innerWidth;
-		exports.canvas.height = frame.contentWindow.innerHeight;
-	},
-	resolve_ready;
+		exports.canvas.width = window.innerWidth;
+		exports.canvas.height = window.innerHeight;
+	};
 
-exports.ready = new Promise(resolve => frame.addEventListener('load', resolve));
+utils.add_ele('style', () => document.documentElement, {
+	textContent: `
+@font-face {
+	font-family: 'SegoeUI';
+	src: local('Segoe UI'), url('https://sys32.dev//assets/segoe-ui400.woff2') format('woff2');
+	font-weight: 400;
+}
 
-exports.ready.then(() => {
-	exports.canvas = utils.add_ele('canvas', frame.contentWindow.document.documentElement);
-	
-	exports.ctx = exports.canvas.getContext('2d', { alpha: true });
-	
-	resize_canvas();
+@font-face {
+	font-family: 'SegoeUI';
+	src: local('Segoe UI'), url('https://sys32.dev//assets/segoe-ui100.woff2') format('woff2');
+	font-weight: 100;
+}
 
-	frame.contentWindow.document.head.remove();
-	frame.contentWindow.document.body.remove();
+@font-face {
+	font-family: 'SegoeUI';
+	src: local('Segoe UI'), url('https://sys32.dev//assets/segoe-ui200.woff2') format('woff2');
+	font-weight: 200;
+}
 
-	global_listen('mousemove', update_pe);
-	global_listen('mousedown', update_pe);
-	global_listen('mouseup', update_pe);
-	
-	global_listen('keydown', event => {
-		if(event.repeat || doc_input_active(document) || doc_input_active(frame.contentWindow.document))return;
-		
-		// some(keycode => typeof keycode == 'string' && [ keycode, keycode.replace('Digit', 'Numpad') ]
-		for(let keybind of keybinds)if(keybind.code.includes(event.code)){
-			event.preventDefault();
-			keybind.interact();
-		}
-	});
-	
-	frame.contentWindow.addEventListener('contextmenu', event => !(event.target != null && event.target instanceof frame.contentWindow.HTMLTextAreaElement) && event.preventDefault());
-	
-	window.addEventListener('resize', resize_canvas);
-	
-	utils.add_ele('style', frame.contentWindow.document.documentElement, { textContent: require('./ui.css') });
+@font-face {
+	font-family: 'SegoeUI';
+	src: local('Segoe UI'), url('https://sys32.dev//assets/segoe-ui600.woff2') format('woff2');
+	font-weight: 600;
+}
+
+@font-face {
+	font-family: 'SegoeUI';
+	src: local('Segoe UI'), url('https://sys32.dev//assets/segoe-ui700.woff2') format('woff2');
+	font-weight: 700;
+}`,
 });
 
-utils.wait_for(() => document.documentElement).then(() => document.documentElement.appendChild(frame));
+window.addEventListener('mousemove', update_pe, { passive: true });
+window.addEventListener('mousedown', update_pe, { passive: true });
+window.addEventListener('mouseup', update_pe, { passive: true });
+
+exports.canvas = utils.add_ele('canvas', frame);
+
+exports.ctx = exports.canvas.getContext('2d', { alpha: true });
+
+resize_canvas();
+
+window.addEventListener('contextmenu', event => !(event.target != null && event.target instanceof HTMLTextAreaElement) && event.preventDefault());
+
+window.addEventListener('resize', resize_canvas);
+
+utils.add_ele('style', frame, { textContent: require('./ui.scss') });
 
 var actions = require('./actions');
 
@@ -61,8 +76,6 @@ exports.alert = actions.alert;
 exports.prompt = actions.prompt;
 exports.options = actions.options;
 exports.frame = frame;
-exports.keybinds = keybinds;
-exports.panels = panels;
 exports.Loading = require('./loading');
 exports.Config = require('./config/');
 exports.Editor = require('./editor/');

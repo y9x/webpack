@@ -4,9 +4,19 @@ var vars = require('../libs/vars'),
 	{ utils } = require('../libs/consts');
 
 class Visual {
-	constructor(cheat){
-		this.cheat = cheat;
-		this.materials = {};
+	constructor(data){
+		this.data = data;
+		this.materials = new Map();
+	}
+	esp_mat(color){
+		if(!this.materials.has(color))this.materials.set(color, new utils.three.MeshBasicMaterial({
+			transparent: true,
+			fog: false,
+			depthTest: false,
+			color: color,
+		}));
+		
+		return this.materials.get(color);
 	}
 	tick(UI){
 		this.canvas = UI.canvas;
@@ -40,7 +50,7 @@ class Visual {
 		this.ctx.globalAlpha = 1;
 	}
 	walls(){
-		this.cheat.world.scene.children.forEach(obj => {
+		utils.world.scene.children.forEach(obj => {
 			if(obj.type != 'Mesh' || !obj.dSrc || obj.material[Visual.hooked])return;
 			
 			obj.material[Visual.hooked] = true;
@@ -50,11 +60,11 @@ class Visual {
 			
 			Object.defineProperties(obj.material, {
 				opacity: {
-					get: _ => opac * this.cheat.config.esp.walls / 100,
+					get: _ => opac * this.data.walls / 100,
 					set: _ => opac = _,
 				},
 				transparent: {
-					get: _ => this.cheat.config.esp.walls != 100 ? true : otra,
+					get: _ => this.data.walls != 100 ? true : otra,
 					set: _ => otra = _,
 				},
 			});
@@ -65,14 +75,13 @@ class Visual {
 	}
 	overlay(){
 		this.ctx.strokeStyle = '#000'
-		this.ctx.font = 'bold 14px inconsolata, monospace';
+		this.ctx.font = '14px monospace';
 		this.ctx.textAlign = 'start';
 		this.ctx.lineWidth = 2.6;
 		
 		var data = {
-			Player: this.cheat.player ? this.axis_join(this.cheat.player.position) : null,
-			PlayerV: this.cheat.player ? this.axis_join(this.cheat.player.velocity) : null,
-			Target: this.cheat.target ? this.axis_join(this.cheat.target.position) : null,
+			Player: this.data.player ? this.axis_join(this.data.player.position) : null,
+			Target: this.data.target ? this.axis_join(this.data.target.position) : null,
 		};
 		
 		var lines = [];
@@ -124,7 +133,7 @@ class Visual {
 		this.ctx.stroke();
 	}
 	get can_draw_chams(){
-		return this.cheat.config.esp.status == 'chams' || this.cheat.config.esp.status == 'box_chams' || this.cheat.config.esp.status == 'full';
+		return ['chams', 'box_chams', 'full'].includes(this.data.esp);
 	}
 	cham(player){
 		if(!player.obj[Visual.hooked]){
@@ -147,14 +156,9 @@ class Visual {
 			
 			Object.defineProperty(obj, 'material', {
 				get: _ => {
-					var material = this.can_draw_chams ? (this.materials[player.esp_color] || (this.materials[player.esp_color] = new utils.three.MeshBasicMaterial({
-						transparent: true,
-						fog: false,
-						depthTest: false,
-						color: player.esp_color,
-					}))) : orig_mat;
+					var material = this.can_draw_chams ? this.esp_mat(player.esp_color) : orig_mat;
 					
-					material.wireframe = !!this.cheat.config.game.wireframe;
+					material.wireframe = this.data.wireframe;
 					
 					return material;
 				},
@@ -204,11 +208,6 @@ class Visual {
 			],
 			[
 				[ '#FFF', player.weapon.name ],
-				[ '#BBB', '[' ],
-				[ '#FFF', player.ammo ],
-				[ '#BBB', '/' ],
-				[ '#FFF', player.max_ammo ],
-				[ '#BBB', ']' ],
 			],
 		]
 		

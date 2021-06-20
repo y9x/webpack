@@ -1,6 +1,6 @@
 'use strict';
 
-var { utils, store, frame } = require('../consts'),
+var { utils, store } = require('../consts'),
 	svg = require('./svg');
 
 class Tab {
@@ -55,13 +55,11 @@ class Tab {
 		this.rename_input.setAttribute('contenteditable', '');
 		
 		this.rename_input.addEventListener('focus', () => {
-			console.log('focus');
-			
 			var range = document.createRange();
 			
 			range.selectNodeContents(this.rename_input);
 			
-			var selection = frame.contentWindow.getSelection();
+			var selection = window.getSelection();
 			
 			selection.removeAllRanges();
 			

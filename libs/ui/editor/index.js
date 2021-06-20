@@ -9,7 +9,9 @@ var { utils, store } = require('../consts'),
 
 class Editor extends PanelDraggable {
 	constructor(data){
-		super(data, 'editor');
+		super('editor');
+		
+		this.data = data;
 		
 		this.sheet = utils.add_ele('style', document.documentElement);
 		

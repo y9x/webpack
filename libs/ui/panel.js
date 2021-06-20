@@ -1,22 +1,21 @@
 'use strict';
 
-var { frame, panels, utils, store } = require('./consts');
+var { frame, utils, store } = require('./consts');
 
 class Panel {
-	constructor(data = {}, type = ''){
-		this.data = data;
+	static panels = new Set();
+	constructor(type = ''){
 		this.type = type;
 		this.visible = true;
 		this.hover = true;
-		this.node = utils.add_ele('main', frame.contentWindow.document.documentElement, { className: type });
+		this.node = utils.add_ele('main', frame, { className: this.type });
 		
-		panels.push(this);
+		Panel.panels.add(this);
 		
 		this.node.addEventListener('mousedown', () => this.focus());
-		frame.contentWindow.addEventListener('blur', () => this.blur());
 	}
 	focus(){
-		for(var panel of panels)panel.blur();
+		for(let panel of Panel.panels)if(panel != this)panel.blur();
 		this.node.classList.add('focus');
 		this.node.style['z-index'] = 3;
 	}
@@ -26,14 +25,14 @@ class Panel {
 	}
 	show(){
 		this.visible = true;
-		this.node.classList.remove('hidden');
+		this.node.classList.add('visible');
 	}
 	hide(){
 		this.visible = false;
-		this.node.classList.add('hidden');
+		this.node.classList.remove('visible');
 	}
 	remove(){
-		panels.splice(panels.indexOf(this), 1);
+		Panel.panels.delete(this);
 		this.hide();
 		this.node.remove();
 	}

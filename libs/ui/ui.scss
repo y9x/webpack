@@ -1,0 +1,203 @@
+$assets: 'https://y9x.github.io/webpack/libs/ui';
+
+canvas {
+	pointer-events: none;
+}
+
+.loading {
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+	justify-content: center;
+	position: absolute;
+	width: 100%;
+	height: 100%;
+	top: 0px;
+	background: #000;
+	z-index: 0 !important;
+	transition: 0.75s ease;
+	border: none;
+}
+
+.loading img {
+	width: 178px;
+	height: 178px;
+}
+
+.loading a {
+	background-image: url($assets + '/discord-normal.png');
+	width: 50px;
+	height: 56px;
+	background-size: contain;
+	background-repeat: no-repeat;
+	margin-left: 4px;
+	pointer-events: all;
+	cursor: pointer;
+	transition: all .2s;
+	display: inline-block;
+}
+
+.loading a:hover {
+	background-image: url($assets + '/discord-hover.png');
+	transform: scale(.95);
+}
+
+.loading a:active {
+	background-image: url($assets  + '/discord-pressed.png');
+}
+
+canvas {
+	z-index: 2;
+}
+
+main {
+	--primary: #eee;
+	--secondary: #445;
+	--background: #112;
+	--background-split: 17, 17, 34;
+	--control-height: 36px;
+	--blue: #176EB4;
+	--blue-accent: #245a88;
+	--blue-dark: #143958;
+	--opacity: 0.75;
+	background: #1F1F1F;
+	border: 1px solid #8F8F8F;
+	color: var(--primary);
+	font-family: SegoeUI;
+	font-size: 14px;
+	height: min-content;
+	position: absolute;
+	opacity: var(--opacity);
+	user-select: none;
+	z-index: 2;
+	opacity: 0;
+	pointer-events: none;
+}
+
+main.visible {
+	opacity: 1;
+	pointer-events: all;
+}
+
+a {
+	cursor: pointer;
+	color: var(--blue);
+	text-decoration: none;
+}
+
+a:hover {
+	text-decoration: underline;
+}
+
+main:hover, main.focus {
+	--opacity: 1;
+}
+
+.title {
+	position: relative;
+	display: flex;
+	align-content: center;
+	justify-content: center;
+	text-align: center;
+	height: 30px;
+	flex-wrap: wrap;
+}
+
+.sections {
+	margin: 0px 2px;
+	display: flex;
+}
+
+.tabs {
+	display: grid;
+	grid-template-columns: 1fr 1fr 1fr;
+	height: 60px;
+	margin: 10px;
+	margin-top: 5px;
+	border-radius: 3px;
+	overflow: hidden;
+	position: relative;
+	background: #424242;
+	box-shadow: 0px 0px 4px #1A1A1A;
+}
+
+.tabs:hover::after {
+	opacity: 0;
+}
+
+.tabs > .open {
+	display: flex;
+	justify-content: center;
+	align-items: center;
+}
+
+.tabs > .open:hover { 
+	background-color: var(--blue-accent);
+}
+
+.tabs > .open.active {
+	background: var(--blue);
+}
+
+section {
+	overflow-y: auto;
+	vertical-align: top;
+	width: 275px;
+	height: 288px;
+	margin: 0px 10px 10px 10px;
+	background: #424242;
+	box-shadow: 0px 0px 4px #1A1A1A;
+	border-radius: 3px;
+	overflow: visible;
+}
+
+section.hidden {
+	display: none;
+}
+
+.control {
+	margin-left: 11px;
+	height: 36px;
+	align-items: center;
+	display: flex;
+}
+
+a.control {
+	color: #D2D2D2;
+}
+
+.control .text {
+	padding: 10px 10px;
+	line-height: 15px;
+}
+
+.control > .keybind {
+	font: 14px inconsolata,monospace;
+	text-align: center;
+	color: black;
+	width: 100%;
+	flex: 1 1 0;
+	height: 30px;
+	display: block;
+	position: relative;
+	margin: auto 6px;
+	background: #FFF;
+	border: 1px solid #000;
+}
+
+ez-select, ez-slider, ez-input {
+	height: 25px;
+	width: 120px;
+}
+
+ez-slider {
+	margin-right: 25px;
+}
+
+ez-select, ez-checkbox, ez-input {
+	margin-right: 11px;
+}
+
+ez-checkbox, ez-select, ez-slider, ez-input {
+	margin-left: auto;
+}
