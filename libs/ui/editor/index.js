@@ -1,6 +1,6 @@
 'use strict';
 
-var { utils, store } = require('../consts'),
+var { utils, store, frame } = require('../consts'),
 	PanelDraggable = require('../paneldraggable'),
 	Tab = require('./tab'),
 	svg = require('./svg'),
@@ -13,7 +13,7 @@ class Editor extends PanelDraggable {
 		
 		this.data = data;
 		
-		this.sheet = utils.add_ele('style', document.documentElement);
+		this.sheet = utils.add_ele('style', frame);
 		
 		this.title = utils.add_ele('div', this.node, { textContent: this.data.title, className: 'title' });
 		
