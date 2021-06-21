@@ -1,5 +1,5 @@
 main.prompt {
-	width: 490px;
+	width: 475px;
 	padding: 10px;
 	margin: auto;
 	left: 0;
@@ -57,9 +57,9 @@ main.prompt button {
 	border: none;
 	border-radius: 2x;
 	background: #5C5C5C;
-	font: inherit;
+	font-family: SegoeUI;
 	color: #FFF;
-	font-weight: 900;
+	font-weight: bold;
 }
 
 main.prompt  button:hover {

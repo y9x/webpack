@@ -99,8 +99,6 @@ class Main {
 			token.finally(() => loading.hide());
 		}
 		
-		UI.prompt('syys?\n\nae');
-		
 		api.on_instruct = () => {
 			if(api.has_instruct('connection banned 0x2'))localStorage.removeItem('krunker_token'), UI.alert([
 				`<p>You were IP banned, Sploit has signed you out.\nSpoof your IP to bypass this ban with one of the following:</p>`,
