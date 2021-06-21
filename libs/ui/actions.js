@@ -1,12 +1,12 @@
 'use strict';
 
 var Panel = require('./panel'),
-	{ utils } = require('./consts');
+	{ utils, frame } = require('./consts');
+
+utils.add_ele('style', frame, { textContent: require('./actions.css') });
 
 exports.alert = desc => {
-	var panel = new Panel({}, 'prompt');
-	
-	panel.fix_center();
+	var panel = new Panel('prompt');
 	
 	utils.add_ele('div', panel.node, { innerHTML: desc, className: 'description' });
 	
@@ -14,15 +14,15 @@ exports.alert = desc => {
 	
 	utils.add_ele('button', form, { textContent: 'OK', className: 'submit single' });
 	
+	panel.show();
+	
 	panel.focus();
 	
 	return new Promise(resolve => form.addEventListener('submit', event => (event.preventDefault(), panel.remove(), resolve()), { once: true }));
 };
 
 exports.prompt = (desc, default_text = '') => {
-	var panel = new Panel({}, 'prompt');
-	
-	panel.fix_center();
+	var panel = new Panel('prompt');
 	
 	utils.add_ele('div', panel.node, { textContent: desc, className: 'description' });
 	
@@ -35,6 +35,8 @@ exports.prompt = (desc, default_text = '') => {
 	utils.add_ele('button', form, { textContent: 'OK', className: 'submit' });
 	
 	var cancel = utils.add_ele('button', form, { textContent: 'Cancel', className: 'cancel' });
+	
+	panel.show();
 	
 	panel.focus();
 	
@@ -53,8 +55,6 @@ exports.prompt = (desc, default_text = '') => {
 exports.options = (title, options) => {
 	var panel = new Panel({}, 'options'),
 		title = utils.add_ele('div', panel.node, { textContent: title, className: 'title' });
-	
-	panel.fix_center();
 	
 	panel.focus();
 	

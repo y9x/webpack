@@ -9,11 +9,11 @@ main {
 }
 
 main[checked] {
-	background-color: var(--blue);
+	background-color: #176EB4;
 }
 
 main[checked]:hover {
-	background-color: var(--blue-accent);
+	background-color: #245a88;
 }
 
 main svg {

@@ -1,50 +1,9 @@
+* {
+	outline: none;
+}
+
 canvas {
 	pointer-events: none;
-}
-
-.loading {
-	display: flex;
-	flex-direction: column;
-	align-items: center;
-	justify-content: center;
-	position: absolute;
-	width: 100%;
-	height: 100%;
-	top: 0px;
-	background: #000;
-	z-index: 0 !important;
-	transition: 0.75s ease;
-	border: none;
-}
-
-.loading img {
-	width: 178px;
-	height: 178px;
-}
-
-.loading a {
-	background-image: url('https://y9x.github.io/webpack/libs/ui/discord-normal.png');
-	width: 50px;
-	height: 56px;
-	background-size: contain;
-	background-repeat: no-repeat;
-	margin-left: 4px;
-	pointer-events: all;
-	cursor: pointer;
-	transition: all .2s;
-	display: inline-block;
-}
-
-.loading a:hover {
-	background-image: url('https://y9x.github.io/webpack/libs/ui/discord-hover.png');
-	transform: scale(.95);
-}
-
-.loading a:active {
-	background-image: url('https://y9x.github.io/webpack/libs/ui/discord-pressed.png');
-}
-
-canvas {
 	z-index: 2;
 }
 
@@ -77,7 +36,7 @@ main.visible {
 	pointer-events: all;
 }
 
-main.visible:hover, main.visible.focus {
+main.loading.visible, main.visible:hover, main.visible.focus {
 	opacity: 1;
 }
 

@@ -16,11 +16,6 @@ class Control {
 		this.label = utils.add_ele('text', this.content);
 		
 		this.create();
-		
-		/*if(!this.data.menu_hidden && !this.panel.visible)return;
-		
-		this.interact();
-		this.update();*/
 	}
 	create(){}
 	remove(){

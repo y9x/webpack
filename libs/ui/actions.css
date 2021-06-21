@@ -1,0 +1,92 @@
+main.prompt {
+	width: 490px;
+	padding: 10px;
+	margin: auto;
+	left: 0;
+	right: 0;
+	top: 0;
+	bottom: 0;
+	background: #4A4A4A;
+	border-radius: 3px;
+	border: none;
+}
+
+main.prompt > .description {
+	max-height: 325px;
+	overflow-y: auto;
+	line-height: 18px;
+	margin-bottom: 7px;
+	white-space: pre-wrap;
+}
+
+main.prompt svg {
+	width: 1.5em;
+	height: 1.5em;
+	vertical-align: bottom;
+}
+
+main.prompt > form {
+	display: flex;
+	flex-direction: row;
+	flex-wrap: wrap;
+	margin: 0px;
+}
+
+main.prompt input {
+	width: 100%;
+	background: transparent;
+	padding: 1px 8px;
+	border: 1px solid #6F6F6F;
+	border-radius: 2px;
+	font: inherit;
+	line-height: 30px;
+	color: #FFF;
+	height: 30px;
+	text-align: left;
+	margin-bottom: 10px;
+}
+
+main.prompt input:focus {
+	padding: 0px 7px;
+	border: 2px solid #909090;
+}
+
+main.prompt button {
+	width: 68px;
+	height: 32px;
+	border: none;
+	border-radius: 2x;
+	background: #5C5C5C;
+	font: inherit;
+	color: #FFF;
+	font-weight: 900;
+}
+
+main.prompt  button:hover {
+	background: #6E6E6E;
+}
+
+main.prompt button:hover:active {
+	background: #7D7D7D;
+}
+
+main.prompt button.submit {
+	background: #006CBE;
+	margin-right: 8px;
+}
+
+main.prompt button.submit:hover {
+	background: #1C7CC5;
+}
+
+main.prompt > form > button.submit:hover:active {
+	background: #3389CB;
+}
+
+main.prompt > form > button:first-of-type {
+	margin-left: auto;
+}
+
+main.prompt > form > button:hover {
+	background: #333;
+}

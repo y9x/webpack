@@ -1,7 +1,9 @@
 'use strict';
 
-var { frame, utils } = require('./consts'),
-	Panel = require('./panel');
+var { frame, utils } = require('../consts'),
+	Panel = require('../panel');
+
+utils.add_ele('style', frame, { textContent: require('./loading.css') });
 
 class Loading extends Panel {
 	constructor(discord, icon){

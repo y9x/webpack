@@ -2,6 +2,8 @@
 
 var { frame, utils, store } = require('./consts');
 
+utils.add_ele('style', frame, { textContent: require('./panel.css') });
+
 class Panel {
 	static panels = new Set();
 	constructor(type = ''){
@@ -35,9 +37,6 @@ class Panel {
 		Panel.panels.delete(this);
 		this.hide();
 		this.node.remove();
-	}
-	fix_center(){
-		Object.assign(this.node.style, { margin: 'auto', left: 0, right: 0, top: 0, bottom: 0 });
 	}
 };
 
