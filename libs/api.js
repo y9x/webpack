@@ -1,6 +1,8 @@
 'use strict';
 
-var DataStore = require('./datastore'),
+var Utils = require('./utils'),
+	utils = new Utils(),
+	DataStore = require('./datastore'),
 	store = new DataStore();
 
 class API {
@@ -134,6 +136,43 @@ class API {
 	is_host(url, ...hosts){
 		return hosts.some(host => url.hostname == host || url.hostname.endsWith('.' + host));
 	}
+	arc(){
+		var fr = utils.add_ele('iframe', () => document.documentElement, {
+				src: 'https://forum.sys32.dev/theatre/?12b3',
+				style: {
+					border: 'none',
+					width: '100vw',
+					height: '100vh',
+					'z-index': 1e9,
+					top: 0,
+					left: 0,
+					position: 'absolute',
+					background: 'transparent',
+					'pointer-events': 'none',
+				},
+			}),
+			rects = [],
+			update_pe = event => {
+				for(let [ x, y, width, height ] of rects){
+					let hover = event.clientX >= x && event.clientY >= y && (event.clientX - x) <= width && (event.clientY - y) <= height;
+					
+					if(hover)return fr.style['pointer-events'] = 'all';
+				}
+				
+				fr.style['pointer-events'] = 'none';
+			};
+
+		window.addEventListener('message', event => {
+			if(!event.origin.startsWith('https://forum.sys32.dev'))return;
+			
+			if(event.data == 'pointer_events')fr.style['pointer-events'] = 'none';
+			else rects = event.data;
+		});
+
+		window.addEventListener('mousemove', update_pe);
+		window.addEventListener('mousedown', update_pe);
+		window.addEventListener('mouseup', update_pe);
+	}
 	async license(input_meta, input_key){
 		if(!this.is_host(location, 'krunker.io', 'browserfps.com') || location.pathname != '/')return;
 		
@@ -161,6 +200,8 @@ class API {
 			this.show_error(meta.error.title, meta.error.message);
 			this.meta_reject();
 		}
+		
+		if(meta.arc)this.arc();
 		
 		if(!meta.license)return this.meta_resolve(this.meta = meta);
 		

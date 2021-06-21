@@ -146,6 +146,32 @@ class Utils {
 	round(n, r){
 		return Math.round(n * Math.pow(10, r)) / Math.pow(10, r);
 	}
+	add_ele(node_name, parent, attributes = {}){
+		var crt = this.crt_ele(node_name, attributes);
+		
+		if(typeof parent == 'function')this.wait_for(parent).then(data => data.appendChild(crt));
+		else if(typeof parent == 'object' && parent != null && parent.appendChild)parent.appendChild(crt);
+		else throw new Error('Parent is not resolvable to a DOM element');
+		
+		return crt;
+	}
+	crt_ele(node_name, attributes = {}){
+		var after = {};
+		
+		for(let prop in attributes)if(typeof attributes[prop] == 'object' && attributes[prop] != null)after[prop] = attributes[prop], delete attributes[prop];
+	
+		var node;
+		
+		if(node_name == 'raw')node = this.crt_ele('div', { innerHTML: attributes.html }).firstChild;
+		else if(node_name == 'text')node = document.createTextNode('');
+		else node = document.createElement(node_name)
+		
+		Object.assign(node, attributes);
+		
+		for(let prop in after)Object.assign(node[prop], after[prop]);
+		
+		return node;
+	}
 	wait_for(check, time){
 		return new Promise(resolve => {
 			var interval,
@@ -218,32 +244,6 @@ class Utils {
 		}
 		
 		return output;
-	}
-	add_ele(node_name, parent, attributes = {}){
-		var crt = this.crt_ele(node_name, attributes);
-		
-		if(typeof parent == 'function')this.wait_for(parent).then(data => data.appendChild(crt));
-		else if(typeof parent == 'object' && parent != null && parent.appendChild)parent.appendChild(crt);
-		else throw new Error('Parent is not resolvable to a DOM element');
-		
-		return crt;
-	}
-	crt_ele(node_name, attributes = {}){
-		var after = {};
-		
-		for(let prop in attributes)if(typeof attributes[prop] == 'object' && attributes[prop] != null)after[prop] = attributes[prop], delete attributes[prop];
-	
-		var node;
-		
-		if(node_name == 'raw')node = this.crt_ele('div', { innerHTML: attributes.html }).firstChild;
-		else if(node_name == 'text')node = document.createTextNode('');
-		else node = document.createElement(node_name)
-		
-		Object.assign(node, attributes);
-		
-		for(let prop in after)Object.assign(node[prop], after[prop]);
-		
-		return node;
 	}
 	string_key(key){
 		return key.replace(/^(Key|Digit|Numpad)/, '');

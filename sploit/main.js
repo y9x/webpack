@@ -12,7 +12,6 @@ class Main {
 	constructor(){
 		this.hooked = Symbol();
 		this.skins = [...Array(5000)].map((e, i) => ({ ind: i, cnt: 1 }));
-		this.socket_id = 0;
 		
 		var self = this;
 		
@@ -57,7 +56,7 @@ class Main {
 				return self.config.player.skins;
 			},
 			pick_target(){
-				self.target = self.added_players.filter(player => player.can_target).sort((ent_1, ent_2) => self.sorts[ent_1.rect && ent_2.rect ? self.config.aim.target_sorting || 'dist2d' : 'dist3d'](ent_1, ent_2) * (ent_1.frustum ? 1 : 0.5))[0]
+				self.target = self.players.filter(player => player.can_target).sort((ent_1, ent_2) => self.sorts[ent_1.rect && ent_2.rect ? self.config.aim.target_sorting || 'dist2d' : 'dist3d'](ent_1, ent_2) * (ent_1.frustum ? 1 : 0.5))[0];
 			},
 		};
 		
@@ -74,9 +73,6 @@ class Main {
 		};
 		
 		this.load();
-	}
-	get added_players(){
-		return this.game.players.list.map(ent => this.add(ent));
 	}
 	async load(){
 		var source = api.source(),
@@ -178,7 +174,7 @@ class Main {
 			if(this.game && this.world){
 				this.visual.walls();
 				
-				for(let player of this.added_players){
+				for(let player of this.players){
 					if(player.is_you)this.player = player;
 					
 					if(!player.active)continue;
@@ -207,6 +203,9 @@ class Main {
 	}
 	get config(){
 		return this.ui.config;
+	}
+	get players(){
+		return this.game.players.list.map(ent => this.add(ent));
 	}
 	add(entity){
 		return entity[this.hooked] || (entity[this.hooked] = new Player(this, entity));

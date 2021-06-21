@@ -54,9 +54,9 @@ utils.add_ele('style', () => document.documentElement, {
 }`,
 });
 
-window.addEventListener('mousemove', update_pe, { passive: true });
-window.addEventListener('mousedown', update_pe, { passive: true });
-window.addEventListener('mouseup', update_pe, { passive: true });
+window.addEventListener('mousemove', update_pe);
+window.addEventListener('mousedown', update_pe);
+window.addEventListener('mouseup', update_pe);
 
 exports.canvas = utils.add_ele('canvas', frame);
 

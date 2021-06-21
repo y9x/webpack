@@ -45,7 +45,7 @@ class Input {
 		
 		raycaster.setFromCamera({ x: 0, y: 0 }, utils.world.camera);
 		
-		if(this.data.player.aimed && raycaster.intersectObjects(this.data.added_players.filter(ent => ent.can_target).map(ent => ent.obj), true).length)return true;
+		if(this.data.player.aimed && raycaster.intersectObjects(this.data.players.filter(ent => ent.can_target).map(ent => ent.obj), true).length)return true;
 	}
 	calc_rot(player){
 		var camera = utils.camera_world(),
