@@ -6,8 +6,7 @@ var os = require('os'),
 	webpack = require('webpack'),
 	dist = path.join(__dirname, 'dist'),
 	hosts = [ 'krunker.io', '*.browserfps.com' ],
-	targets = [ 'sploit', 'junker' ],
-	css_loader = { loader: path.join(__dirname, 'loaders', 'css.js') };
+	targets = [ 'sploit', 'junker' ];
 
 var create_script = basename => {
 	var folder = path.join(__dirname, basename),
@@ -21,7 +20,7 @@ var create_script = basename => {
 		},
 		context: folder,
 		module: { rules: [
-			{ test: /\.(sa|s?c)ss$/, use: [ css_loader ] },
+			{ test: /\.css$/, use: [ { loader: path.join(__dirname, 'loaders', 'css.js') } ] },
 			{ test: /\.json$/, use: [ { loader: path.join(__dirname, 'loaders', 'json.js') } ], type: 'javascript/auto' },
 		] },
 		mode: 'development', // minimize ? 'production' : 'development',

@@ -5,8 +5,15 @@ class Updater {
 		this.script = script;
 		this.extracted = extracted;
 		this.show_logs = show_logs;
+		this.halted = false;
 		
 		this.log('Initialized');
+	}
+	pause(){
+		this.halted = true;
+	}
+	resume(){
+		this.halted = false;
 	}
 	log(...args){
 		if(this.show_logs)console.info('[UPDATER]', ...args);
@@ -29,6 +36,8 @@ class Updater {
 		location.assign(this.script);
 	}
 	async check(){
+		if(this.halted)return this.log('Updater halted, skipping check'), false;
+		
 		var script = await(await fetch(this.script)).text();
 		
 		this.log('Latest script fetched from', this.script);

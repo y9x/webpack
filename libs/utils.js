@@ -272,6 +272,20 @@ class Utils {
 			[proxy]: true,
 		})));
 	}
+	promise(){
+		var res, rej,
+			promise = new Promise((resolve, reject) => {
+				res = resolve;
+				rej = reject;
+			});
+		
+		promise.resolve = res;
+		promise.reject = rej;
+		
+		promise.resolve_in = (time = 0, data) => setTimeout(() => promise.resolve(data), time);
+		
+		return promise;
+	}
 }
 
 module.exports = Utils;

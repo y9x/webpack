@@ -68,7 +68,7 @@ window.addEventListener('contextmenu', event => !(event.target != null && event.
 
 window.addEventListener('resize', resize_canvas);
 
-utils.add_ele('style', frame, { textContent: require('./ui.scss') });
+utils.add_ele('style', frame, { textContent: require('./ui.css') });
 
 var actions = require('./actions');
 

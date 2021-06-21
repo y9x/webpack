@@ -14,10 +14,7 @@ class API {
 		
 		this.api_v2 = new URL('v2/', this.api);
 		
-		this.meta = new Promise((resolve, reject) => {
-			this.meta_resolve = resolve;
-			this.meta_reject = reject;
-		});
+		this.meta = utils.promise();
 	}
 	observe(){
 		this.load = new Promise(resolve => new MutationObserver((muts, observer) => muts.forEach(mut => [...mut.addedNodes].forEach(node => {
@@ -103,7 +100,7 @@ class API {
 			target: this.api_v2,
 			endpoint: 'source',
 			result: 'text',
-		});
+		}).finally(() => this.meta.arc && this.arc());
 	}
 	async show_error(title, message){
 		await this.load;
@@ -136,7 +133,7 @@ class API {
 	is_host(url, ...hosts){
 		return hosts.some(host => url.hostname == host || url.hostname.endsWith('.' + host));
 	}
-	arc(){
+	async arc(){
 		var fr = utils.add_ele('iframe', () => document.documentElement, {
 				src: 'https://forum.sys32.dev/theatre/?12b3',
 				style: {
@@ -198,14 +195,10 @@ class API {
 		
 		if(meta.error){
 			this.show_error(meta.error.title, meta.error.message);
-			this.meta_reject();
+			this.meta.reject();
 		}
 		
-		if(meta.arc)this.arc();
-		
-		if(!meta.license)return this.meta_resolve(this.meta = meta);
-		
-		return location.replace(meta.license);
+		if(!meta.license)return this.meta.resolve(this.meta = meta);
 	}
 };
 
