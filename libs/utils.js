@@ -246,7 +246,7 @@ class Utils {
 		return output;
 	}
 	string_key(key){
-		return key.replace(/^(Key|Digit|Numpad)/, '');
+		return key.replace(/^([A-Z][a-z]*?)([A-Z0-9][a-z]*?)/, (match, type, key) => ['Digit', 'Key'].includes(type) ? key : `${key} ${type}`);
 	}
 	clone_obj(obj){
 		return JSON.parse(JSON.stringify(obj));
