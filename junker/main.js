@@ -15,8 +15,6 @@ class Main {
 		
 		this.skins = [...Array(5000)].map((e, i) => ({ ind: i, cnt: 1 }));
 		
-		this.eventHandlers();
-		
 		this.menu = require('./settings.js');
 		
 		var self = this;
@@ -33,6 +31,9 @@ class Main {
 			},
 			get target(){
 				return self.target;
+			},
+			get players(){
+				return self.players;
 			},
 			get esp(){
 				return self.config.esp.status;
@@ -64,6 +65,14 @@ class Main {
 			pick_target(){
 				self.target = self.players.filter(player => player.can_target).sort((p1, p2) => self.dist2d(p1, p2) * (p1.frustum ? 1 : 0.5))[0];
 			},
+		};
+		
+		api.on_instruct = () => {	
+			if(this.config.game.auto_lobby && api.has_instruct('connection error', 'game is full', 'kicked by vote', 'disconnected'))location.href = '/';
+			else if(this.config.game.auto_start && api.has_instruct('to play') && (!this.player || !this.player.active)){
+				this.controls.locklessChange(true);
+				this.controls.locklessChange(false);
+			}
 		};
 	}
 	get players(){
@@ -198,15 +207,6 @@ class Main {
 	}
 	dist2d(p1, p2){
 		return utils.dist_center(p1.rect) - utils.dist_center(p2.rect);
-	}
-	eventHandlers(){
-		api.on_instruct = () => {	
-			if(this.config.game.auto_lobby && api.has_instruct('connection error', 'game is full', 'kicked by vote', 'disconnected'))location.href = '/';
-			else if(this.config.game.auto_start && api.has_instruct('to play') && (!this.player || !this.player.active)){
-				this.controls.locklessChange(true);
-				this.controls.locklessChange(false);
-			}
-		};
 	}
 };
 

@@ -28,6 +28,9 @@ class Main {
 			get target(){
 				return self.target;
 			},
+			get players(){
+				return this.game.players.list.map(ent => this.add(ent));
+			},
 			get esp(){
 				return self.config.esp.status;
 			},
@@ -71,8 +74,6 @@ class Main {
 				return ent_1.health - ent_2.health;
 			},
 		};
-		
-		this.load();
 	}
 	async load(){
 		var source = api.source(),
@@ -117,17 +118,12 @@ class Main {
 			}
 		};
 		
-		var self = this,
-			socket = Socket(this.interface),
-			input = new Input(this.interface);
-		
 		this.visual = new Visual(this.interface);
 		
-		this.process();
-		
-		var krunker = vars.patch(await source);
-		
-		var args = {
+		var self = this,
+			socket = Socket(this.interface),
+			input = new Input(this.interface),
+			args = {
 			[ vars.key ]: {
 				three(three){ utils.three = three },
 				game: game => Object.defineProperty(this.game = utils.game = game, 'controls', {
@@ -159,9 +155,11 @@ class Main {
 			WP_fetchMMToken: token,
 		};
 		
+		this.process();
+		
 		await api.load;
 		
-		new Function(...Object.keys(args), krunker)(...Object.values(args));
+		new Function(...Object.keys(args), vars.patch(await source))(...Object.values(args));
 	}
 	process(){
 		try{
@@ -212,4 +210,6 @@ class Main {
 	}
 };
 
-module.exports = new Main();
+var main = module.exports = new Main();
+
+main.load();
