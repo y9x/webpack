@@ -39,6 +39,7 @@ menu.add_preset('Default', {
 		offset: 'random',
 		smooth: 0,
 		wallbangs: false,
+		force_auto: false,
 	},
 	player: {
 		bhop: 'off',
@@ -196,6 +197,11 @@ var weapon = menu.window.add_tab('Weapon');
 weapon.add_control('Auto Reload', {
 	type: 'boolean',
 	walk: 'aim.auto_reload',
+});
+
+weapon.add_control('Force auto-fire', {
+	type: 'boolean',
+	walk: 'aim.force_auto',
 });
 
 var aimbot = weapon.add_category('Aimbot');

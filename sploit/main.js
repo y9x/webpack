@@ -29,7 +29,7 @@ class Main {
 				return self.target;
 			},
 			get players(){
-				return this.game.players.list.map(ent => this.add(ent));
+				return self.players;
 			},
 			get esp(){
 				return self.config.esp.status;

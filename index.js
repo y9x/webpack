@@ -6,7 +6,8 @@ var os = require('os'),
 	webpack = require('webpack'),
 	dist = path.join(__dirname, 'dist'),
 	hosts = [ 'krunker.io', '*.browserfps.com' ],
-	targets = [ 'sploit', 'junker' ];
+	targets = [ 'sploit', 'junker' ],
+	production = true;
 
 var create_script = basename => {
 	var folder = path.join(__dirname, basename),
@@ -23,7 +24,7 @@ var create_script = basename => {
 			{ test: /\.css$/, use: [ { loader: path.join(__dirname, 'loaders', 'css.js') } ] },
 			{ test: /\.json$/, use: [ { loader: path.join(__dirname, 'loaders', 'json.js') } ], type: 'javascript/auto' },
 		] },
-		mode: 'development', // minimize ? 'production' : 'development',
+		mode: production ? 'production' : 'development',
 		devtool: false,
 		plugins: [
 			{ apply: compiler => compiler.hooks.thisCompilation.tap('Replace', compilation => compilation.hooks.processAssets.tap({ name: 'Replace', stage: webpack.Compilation.PROCESS_ASSETS_STAGE_REPORT }, () => {
@@ -52,6 +53,9 @@ var create_script = basename => {
 				headers += '// ==/UserScript==\n';
 				
 				var source = file.source.source().replace(/Date\.now\('build_extracted'\)/g, extracted.getTime());
+				
+				// remove first line
+				if(production)source = source.split('\n').slice(1).join('\n');
 				
 				compilation.updateAsset(file.name, new webpack.sources.RawSource(`${headers}\n${source}`));
 			})) },

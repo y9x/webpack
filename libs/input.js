@@ -103,6 +103,8 @@ class Input {
 		
 		data.could_shoot = this.data.player.can_shoot;
 		
+		if(this.data.force_auto && this.data.player.did_shoot)data.shoot = false;
+		
 		var nauto = this.data.player.weapon_auto || this.data.player.weapon.burst || !data.shoot || !InputData.previous.could_shoot || !InputData.previous.shoot,
 			hitchance = (Math.random() * 100) < this.data.hitchance,
 			can_target = this.data.aim == 'auto' || data.scope || data.shoot;

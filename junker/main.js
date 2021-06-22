@@ -23,6 +23,9 @@ class Main {
 			get game(){
 				return self.game;
 			},
+			get force_auto(){
+				return self.config.aim.force_auto;
+			},
 			get controls(){
 				return self.controls;
 			},
