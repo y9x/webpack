@@ -145,7 +145,7 @@ class KeybindControl extends Control {
 		});
 		
 		this.input.addEventListener('keydown', event => {
-			event.stopImmediatePropagation();
+			event.preventDefault();
 			this.value = event.code == 'Escape' ? null : event.code;
 			this.input.blur();
 		});

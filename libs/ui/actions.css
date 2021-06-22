@@ -9,6 +9,8 @@ main.prompt {
 	background: #4A4A4A;
 	border-radius: 3px;
 	border: none;
+	opacity: 1;
+	z-index: 10000 !important;
 }
 
 main.prompt > .description {

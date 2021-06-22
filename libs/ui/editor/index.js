@@ -7,6 +7,8 @@ var { utils, store, frame } = require('../consts'),
 	Write = require('./write'),
 	{ alert, prompt } = require('../actions');
 
+utils.add_ele('style', frame, { textContent: require('./index.css') });
+
 class Editor extends PanelDraggable {
 	constructor(data){
 		super('editor');
@@ -16,41 +18,87 @@ class Editor extends PanelDraggable {
 		// user stylesheets
 		this.sheet = utils.add_ele('style', document.documentElement);
 		
-		this.title = utils.add_ele('div', this.node, { textContent: this.data.title, className: 'title' });
+		this.title = utils.add_ele('div', this.node, { textContent: this.data.title, className: 'bar' });
+		
+		this.scroll_by = 0;
+		
+		setInterval(() => {
+			if(this.scroll_by)this.tab_con.scrollBy(25 * this.scroll_by, 0), this.update_overflow();
+		}, 50);
+		
+		window.addEventListener('blur', () => this.scroll_by = 0);
+		window.addEventListener('mouseup', () => this.scroll_by = 0);
+		
+		this.back = utils.add_ele('button', this.title, {
+			className: 'scroll back',
+			textContent: '<',
+			events: {
+				mousedown: () => this.scroll_by = -1,
+			},
+		});
+		
+		this.tab_con = utils.add_ele('div', this.title, { className: 'files' });
+		
+		this.forward = utils.add_ele('button', this.title, {
+			className: 'scroll forward',
+			textContent: '>',
+			events: {
+				mousedown: () => this.scroll_by = 1,
+			},
+		});
 		
 		this.actions = this.listen_dragging(utils.add_ele('div', this.title, { className: 'actions' }));
 		
-		this.actions.insertAdjacentHTML('beforeend', svg.add_file);
-		this.actions.lastElementChild.addEventListener('click', async () => this.new_tab());
+		utils.add_ele('button', this.actions, { className: 'new' }).addEventListener('click', async () => this.new_tab());
 		
-		this.actions.insertAdjacentHTML('beforeend', svg.web);
-		this.actions.lastElementChild.addEventListener('click', () => prompt('Enter a CSS link', 'https://').then(async input => {
-			var style = await(await fetch(new URL(input, location))).text(),
-				name = input.split('/').slice(-1)[0],
-				tab = new Tab({ id: Tab.ID(), name: name, active: true }, this);
-			
-			tab.focus();
-			
-			await tab.set_value(style);
-			await tab.save();
-			await this.load();
-		}).catch(err => (alert('Loading failed: ' + err), 1)));
+		this.saven = utils.add_ele('button', this.actions, {
+			innerHTML: svg.save,
+			className: 'save',
+			events: {
+				click: () => this.save_doc(),
+			},
+		});
 		
-		this.actions.insertAdjacentHTML('beforeend', svg.save);
-		this.saven = this.actions.lastElementChild;
-		
-		this.saven.addEventListener('click', () => this.save_doc());
-		
-		/*this.actions.insertAdjacentHTML('beforeend', svg.reload);
-		this.actions.lastElementChild.addEventListener('click', () => this.load());*/
+		utils.add_ele('button', this.actions, {
+			innerHTML: svg.web,
+			className: 'web',
+			events: {
+				click: () => prompt('Enter a CSS link', 'https://').then(async input => {
+					try{
+						var style = await(await fetch(new URL(input, location))).text(),
+							name = input.split('/').slice(-1)[0],
+							tab = new Tab({ id: Tab.ID(), name: name, active: true }, this);
+						
+						await tab.set_value(style);
+						await tab.save();
+						
+						tab.focus();
+						
+						await this.load();
+					}catch(err){
+						if(err.message == "Failed to construct 'URL': Invalid URL")alert('Invalid URL');
+						else alert('Loading failed: ' + err.message);
+					}
+				}).catch(() => {}),
+			},
+		});
 		
 		this.data.help = this.data.help.replace(/svg\.(\w+)/g, (match, prop) => svg[prop]);
 		
-		utils.add_ele('div', this.actions, { textContent: '?', className: 'help button' }).addEventListener('click', event => alert(this.data.help));
+		utils.add_ele('button', this.actions, {
+			textContent: '?',
+			events: {
+				click: event => alert(this.data.help),
+			},
+		});
 		
-		utils.add_ele('div', this.actions, { className: 'hide button' }).addEventListener('click', event => this.hide());
-		
-		this.tab_con = utils.add_ele('div', this.title, { className: 'tabs' });
+		utils.add_ele('button', this.actions, {
+			innerHTML: svg.close,
+			className: 'hide',
+			events: {
+				click: event => this.hide(),
+			},
+		});
 		
 		this.tabs = new Set();
 		
@@ -64,7 +112,46 @@ class Editor extends PanelDraggable {
 			this.update();
 		});
 		
-		this.footer = utils.add_ele('footer', this.node, { className: 'left' });
+		this.footer = utils.add_ele('footer', this.node);
+		this.footer_text = utils.add_ele('div', this.footer, {
+			className: 'text',
+		});
+		
+		var holder = utils.add_ele('div', this.footer, {
+			className: 'file-opt',
+			textContent: 'Name:',
+		});
+		
+		this.filename = utils.add_ele('ez-input', holder, {
+			spellcheck: false,
+			events: {
+				change: async () => {
+					(await this.focused_tab()).rename(this.filename.value);
+				},
+				focus: async () => {
+					var range = document.createRange();
+					
+					range.selectNodeContents(this.filename.main);
+					
+					var selection = window.getSelection();
+					
+					selection.removeAllRanges();
+					
+					selection.addRange(range);
+				},
+			},
+		});
+		
+		var holder1 = utils.add_ele('div', this.footer, {
+			className: 'file-opt',
+			textContent: 'Active:',
+		});
+		
+		this.fileactive = utils.add_ele('ez-checkbox', holder1, {
+			events: {
+				change: async () => (await this.focused_tab()).toggle_active(),
+			},
+		});
 		
 		this.update();
 		
@@ -76,24 +163,39 @@ class Editor extends PanelDraggable {
 		
 		this.hide();
 	}
-	async focus_first(){
-		var first;
+	update_overflow(){
+		var overflow = this.tab_con.scrollWidth > this.tab_con.offsetWidth;
 		
-		for(let tab of this.tabs)return tab.focus();
-		
-		this.new_tab();
+		if(overflow){
+			this.title.classList.add('overflow');
+			
+			this.back.disabled = this.tab_con.scrollLeft == 0;
+			this.forward.disabled = this.tab_con.scrollLeft + this.tab_con.offsetWidth == this.tab_con.scrollWidth;
+		}else this.title.classList.remove('overflow');
 	}
 	async new_tab(){
-		var tab = await new Tab({ id: Tab.ID(), name: 'new.css', active: true, value: '' }, this);
+		var tab = await new Tab({ id: Tab.ID(), name: 'New Style', active: true, value: '' }, this);
 		
 		await tab.save();
 		
-		tab.focus()
+		tab.focus();
+		
+		return tab;
+	}
+	async focused_tab(){
+		for(let tab of this.tabs)if(tab.focused)return tab;
+		
+		return (await this.new_tab()).focus();
+	}
+	async first_tab(){
+		for(let tab of this.tabs)return tab;
+		
+		return await this.new_tab();
 	}
 	update(){
 		this.saven.classList[this.saved ? 'add' : 'remove']('saved');
 		
-		this.footer.innerHTML = this.saved == null ? 'Editor loaded' : this.saved ? 'All changes saved' : `Warning: unsaved changes, press the ${svg.save} icon`;
+		this.footer_text.innerHTML = this.saved == null ? 'Editor loaded' : this.saved ? 'All changes saved' : `Unsaved changes, press ${svg.save}`;
 		
 		this.apply_bounds();
 	}
@@ -105,6 +207,7 @@ class Editor extends PanelDraggable {
 		await this.load();
 	}
 	async load(){
+		this.update_overflow();
 		this.sheet.textContent = '';
 		for(let tab of this.tabs)if(tab.active)this.sheet.textContent += await tab.get_value();
 	}
@@ -115,7 +218,7 @@ class Editor extends PanelDraggable {
 			if(tab.active)this.sheet.textContent += await tab.get_value();
 		}
 		
-		await this.focus_first();
+		(await this.first_tab()).focus();
 	}
 	async save_config(){
 		await store.set('css', [...this.tabs].map(tab => ({

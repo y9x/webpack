@@ -166,6 +166,21 @@ class Utils {
 		else if(node_name == 'text')node = document.createTextNode('');
 		else node = document.createElement(node_name)
 		
+		var cls = attributes.className;
+		
+		if(cls){
+			delete attributes.className;
+			node.setAttribute('class', cls);
+		}
+		
+		var events = after.events;
+		
+		if(events){
+			delete after.events;
+			
+			for(let event in events)node.addEventListener(event, events[event]);
+		}
+		
 		Object.assign(node, attributes);
 		
 		for(let prop in after)Object.assign(node[prop], after[prop]);
@@ -264,12 +279,12 @@ class Utils {
 		
 		to.addEventListener(name, event => {
 			if(event[proxy])return;
-			event.stopImmediatePropagation();
-			event.preventDefault();
 		});
 		
 		from.addEventListener(name, event => to.dispatchEvent(Object.assign(new(event.constructor)(name, event), {
 			[proxy]: true,
+			stopImmediatePropagation: event.stopImmediatePropagation.bind(event),
+			preventDefault: event.preventDefault.bind(event),
 		})));
 	}
 	promise(){

@@ -14,6 +14,8 @@ class Input extends HTMLElement {
 		this.input = utils.add_ele('input', this.main);
 		
 		for(let event of ['focus', 'blur', 'keydown', 'change'])utils.redirect(event, this.input, this);
+		
+		this.addEventListener('mousedown', () => this.input.focus());
 	}
 	blur(){
 		this.input.blur();

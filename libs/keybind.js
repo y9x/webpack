@@ -28,7 +28,8 @@ class Keybind {
 };
 
 window.addEventListener('keydown', event => {
-	if(document.activeElement && ['TEXTAREA', 'INPUT'].includes(document.activeElement.tagName))return;
+	if(event.repeat)return;
+	for(let node of [...event.composedPath()])if(node.tagName)for(let part of ['INPUT', 'TEXTAREA'])if(node.tagName.includes(part))return;
 	
 	for(let keybind of Keybind.keybinds)if((!event.repeat || keybind.repeat) && keybind.keys.has(event.code)){
 		event.preventDefault();
