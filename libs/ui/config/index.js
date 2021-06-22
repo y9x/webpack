@@ -92,7 +92,7 @@ Section.Types = [
 
 class Config extends PanelDraggable {
 	constructor(title, key, store = new DataStore()){
-		super({}, 'config');	
+		super('config');	
 		
 		this.store = store;
 		
@@ -103,6 +103,8 @@ class Config extends PanelDraggable {
 		this.sections = new Set();
 		
 		this.title = this.listen_dragging(utils.add_ele('div', this.node, { textContent: title, className: 'title' }));
+		
+		this.title_right = utils.add_ele('div', this.title, { className: 'right' });
 		
 		this.sidebar_con = utils.add_ele('div', this.node, { className: 'tabs' });
 		this.sections_con = utils.add_ele('div', this.node, { className: 'sections' });
@@ -130,11 +132,7 @@ class Config extends PanelDraggable {
 			else section.hide();
 		}
 		
-		// this.toggle_bind.code = [ 'F1', this.config.binds.toggle ];
-		
-		// var bind = this.toggle_bind.code.map(utils.string_key).map(x => '[' + x + ']').join(' or ');
-		
-		// this.footer.textContent = `Press ${bind} to toggle`;
+		this.title_right.textContent = [ 'F1', this.config.binds.toggle ].map(utils.string_key).join(' / ');
 	}
 	add_tab(name){
 		var tab = new ControlSection(name, this);
@@ -164,11 +162,9 @@ class Config extends PanelDraggable {
 	async load_config(){
 		this.insert_config(await this.store.get(this.config_key, 'object'));
 		
-		setTimeout(() => {
-			this.pos = { x: 1, y: this.center_side('height') };
-			this.apply_bounds();
-			this.load_ui_data();
-		});
+		this.pos = { x: 1, y: this.center_side('height') };
+		this.apply_bounds();
+		this.load_ui_data();
 	}
 };
 

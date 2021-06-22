@@ -26,6 +26,7 @@ class Panel {
 		this.node.style['z-index'] = 2;
 	}
 	show(){
+		this.focus();
 		this.visible = true;
 		this.node.classList.add('visible');
 	}

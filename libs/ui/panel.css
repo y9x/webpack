@@ -54,7 +54,7 @@ main:hover, main.focus {
 	--opacity: 1;
 }
 
-main .title {
+.title {
 	position: relative;
 	display: flex;
 	align-content: center;
@@ -62,6 +62,14 @@ main .title {
 	text-align: center;
 	height: 30px;
 	flex-wrap: wrap;
+}
+
+.title > .right {
+	position: absolute;
+	right: 10px;
+	line-height: 30px;
+	margin: auto;
+	text-align: center;
 }
 
 .sections {
