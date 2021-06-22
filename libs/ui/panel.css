@@ -42,7 +42,7 @@ main.loading.visible, main.visible:hover, main.visible.focus {
 
 a {
 	cursor: pointer;
-	color: var(--blue);
+	color: #168be8;
 	text-decoration: none;
 }
 

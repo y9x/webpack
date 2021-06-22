@@ -77,7 +77,7 @@ main.editor .actions button {
 	border: none;
 	border-radius: 0px;
 	background: transparent;
-	font-size: 15px;
+	font-size: 14px;
 }
 
 main.editor .actions button svg {
@@ -253,6 +253,7 @@ main.editor footer .file-opt {
 
 main.editor footer .file-opt ez-input {
 	width: 100px;
+	height: 23px;
 }
 
 main.editor footer .file-opt ez-input, main.editor footer .file-opt ez-checkbox {
