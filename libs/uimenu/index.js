@@ -19,9 +19,9 @@ class UIMenu {
 			}
 		}).observe(document, { childList: true, subtree: true });
 		
-		this.presets = {
-			Default: {},
-		};
+		this.presets = new Map();
+		
+		this.presets.set('Default', {});
 		
 		this.config = {};
 		
@@ -53,12 +53,11 @@ class UIMenu {
 		this.button.attach(bar);
 	}
 	add_preset(label, value){
-		this.presets[label] = value;
-		
+		this.presets.set(label, value);
 		this.emit('preset', label, value);
 	}
 	async insert_config(data, save = false){
-		this.config = utils.assign_deep(utils.clone_obj(this.presets.Default), data);
+		this.config = utils.assign_deep(utils.clone_obj(this.presets.get('Default')), data);
 		
 		if(save)await this.save_config();
 		
@@ -67,9 +66,9 @@ class UIMenu {
 		this.emit('config');
 	}
 	async load_preset(preset){
-		if(!this.presets.hasOwnProperty(preset))throw new Error('Invalid preset:', preset);
+		if(!this.presets.has(preset))throw new Error('Invalid preset:', preset);
 		
-		this.insert_config(this.presets[preset], true);
+		this.insert_config(this.presets.get(preset), true);
 	}
 	async save_config(){
 		await this.store.set(this.config_key, this.config);

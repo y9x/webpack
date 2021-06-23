@@ -2,14 +2,13 @@
 
 var DataStore = require('./datastore'),
 	API = require('./api'),
-	Updater = require('./updater'),
 	Utils = require('./utils'),
 	utils = new Utils();
 
 exports.store = new DataStore();
 
 exports.meta = {
-	github: 'https://github.com/e9x/kru/',
+	github: 'https://github.com/y9x/',
 	discord: 'https://y9x.github.io/discord/',
 	forum: 'https://forum.sys32.dev/',
 };

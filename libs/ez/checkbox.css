@@ -1,0 +1,22 @@
+main {
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	width: 13px;
+	height: 13px;
+	background: #FFF;
+	border-radius: 3px;
+}
+
+main[checked] {
+	background-color: #176EB4;
+}
+
+main[checked]:hover {
+	background-color: #245a88;
+}
+
+main svg {
+	width: 70%;
+	height: 70%;
+}

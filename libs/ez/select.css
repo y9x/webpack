@@ -1,0 +1,65 @@
+main {
+	background: #FFF;
+	padding: 0px 9px;
+	color: #2B2B2B;
+	display: flex;
+	flex-direction: row;
+	align-items: center;
+	height: 100%;
+	border-radius: 3px;
+	position: relative;
+}
+
+main:hover {
+	border-color: #999;
+}
+
+main svg {
+	margin-left: auto;
+}
+
+main slot {
+	flex-direction: column;
+	position: absolute;
+	background: #FFF;
+	width: 100%;
+	left: 0px;
+	display: none;
+	z-index: 1000;
+	top: 100%;
+	margin-top: 3px;
+	margin-bottom: 3px;
+	border-radius: 2px;
+	padding: 3px 0px;
+	box-shadow: rgb(0 0 0) 0px 0px 7px;
+}
+
+main.bottom slot {
+	top: unset;
+	bottom: 100%;
+}
+
+main.active slot {
+	display: flex;
+}
+
+::slotted(ez-option) {
+	border-radius: 2px;
+	margin: 0px 3px;
+	color: #2B2B2B;
+	padding: 3px 6px;
+}
+
+::slotted(ez-option:hover) {
+	background: #E5E5E5;
+}
+
+::slotted(ez-option:active) {
+	background: #E5E5E5;	
+	color: #262626;
+}
+
+::slotted(ez-option[selected]) {
+	background: #006CBE;
+	color: #FFF;
+}

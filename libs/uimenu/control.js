@@ -1,12 +1,12 @@
 'use strict';
 
-var { utils, tick } = require('./consts'),
+var { utils } = require('./consts'),
 	EventLite  = require('event-lite');
 
 class Control {
-	constructor(data, category){
+	constructor(name, data, category){
 		this.data = data;
-		this.name = this.data.name;
+		this.name = name;
 		this.category = category;
 		this.menu = this.category.tab.window.menu;
 		
@@ -21,7 +21,7 @@ class Control {
 		this.label.nodeValue = text;
 	}
 	remove(){
-		this.container.remove();
+		this.content.remove();
 	}
 	walk(data){
 		var state = this.menu.config,
@@ -33,7 +33,7 @@ class Control {
 		return [ last_state, last_key ];
 	}
 	get value(){
-		if(this.data.hasOwnProperty('value'))return this.data.value;
+		if(typeof this.data.value == 'function')return this.data.value;
 		
 		var walked = this.walk(this.data.walk);
 		
@@ -55,6 +55,7 @@ class Control {
 		console.warn('No defined interaction for', this);
 	}
 	update(init){
+		// MAKE CHANGE EMIT CALLED FROM THE CATEGORY
 		if(init)this.emit('change', this.value, true);
 		this.label_text(this.name);
 	}
@@ -68,26 +69,6 @@ class Control {
 
 EventLite.mixin(Control.prototype);
 
-class TextElement {
-	static id = 'text';
-	constructor(data, section){
-		this.data = data;
-		this.panel = section.ui;
-		this.container = utils.add_ele('div', section.node, { className: 'control' });
-		this.node = utils.add_ele('div', this.container, { className: 'text' });
-	}
-	update(){
-		this.node.textContent = this.data.name;
-		
-		this.node.innerHTML = this.node.innerHTML
-		.replace(/\[([^\[]+)\]\(([^\)]+)\)/g, (match, text, link) => `<a href=${JSON.stringify(link)}>${text}</a>`)
-		.replace(/(\*\*|__)(.*?)\1/g, (match, part, text) => `<strong>${text}</strong>`)
-		.replace(/(\*|_)(.*?)\1/g, (match, part, text) => `<em>${text}</em>`)
-		.replace(/\~\~(.*?)\~\~/g, (match, part, text) => `<del>${text}</del>`)
-		;
-	}
-}
-
 class BooleanControl extends Control {
 	static id = 'boolean';
 	create(){
@@ -99,15 +80,15 @@ class BooleanControl extends Control {
 			},
 		});
 		
-		this.checkbox = utils.add_ele('input', this.switch, { type: 'checkbox' });
+		this.input = utils.add_ele('input', this.switch, { type: 'checkbox' });
 		
-		this.checkbox.addEventListener('change', () => this.value = this.checkbox.checked);
+		this.input.addEventListener('change', () => this.value = this.input.checked);
 		
 		utils.add_ele('span', this.switch, { className: 'slider' });
 	}
 	update(init){
 		super.update(init);
-		if(init)this.checkbox.checked = this.value;
+		if(init)this.input.checked = this.value;
 	}
 }
 
@@ -118,9 +99,9 @@ class RotateControl extends Control {
 		
 		this.select.addEventListener('change', () => this.value = this.select.value);
 		
-		for(let [ value, label ] of this.data.vals)utils.add_ele('option', this.select, {
+		for(let value in this.data.value)utils.add_ele('option', this.select, {
 			value: value,
-			textContent: label,
+			textContent: this.data.value[value],
 		});
 	}
 	update(init){
@@ -208,24 +189,25 @@ class TextBoxControl extends Control {
 class SliderControl extends Control {
 	static id = 'slider';
 	create(){
+		var slider = {
+			min: this.data.min,
+			max: this.data.max,
+			step: this.data.step,
+		};
+		
 		this.input = utils.add_ele('input', this.content, {
 			className: 'sliderVal',
 			type: 'number',
-			min: this.data.range[0],
-			max: this.data.range[1],
+			...slider,
 		});
 		
 		this.slider = utils.add_ele('input', utils.add_ele('div', this.content, {
 			className: 'slidecontainer',
-			style: {
-				'margin-top': '-8px',
-			},
+			style: { 'margin-top': '-8px' },
 		}), {
 			className: 'sliderM',
 			type: 'range',
-			min: this.data.range[0],
-			max: this.data.range[1],
-			step: this.data.range[2],
+			...slider,
 		});
 		
 		this.input.addEventListener('focus', () => (this.input_focused = true, this.interact()));
@@ -278,7 +260,6 @@ Control.Types = [
 	LinkControl,
 	TextBoxControl,
 	SliderControl,
-	TextElement,
 	ColorControl,
 ];
 

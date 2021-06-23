@@ -1,0 +1,64 @@
+main {
+	position: relative;
+	height: 100%;
+}
+
+main::before {
+	content: '';
+	position: absolute;
+	margin: auto;
+	top: 0px;
+	bottom: 0px;
+	background: #666;
+	width: 100%;
+	height: 2px;
+}
+
+.background {
+	background: var(--blue);
+	height: 2px;
+	position: absolute;
+	margin: auto;
+	top: 0px;
+	bottom: 0px;
+}
+
+.thumb::before {
+	content: attr(data-label);
+	position: relative;
+	border: 1px solid #1C1C1C;
+	background: #2B2B2B;
+	padding: 5px 5px;
+	bottom: 40px;
+	left: 4px;
+	transform: translateX(-50%);
+	display: none;
+}
+
+.thumb:hover::before, main:active .thumb::before {
+	display: inline-block;
+}
+
+main:hover:not(:active)::before {
+	background-color: #999;
+}
+
+.thumb {
+	position: absolute;
+	top: 0px;
+	width: 8px;
+	height: 100%;
+	margin: auto;
+	top: 0px;
+	bottom: 0px;
+	background: var(--blue);
+	border-radius: 4px;
+}
+
+main:hover .thumb {
+	background: #F2F2F2;
+}
+
+main:active > .thumb {
+	background: #767676;
+}

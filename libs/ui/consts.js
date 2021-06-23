@@ -5,9 +5,8 @@ var DataStore = require('../datastore'),
 	utils = new Utils();
 
 exports.utils = utils;
-exports.keybinds = [];
-exports.panels = [];
-exports.frame = utils.crt_ele('iframe', { style: utils.css({
+
+exports.content = utils.add_ele('div', () => document.documentElement, { style: {
 	top: 0,
 	left: 0,
 	'z-index': 9999999999,
@@ -16,12 +15,8 @@ exports.frame = utils.crt_ele('iframe', { style: utils.css({
 	background: '#0000',
 	width: '100vw',
 	height: '100vh',
-}) });
+} });
 
-exports.global_listen = (event, callback, options) => {
-	window.addEventListener(event, callback, options);
-	exports.frame.contentWindow.addEventListener(event, callback, options);
-};
-
+exports.frame = exports.content.attachShadow({ mode: 'open' });
 
 exports.store = new DataStore();

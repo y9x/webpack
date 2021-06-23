@@ -13,13 +13,73 @@ class Main {
 	constructor(){
 		this.hooked = Symbol();
 		
-		this.utils = utils;
-		
-		this.eventHandlers();
+		this.skins = [...Array(5000)].map((e, i) => ({ ind: i, cnt: 1 }));
 		
 		this.menu = require('./settings.js');
 		
-		this.skins = [...Array(5000)].map((e, i) => ({ ind: i, cnt: 1 }));
+		var self = this;
+		
+		this.interface = {
+			get game(){
+				return self.game;
+			},
+			get force_auto(){
+				return self.config.aim.force_auto;
+			},
+			get controls(){
+				return self.controls;
+			},
+			get player(){
+				return self.player;
+			},
+			get target(){
+				return self.target;
+			},
+			get players(){
+				return self.players;
+			},
+			get esp(){
+				return self.config.esp.status;
+			},
+			get wireframe(){
+				return self.config.player.wireframe;
+			},
+			get walls(){
+				return self.config.esp.walls;
+			},
+			get bhop(){
+				return self.config.player.bhop;
+			},
+			get aim(){
+				return self.config.aim.status;
+			},
+			get aim_smooth(){
+				return self.config.aim.smooth;
+			},
+			get hitchance(){
+				return self.config.aim.hitchance;
+			},
+			get auto_reload(){
+				return self.config.aim.auto_reload;
+			},
+			get unlock_skins(){
+				return self.config.player.skins;
+			},
+			pick_target(){
+				self.target = self.players.filter(player => player.can_target).sort((p1, p2) => self.dist2d(p1, p2) * (p1.frustum ? 1 : 0.5))[0];
+			},
+		};
+		
+		api.on_instruct = () => {	
+			if(this.config.game.auto_lobby && api.has_instruct('connection error', 'game is full', 'kicked by vote', 'disconnected'))location.href = '/';
+			else if(this.config.game.auto_start && api.has_instruct('to play') && (!this.player || !this.player.active)){
+				this.controls.locklessChange(true);
+				this.controls.locklessChange(false);
+			}
+		};
+	}
+	get players(){
+		return this.game.players.list.map(ent => this.add(ent));
 	}
 	add(entity){
 		return entity[this.hooked] || (entity[this.hooked] = new Player(this, entity));
@@ -27,17 +87,11 @@ class Main {
 	async load(){
 		utils.add_ele('style', () => document.documentElement, { textContent: require('./index.css') });
 		
-		var self = this;
+		var self = this,
+			socket = Socket(this.interface),
+			input = new Input(this.interface);
 		
-		this.input = new Input(this);
-		
-		this.visual = new Visual(this);
-		
-		this.y_offset_types = ['head', 'torso', 'legs'];
-		
-		this.y_offset_rand = 'head';
-		
-		setInterval(() => this.y_offset_rand = this.y_offset_types[~~(Math.random() * this.y_offset_types.length)], 2000);
+		this.visual = new Visual(this.interface);
 		
 		var token_promise = api.token(),
 			args = {
@@ -88,7 +142,7 @@ class Main {
 						get: _ => this.config.game.inactivity ? 0 : timer,
 						set: value => this.config.game.inactivity ? Infinity : timer,
 					}),
-					input: this.input.push.bind(this.input),
+					input: input.push.bind(input),
 					render(orig, overlay){
 						self.overlay = overlay;
 						
@@ -104,9 +158,13 @@ class Main {
 						};
 					},
 				},
-				WebSocket: Socket(this),
+				WebSocket: socket,
 				WP_fetchMMToken: api.token(),
 			};
+		
+		var ls = localStorage.getItem('ssjunkconfig');
+		
+		if(!GM_getValue('config') && ls && typeof GM_setValue == 'function')GM_setValue('config', ls);
 		
 		await this.menu.load_config();
 		
@@ -155,23 +213,8 @@ class Main {
 	dist2d(p1, p2){
 		return utils.dist_center(p1.rect) - utils.dist_center(p2.rect);
 	}
-	pick_target(){
-		return this.game.players.list.map(ent => this.add(ent)).filter(player => player.can_target).sort((p1, p2) => this.dist2d(p1, p2) * (p1.frustum ? 1 : 0.5))[0]
-	}
-	eventHandlers(){
-		api.on_instruct = () => {	
-			if(this.config.game.auto_lobby && api.has_instruct('connection error', 'game is full', 'kicked by vote', 'disconnected'))location.href = '/';
-			else if(this.config.game.auto_start && api.has_instruct('to play') && (!this.player || !this.player.active)){
-				this.controls.locklessChange(true);
-				this.controls.locklessChange(false);
-			}
-		};
-	}
 };
 
 var main = module.exports = new Main();
 
 main.load();
-
-window.main = main;
-window.api = api;

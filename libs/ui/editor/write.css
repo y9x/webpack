@@ -3,10 +3,10 @@
 	font-size: 13px;
 	font-family: monospace;
 	line-height: 18px;
-    contain: size;
-    overflow: auto;
-    display: grid;
-    grid-template-columns: 26px 1fr;
+	contain: size;
+	overflow: auto;
+	display: grid;
+	grid-template-columns: 26px 1fr;
 }
 
 .write > .linenums {

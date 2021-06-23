@@ -8,6 +8,8 @@ var vars = require('../libs/vars'),
 setInterval(() => random_target = Math.random(), 2000);
 
 class Player {
+	// every x ticks calculate heavy pos data
+	calc_ticks = 4;
 	constructor(cheat, entity){
 		this.cheat = cheat;
 		this.entity = typeof entity == 'object' && entity != null ? entity : {};
@@ -15,6 +17,7 @@ class Player {
 		this.position = new Vector3();
 		this.esp_hex = new Hex();
 		this.hp_hex = new Hex();
+		this.dont_calc = 0;
 		
 		this.parts = {
 			hitbox_head: new Vector3(),
@@ -238,18 +241,19 @@ class Player {
 		
 		this.aim_point = part == 'head' ? this.parts.hitbox_head : (this.parts[part] || (console.error(part, 'not registered'), Vector3.Blank));
 		
-		this.frustum = utils.contains_point(this.aim_point);
-		this.in_fov = this.calc_in_fov();
+		// every 4 ticks
+		if((this.dont_calc++) % (this.calc_ticks + 1) == 0){
+			this.frustum = utils.contains_point(this.aim_point);
+			this.in_fov = this.calc_in_fov();
+			
+			this.world_pos = this.active ? this.obj[vars.getWorldPosition]() : { x: 0, y: 0, z: 0 };
+			
+			this.can_see = this.cheat.player &&
+				utils.obstructing(utils.camera_world(), this.aim_point, (!this.cheat.player || this.cheat.player.weapon && this.cheat.player.weapon.pierce) && this.cheat.config.aim.wallbangs)
+			== null ? true : false;
+		}
 		
-		this.rect = this.calc_rect();
-		
-		this.world_pos = this.active ? this.obj[vars.getWorldPosition]() : { x: 0, y: 0, z: 0 };
-		
-		var camera_world = utils.camera_world();
-		
-		this.can_see = this.cheat.player &&
-			utils.obstructing(camera_world, this.aim_point, (!this.cheat.player || this.cheat.player.weapon && this.cheat.player.weapon.pierce) && this.cheat.config.aim.wallbangs)
-		== null ? true : false;
+		if(this.frustum)this.rect = this.calc_rect();
 		
 		this.esp_hex.set_style(this.cheat.config.esp.rainbow ? this.cheat.overlay.rainbow.col : this.cheat.config.color[this.enemy ? this.risk ? 'risk' : 'hostile' : 'friendly']);
 		

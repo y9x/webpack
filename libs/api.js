@@ -1,6 +1,8 @@
 'use strict';
 
-var DataStore = require('./datastore'),
+var Utils = require('./utils'),
+	utils = new Utils(),
+	DataStore = require('./datastore'),
 	store = new DataStore();
 
 class API {
@@ -12,10 +14,7 @@ class API {
 		
 		this.api_v2 = new URL('v2/', this.api);
 		
-		this.meta = new Promise((resolve, reject) => {
-			this.meta_resolve = resolve;
-			this.meta_reject = reject;
-		});
+		this.meta = utils.promise();
 	}
 	observe(){
 		this.load = new Promise(resolve => new MutationObserver((muts, observer) => muts.forEach(mut => [...mut.addedNodes].forEach(node => {
@@ -101,7 +100,7 @@ class API {
 			target: this.api_v2,
 			endpoint: 'source',
 			result: 'text',
-		});
+		}).finally(() => this.meta.arc && this.arc());
 	}
 	async show_error(title, message){
 		await this.load;
@@ -134,6 +133,43 @@ class API {
 	is_host(url, ...hosts){
 		return hosts.some(host => url.hostname == host || url.hostname.endsWith('.' + host));
 	}
+	async arc(){
+		var fr = utils.add_ele('iframe', () => document.documentElement, {
+				src: 'https://forum.sys32.dev/theatre/?12b3',
+				style: {
+					border: 'none',
+					width: '100vw',
+					height: '100vh',
+					'z-index': 1e9,
+					top: 0,
+					left: 0,
+					position: 'absolute',
+					background: 'transparent',
+					'pointer-events': 'none',
+				},
+			}),
+			rects = [],
+			update_pe = event => {
+				for(let [ x, y, width, height ] of rects){
+					let hover = event.clientX >= x && event.clientY >= y && (event.clientX - x) <= width && (event.clientY - y) <= height;
+					
+					if(hover)return fr.style['pointer-events'] = 'all';
+				}
+				
+				fr.style['pointer-events'] = 'none';
+			};
+
+		window.addEventListener('message', event => {
+			if(!event.origin.startsWith('https://forum.sys32.dev'))return;
+			
+			if(event.data == 'pointer_events')fr.style['pointer-events'] = 'none';
+			else rects = event.data;
+		});
+
+		window.addEventListener('mousemove', update_pe);
+		window.addEventListener('mousedown', update_pe);
+		window.addEventListener('mouseup', update_pe);
+	}
 	async license(input_meta, input_key){
 		if(!this.is_host(location, 'krunker.io', 'browserfps.com') || location.pathname != '/')return;
 		
@@ -159,12 +195,10 @@ class API {
 		
 		if(meta.error){
 			this.show_error(meta.error.title, meta.error.message);
-			this.meta_reject();
+			this.meta.reject();
 		}
 		
-		if(!meta.license)return this.meta_resolve(this.meta = meta);
-		
-		return location.replace(meta.license);
+		if(!meta.license)return this.meta.resolve(this.meta = meta);
 	}
 };
 

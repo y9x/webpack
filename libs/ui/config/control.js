@@ -1,31 +1,26 @@
 'use strict';
 
-var { keybinds, utils, global_listen } = require('../consts');
+require('../../ez');
+
+var { keybinds, utils } = require('../consts'),
+	EventLite  = require('event-lite');
 
 class Control {
-	constructor(data, section){
+	constructor(name, data, section){
+		this.name = name;
 		this.data = data;
-		this.name = this.data.name;
 		this.panel = section.panel;
-		this.container = utils.add_ele('div', section.node, { className: 'control' });
-		this.button = utils.add_ele('div', this.container, { className: 'toggle' });
-		this.label = utils.add_ele('div', this.container, { className: 'label' });
-		this.button.addEventListener('click', () => (this.interact(), this.update()));
-		
-		var self = this;
-		
-		keybinds.push({
-			get code(){ return [ self.key ] },
-			interact: () => {
-				if(!this.data.menu_hidden && !this.panel.visible)return;
-				
-				this.interact();
-				this.update();
-			},
+		this.section = section;
+		this.content = utils.add_ele('div', this.section.node, { className: 'control' });
+		this.label = utils.add_ele('text', this.content, {
+			nodeValue: this.name,
 		});
+		
+		this.create();
 	}
+	create(){}
 	remove(){
-		this.container.remove();
+		this.content.remove();
 	}
 	get key(){
 		if(!this.data.key)return null;
@@ -43,7 +38,7 @@ class Control {
 		return [ last_state, last_key ];
 	}
 	get value(){
-		if(this.data.hasOwnProperty('value'))return this.data.value;
+		if(!this.data.walk || this.data.value && typeof this.data.value != 'object')return this.data.value;
 		
 		var walked = this.walk(this.data.walk);
 		
@@ -56,93 +51,87 @@ class Control {
 		
 		this.panel.save_config();
 		
+		this.emit('change', value);
+		
 		return value;
 	}
 	interact(){
 		console.warn('No defined interaction for', this);
 	}
-	update(){
-		this.button.textContent = '[' + (this.key ? utils.string_key(this.key) : '-') + ']';
-		this.label.textContent = this.name;
-	}
+	update(){}
 };
 
-class TextElement {
-	static id = 'text';
-	constructor(data, section){
-		this.data = data;
-		this.panel = section.ui;
-		this.container = utils.add_ele('div', section.node, { className: 'control' });
-		this.node = utils.add_ele('div', this.container, { className: 'text' });
-	}
-	update(){
-		this.node.textContent = this.data.name;
-		
-		this.node.innerHTML = this.node.innerHTML
-		.replace(/\[([^\[]+)\]\(([^\)]+)\)/g, (match, text, link) => `<a href=${JSON.stringify(link)}>${text}</a>`)
-		.replace(/(\*\*|__)(.*?)\1/g, (match, part, text) => `<strong>${text}</strong>`)
-		.replace(/(\*|_)(.*?)\1/g, (match, part, text) => `<em>${text}</em>`)
-		.replace(/\~\~(.*?)\~\~/g, (match, part, text) => `<del>${text}</del>`)
-		;
-	}
-};
+EventLite.mixin(Control.prototype);
 
 class BooleanControl extends Control {
 	static id = 'boolean';
+	create(){
+		this.input = utils.add_ele('ez-checkbox', this.content);
+		this.input.addEventListener('change', () => this.value = this.input.checked);
+	}
 	interact(){
 		this.value = !this.value;
 	}
-	update(){
-		super.update();
-		this.button.className = 'toggle ' + !!this.value;
+	update(init){
+		if(init)this.input.checked = this.value;
 	}
 };
 
 class RotateControl extends Control {
 	static id = 'rotate';
-	get value_index(){
-		return this.data.vals.findIndex(([ data ]) => data == this.value);
-	}
-	set value_index(value){
-		this.value = this.data.vals[value][0];
+	create(){
+		this.select = utils.add_ele('ez-select', this.content);
+		
+		this.select.addEventListener('change', () => this.value = this.select.value);
+		
+		for(let value in this.data.value)utils.add_ele('ez-option', this.select, {
+			textContent: this.data.value[value],
+			value: value,
+		});
 	}
 	interact(){
-		this.value_index = (this.value_index + 1) % this.data.vals.length
+		var keys = Object.keys(this.data.value),
+			ind = keys.indexOf(this.value);
+		
+		this.select.value = this.value = keys[ind + 1] || keys[0];
 	}
-	update(){
-		super.update();
-		if(!this.data.vals[this.value_index])this.value_index = 0;
-		this.label.textContent = this.name + ': ' + this.data.vals[this.value_index][1];
+	update(init){
+		if(init)this.select.value = this.value;
 	}
 };
 
 class LinkControl extends Control {
 	static id = 'link';
+	create(){
+		this.link = utils.add_ele('a', this.content);
+		this.link.append(this.label);
+	}
 	interact(){
-		window.open(this.value, '_blank');
+		this.link.click();
+	}
+	update(){
+		this.link.href = this.value;
 	}
 };
 
-class FunctionControl extends Control {
+class FunctionControl extends LinkControl {
 	static id = 'function';
-	interact(){
-		this.value();
+	create(){
+		super.create();
+		this.link.addEventListener('click', () => this.interact());
 	}
 };
 
 class KeybindControl extends Control {
 	static id = 'keybind';
-	constructor(...args){
-		super(...args);
-		
-		this.input = utils.add_ele('input', this.container, { className: 'keybind', placeholder: 'Press a key' });
+	create(){
+		this.input = utils.add_ele('ez-input', this.content, { placeholder: 'Press a key' });
 		
 		this.input.addEventListener('focus', () => {
 			this.input.value = '';
 		});
 		
 		this.input.addEventListener('blur', () => {
-			this.panel.update();
 			this.update();
 		});
 		
@@ -152,10 +141,7 @@ class KeybindControl extends Control {
 			this.input.blur();
 		});
 	}
-	update(){
-		super.update();
-		this.button.style.display = 'none';
-		this.label.textContent = this.name + ':';
+	update(init){
 		this.input.value = this.value ? utils.string_key(this.value) : 'Unset';
 	}
 };
@@ -170,50 +156,20 @@ class TextBoxControl extends Control {
 
 class SliderControl extends Control {
 	static id = 'slider';
-	constructor(...args){
-		super(...args);
-		
-		var movement = { held: false, x: 0, y: 0 },
-			rtn = (number, unit) => (number / unit).toFixed() * unit,
-			update_slider = event => {
-				if(!movement.held)return;
-				
-				var slider_box = this.slider.getBoundingClientRect(),
-					min_val = this.data.range[0],
-					max_val = this.data.range[1],
-					unit = this.data.range[2],
-					perc = ((event.pageX - slider_box.x) / slider_box.width) * 100,
-					value = Math.max((((max_val)*perc/100)), min_val);
-				
-				if(unit)value = rtn(value, unit);
-				
-				value = +value.toFixed(2);
-				
-				if(event.clientX <= slider_box.x)value = perc = min_val;
-				else if(event.clientX >= slider_box.x + slider_box.width)value = max_val, perc = 100;
-				
-				this.value = value;
-				this.update();
-			};
-		
-		this.slider = utils.add_ele('div', this.container, { className: 'slider' });
-		this.background = utils.add_ele('div', this.slider, { className: 'background' });
-		
-		this.slider.addEventListener('mousedown', event=>{
-			movement = { held: true, x: event.layerX, y: event.layerY }
-			update_slider(event);
+	create(){
+		this.input = utils.add_ele('ez-slider', this.content, {
+			min: this.data.min,
+			max: this.data.max,
+			step: this.data.step,
 		});
 		
-		global_listen('mouseup', () => movement.held = false );
+		this.input.labels = this.data.labels;
 		
-		global_listen('mousemove', event => update_slider(event));
+		this.input.addEventListener('change', () => this.value = this.input.value);
 	}
-	update(){
-		super.update();
-		this.button.style.display = 'none';
-		this.background.style.width = ((this.value / this.data.range[1]) * 100) + '%';
-		this.slider.dataset.value = this.data.labels && this.data.labels[this.value] || this.value + (this.data.unit == false ? '' : this.data.unit == null ? '%' : this.data.unit);
-		this.label.textContent = this.name + ':';
+	update(init){
+		if(init)this.input.value = this.value;
+		else this.input.render();
 	}
 };
 
@@ -225,7 +181,6 @@ Control.Types = [
 	LinkControl,
 	TextBoxControl,
 	SliderControl,
-	TextElement,
 ];
 
 module.exports = Control;

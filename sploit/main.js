@@ -5,105 +5,131 @@ var UI = require('../libs/ui/'),
 	Visual = require('../libs/visual'),
 	Input = require('../libs/input'),
 	Socket = require('../libs/socket'),
-	cheat = require('./cheat'),
-	socket = Socket(cheat),
-	input = new Input(cheat),
-	visual = new Visual(cheat),
-	{ utils, proxy_addons, supported_store, addon_url, meta, api, store } = require('../libs/consts'),
-	process = () => {
-		try{
-			visual.tick(UI);
+	Player = require('../libs/player'),
+	{ utils, proxy_addons, supported_store, addon_url, meta, api, store } = require('../libs/consts');
+
+class Main {
+	constructor(){
+		this.hooked = Symbol();
+		this.skins = [...Array(5000)].map((e, i) => ({ ind: i, cnt: 1 }));
+		
+		var self = this;
+		
+		this.interface = {
+			get game(){
+				return self.game;
+			},
+			get force_auto(){
+				return self.config.aim.force_auto;
+			},
+			get controls(){
+				return self.controls;
+			},
+			get player(){
+				return self.player;
+			},
+			get target(){
+				return self.target;
+			},
+			get players(){
+				return self.players;
+			},
+			get esp(){
+				return self.config.esp.status;
+			},
+			get wireframe(){
+				return self.config.player.wireframe;
+			},
+			get walls(){
+				return self.config.esp.walls;
+			},
+			get bhop(){
+				return self.config.player.bhop;
+			},
+			get aim(){
+				return self.config.aim.status;
+			},
+			get aim_smooth(){
+				return self.config.aim.smooth;
+			},
+			get hitchance(){
+				return self.config.aim.hitchance;
+			},
+			get auto_reload(){
+				return self.config.aim.auto_reload;
+			},
+			get unlock_skins(){
+				return self.config.player.skins;
+			},
+			pick_target(){
+				self.target = self.players.filter(player => player.can_target).sort((ent_1, ent_2) => self.sorts[ent_1.rect && ent_2.rect ? self.config.aim.target_sorting || 'dist2d' : 'dist3d'](ent_1, ent_2) * (ent_1.frustum ? 1 : 0.5))[0];
+			},
+		};
+		
+		this.sorts = {
+			dist3d: (ent_1, ent_2) => {
+				return ent_1.distance_camera - ent_2.distance_camera;
+			},
+			dist2d: (ent_1, ent_2) => {
+				return utils.dist_center(ent_1.rect) - utils.dist_center(ent_2.rect);
+			},
+			hp: (ent_1, ent_2) => {
+				return ent_1.health - ent_2.health;
+			},
+		};
+	}
+	async load(){
+		var source = api.source(),
+			token = api.token();
+		
+		utils.canvas = UI.canvas;
+		
+		this.ui = require('./settings');
+		
+		await this.ui.load_config();
+		
+		// migrate
+		if(typeof this.config.aim.smooth == 'object')this.config.aim.smooth = this.config.aim.smooth.value;
+		if(this.config.aim.smooth > 1)this.config.aim.smooth = 0;
+		if(typeof this.config.esp.walls == 'object')this.config.esp.walls = 100;
+		
+		if(this.config.aim.target == 'feet')this.config.aim.target == 'legs';
+		else if(this.config.aim.target == 'chest')this.config.aim.target == 'torso';
+		
+		if(this.config.game.custom_loading){
+			var loading = new UI.Loading(meta.discord, 'https://y9x.github.io/webpack/libs/gg.gif');
 			
-			if(cheat.config.game.overlay)visual.overlay();
-			
-			if(cheat.config.aim.fov_box)visual.fov(cheat.config.aim.fov);
-			
-			if(cheat.game && cheat.world)for(let ent of cheat.game.players.list){
-				let player = cheat.add(ent);
-				
-				if(player.is_you)cheat.player = player;
-				
-				if(!player.active)continue;
-				
-				player.tick();
-				
-				if(!player.frustum || player.is_you)continue;
-				
-				visual.cham(player);
-				
-				if(['box', 'box_chams', 'full'].includes(cheat.config.esp.status))visual.box(player);
-				
-				if(cheat.config.esp.status == 'full'){
-					visual.health(player);
-					visual.text(player);
-				}
-				
-				if(cheat.config.esp.tracers)visual.tracer(player);
-				
-				if(cheat.config.esp.labels)visual.label(player);
-			};
-		}catch(err){
-			api.report_error('frame', err);
+			token.then(() => loading.hide()).catch(() => loading.hide());
 		}
 		
-		utils.request_frame(process);
-	},
-	source = api.source(),
-	token = api.token();
-
-api.on_instruct = () => {
-	if(api.has_instruct('connection banned 0x2'))localStorage.removeItem('krunker_token'), UI.alert([
-		`<p>You were IP banned, Sploit has signed you out.\nSpoof your IP to bypass this ban with one of the following:</p>`,
-		`<ul>`,
-			`<li>Using your mobile hotspot</li>`,
-			...proxy_addons.filter(data => data[supported_store]).map(data => `<li><a target='_blank' href=${JSON.stringify(data[supported_store])}>${data.name}</a></li>`),
-			`<li>Use a <a target="_blank" href=${JSON.stringify(addon_url('Proxy VPN'))}>Search for a VPN</a></li>`,
-		`</ul>`,
-	].join(''));
-	else if(api.has_instruct('banned'))localStorage.removeItem('krunker_token'), UI.alert(
-		`<p>You were banned, Sploit has signed you out.\nCreate a new account to bypass this ban.</p>`,
-	);
-	
-	if(cheat.config.game.auto_respawn){
-		if(api.has_instruct('connection error', 'game is full', 'kicked by vote', 'disconnected'))location.assign('https://krunker.io');
-		else if(api.has_instruct('to play') && (!cheat.player || !cheat.player.active)){
-			cheat.controls.locklessChange(true);
-			cheat.controls.locklessChange(false);
-		}
-	}
-};
-
-UI.ready.then(async () => {
-	utils.canvas = UI.canvas;
-	
-	cheat.ui = require('./entries');
-	
-	await cheat.ui.load_config();
-	
-	// migrate
-	if(typeof cheat.config.aim.smooth == 'object')cheat.config.aim.smooth = cheat.config.aim.smooth.value;
-	if(cheat.config.aim.smooth > 1)cheat.config.aim.smooth = 0;
-	if(typeof cheat.config.esp.walls == 'object')cheat.config.esp.walls = 100;
-	
-	if(cheat.config.aim.target == 'feet')cheat.config.aim.target == 'legs';
-	else if(cheat.config.aim.target == 'chest')cheat.config.aim.target == 'torso';
-	
-	if(cheat.config.game.custom_loading){
-		var loading = new UI.Loading(meta.discord);
+		api.on_instruct = () => {
+			if(api.has_instruct('connection banned 0x2'))localStorage.removeItem('krunker_token'), UI.alert([
+				`<p>You were IP banned, Sploit has signed you out.\nSpoof your IP to bypass this ban with one of the following:</p>`,
+				`<ul>`,
+					`<li>Using your mobile hotspot</li>`,
+					...proxy_addons.filter(data => data[supported_store]).map(data => `<li><a target='_blank' href=${JSON.stringify(data[supported_store])}>${data.name}</a></li>`),
+					`<li>Use a <a target="_blank" href=${JSON.stringify(addon_url('Proxy VPN'))}>Search for a VPN</a></li>`,
+				`</ul>`,
+			].join(''));
+			else if(api.has_instruct('banned'))localStorage.removeItem('krunker_token'), UI.alert(
+				`<p>You were banned, Sploit has signed you out.\nCreate a new account to bypass this ban.</p>`,
+			);
+			else if(this.config.game.auto_lobby && api.has_instruct('connection error', 'game is full', 'kicked by vote', 'disconnected'))location.href = '/';
+			else if(this.config.game.auto_start && api.has_instruct('to play') && (!this.player || !this.player.active)){
+				this.controls.locklessChange(true);
+				this.controls.locklessChange(false);
+			}
+		};
 		
-		token.finally(() => loading.hide());
-	}
-	
-	process();
-	
-	var krunker = vars.patch(await source);
-	
-	var args = {
-		[ vars.key ]: {
-			three(three){ utils.three = three },
-			game(game){
-				cheat.game = utils.game = game;
-				Object.defineProperty(game, 'controls', {
+		this.visual = new Visual(this.interface);
+		
+		var self = this,
+			socket = Socket(this.interface),
+			input = new Input(this.interface),
+			args = {
+			[ vars.key ]: {
+				three(three){ utils.three = three },
+				game: game => Object.defineProperty(this.game = utils.game = game, 'controls', {
 					configurable: true,
 					set(controls){
 						// delete definition
@@ -112,28 +138,81 @@ UI.ready.then(async () => {
 						var timer = 0;
 						
 						Object.defineProperty(controls, 'idleTimer', {
-							get: _ => cheat.config.game.inactivity ? 0 : timer,
+							get: _ => self.config.game.inactivity ? 0 : timer,
 							set: value => timer = value,
 						});
 						
-						return cheat.controls = game.controls = controls;
+						return self.controls = game.controls = controls;
 					},
-				});
+				}),
+				world: world => this.world = utils.world = world,
+				can_see: inview => this.config.esp.status == 'full' ? false : (this.config.esp.nametags || inview),
+				skins: ent => this.config.player.skins && typeof ent == 'object' && ent != null && ent.stats ? this.skins : ent.skins,
+				input: input.push.bind(input),
+				timer: (object, property, timer) => Object.defineProperty(object, property, {
+					get: _ => this.config.game.inactivity ? 0 : timer,
+					set: value => this.config.game.inactivity ? Infinity : timer,
+				}),
 			},
-			world(world){ cheat.world = utils.world = world },
-			can_see: inview => cheat.config.esp.status == 'full' ? false : (cheat.config.esp.nametags || inview),
-			skins: ent => cheat.config.player.skins && typeof ent == 'object' && ent != null && ent.stats ? cheat.skins : ent.skins,
-			input: input.push.bind(input),
-			timer: (object, property, timer) => Object.defineProperty(object, property, {
-				get: _ => cheat.config.game.inactivity ? 0 : timer,
-				set: value => cheat.config.game.inactivity ? Infinity : timer,
-			}),
-		},
-		WebSocket: socket,
-		WP_fetchMMToken: token,
-	};
-	
-	await api.load;
-	
-	new Function(...Object.keys(args), krunker)(...Object.values(args));
-});
+			WebSocket: socket,
+			WP_fetchMMToken: token,
+		};
+		
+		this.process();
+		
+		await api.load;
+		
+		new Function(...Object.keys(args), vars.patch(await source))(...Object.values(args));
+	}
+	process(){
+		try{
+			this.visual.tick(UI);
+			
+			if(this.config.game.overlay)this.visual.overlay();
+			
+			if(this.config.aim.fov_box)this.visual.fov(this.config.aim.fov);
+			
+			if(this.game && this.world){
+				this.visual.walls();
+				
+				for(let player of this.players){
+					if(player.is_you)this.player = player;
+					
+					if(!player.active)continue;
+					
+					player.tick();
+					
+					if(!player.frustum || player.is_you)continue;
+					
+					this.visual.cham(player);
+					
+					if(['box', 'box_chams', 'full'].includes(this.config.esp.status))this.visual.box(player);
+					
+					if(this.config.esp.status == 'full'){
+						this.visual.health(player);
+						this.visual.text(player);
+					}
+					
+					if(this.config.esp.tracers)this.visual.tracer(player);
+				}
+			}
+		}catch(err){
+			api.report_error('frame', err);
+		}
+		
+		utils.request_frame(() => this.process());
+	}
+	get config(){
+		return this.ui.config;
+	}
+	get players(){
+		return this.game.players.list.map(ent => this.add(ent));
+	}
+	add(entity){
+		return entity[this.hooked] || (entity[this.hooked] = new Player(this, entity));
+	}
+};
+
+var main = module.exports = new Main();
+
+main.load();

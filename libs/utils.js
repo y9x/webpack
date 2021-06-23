@@ -12,13 +12,11 @@ class Utils {
 		this.pi2 = Math.PI * 2;
 		this.halfpi = Math.PI / 2;
 		
-		// planned mobile client
-		this.mobile = false;
-		
-		if(typeof navigator == 'object' && navigator != null)for(let ua of [ 'android', 'webos', 'iphone', 'ipad', 'ipod', 'blackberry', 'iemobile', 'opera mini' ])if(navigator.userAgent.includes(ua)){
-			this.mobile = true;
-			break;
-		}
+		this.mobile_uas = [ 'android', 'webos', 'iphone', 'ipad', 'ipod', 'blackberry', 'iemobile', 'opera mini' ];
+	}
+	get mobile(){
+		if(typeof navigator == 'object' && navigator != null)for(let ua of this.mobile_uas)if(navigator.userAgent.includes(ua))return true;
+		return false;
 	}
 	dist_center(pos){
 		return Math.hypot((window.innerWidth / 2) - pos.x, (window.innerHeight / 2) - pos.y);
@@ -148,6 +146,47 @@ class Utils {
 	round(n, r){
 		return Math.round(n * Math.pow(10, r)) / Math.pow(10, r);
 	}
+	add_ele(node_name, parent, attributes = {}){
+		var crt = this.crt_ele(node_name, attributes);
+		
+		if(typeof parent == 'function')this.wait_for(parent).then(data => data.appendChild(crt));
+		else if(typeof parent == 'object' && parent != null && parent.appendChild)parent.appendChild(crt);
+		else throw new Error('Parent is not resolvable to a DOM element');
+		
+		return crt;
+	}
+	crt_ele(node_name, attributes = {}){
+		var after = {};
+		
+		for(let prop in attributes)if(typeof attributes[prop] == 'object' && attributes[prop] != null)after[prop] = attributes[prop], delete attributes[prop];
+	
+		var node;
+		
+		if(node_name == 'raw')node = this.crt_ele('div', { innerHTML: attributes.html }).firstChild;
+		else if(node_name == 'text')node = document.createTextNode('');
+		else node = document.createElement(node_name)
+		
+		var cls = attributes.className;
+		
+		if(cls){
+			delete attributes.className;
+			node.setAttribute('class', cls);
+		}
+		
+		var events = after.events;
+		
+		if(events){
+			delete after.events;
+			
+			for(let event in events)node.addEventListener(event, events[event]);
+		}
+		
+		Object.assign(node, attributes);
+		
+		for(let prop in after)Object.assign(node[prop], after[prop]);
+		
+		return node;
+	}
 	wait_for(check, time){
 		return new Promise(resolve => {
 			var interval,
@@ -221,22 +260,8 @@ class Utils {
 		
 		return output;
 	}
-	add_ele(node_name, parent, attributes = {}){
-		var crt = this.crt_ele(node_name, attributes);
-		
-		if(typeof parent == 'function')this.wait_for(parent).then(data => data.appendChild(crt));
-		else if(typeof node == 'object' && node != null && node.appendChild)parent.appendChild(crt);
-		else throw new Error('Parent is not resolvable to a DOM element');
-		
-		return crt;
-	}
-	crt_ele(node_name, attributes = {}){
-		if(attributes.style != null && typeof attributes.style == 'object')attributes.style = this.css(attributes.style);
-		
-		return Object.assign(node_name == 'text' ? document.createTextNode('') : document.createElement(node_name), attributes);
-	}
 	string_key(key){
-		return key.replace(/^(Key|Digit|Numpad)/, '');
+		return key.replace(/^([A-Z][a-z]+?)([A-Z0-9][a-z]*?)/, (match, type, key) => ['Digit', 'Key'].includes(type) ? key : `${key} ${type}`);
 	}
 	clone_obj(obj){
 		return JSON.parse(JSON.stringify(obj));
@@ -248,6 +273,33 @@ class Utils {
 		}
 		
 		return target;
+	}
+	redirect(name, from, to){
+		var proxy = Symbol();
+		
+		to.addEventListener(name, event => {
+			if(event[proxy])return;
+		});
+		
+		from.addEventListener(name, event => to.dispatchEvent(Object.assign(new(event.constructor)(name, event), {
+			[proxy]: true,
+			stopImmediatePropagation: event.stopImmediatePropagation.bind(event),
+			preventDefault: event.preventDefault.bind(event),
+		})));
+	}
+	promise(){
+		var res, rej,
+			promise = new Promise((resolve, reject) => {
+				res = resolve;
+				rej = reject;
+			});
+		
+		promise.resolve = res;
+		promise.reject = rej;
+		
+		promise.resolve_in = (time = 0, data) => setTimeout(() => promise.resolve(data), time);
+		
+		return promise;
 	}
 }
 

@@ -1,59 +1,41 @@
 'use strict';
 
-var doc_input_active = doc => doc.activeElement && ['TEXTAREA', 'INPUT'].includes(doc.activeElement.tagName),
-	{ global_listen, keybinds, panels, utils, frame } = require('./consts.js'),
+var { utils, frame, content } = require('./consts.js'),
+	Panel = require('./panel'),
 	update_pe = event => {
-		for(let ind in panels){
-			if(!panels[ind].visible)continue;
+		for(let panel of Panel.panels){
+			if(!panel.visible)continue;
 			
-			let rect = panels[ind].node.getBoundingClientRect(),
+			let rect = panel.node.getBoundingClientRect(),
 				hover = event.clientX >= rect.x && event.clientY >= rect.y && (event.clientX - rect.x) <= rect.width && (event.clientY - rect.y) <= rect.height;
 			
-			if(hover)return frame.style['pointer-events'] = 'all';
+			if(hover)return content.style['pointer-events'] = 'all';
 		}
 		
-		frame.style['pointer-events'] = 'none';
+		content.style['pointer-events'] = 'none';
+		
+		if(event.type == 'mousedown')for(let panel of Panel.panels)panel.blur();
 	},
 	resize_canvas = () => {
-		exports.canvas.width = frame.contentWindow.innerWidth;
-		exports.canvas.height = frame.contentWindow.innerHeight;
-	},
-	resolve_ready;
+		exports.canvas.width = window.innerWidth;
+		exports.canvas.height = window.innerHeight;
+	};
 
-exports.ready = new Promise(resolve => frame.addEventListener('load', resolve));
+window.addEventListener('mousemove', update_pe);
+window.addEventListener('mousedown', update_pe);
+window.addEventListener('mouseup', update_pe);
 
-exports.ready.then(() => {
-	exports.canvas = utils.add_ele('canvas', frame.contentWindow.document.documentElement);
-	
-	exports.ctx = exports.canvas.getContext('2d', { alpha: true });
-	
-	resize_canvas();
+require('../segoe');
 
-	frame.contentWindow.document.head.remove();
-	frame.contentWindow.document.body.remove();
+exports.canvas = utils.add_ele('canvas', frame);
 
-	global_listen('mousemove', update_pe);
-	global_listen('mousedown', update_pe);
-	global_listen('mouseup', update_pe);
-	
-	global_listen('keydown', event => {
-		if(event.repeat || doc_input_active(document) || doc_input_active(frame.contentWindow.document))return;
-		
-		// some(keycode => typeof keycode == 'string' && [ keycode, keycode.replace('Digit', 'Numpad') ]
-		for(let keybind of keybinds)if(keybind.code.includes(event.code)){
-			event.preventDefault();
-			keybind.interact();
-		}
-	});
-	
-	frame.contentWindow.addEventListener('contextmenu', event => !(event.target != null && event.target instanceof frame.contentWindow.HTMLTextAreaElement) && event.preventDefault());
-	
-	window.addEventListener('resize', resize_canvas);
-	
-	utils.add_ele('style', frame.contentWindow.document.documentElement, { textContent: require('./ui.css') });
-});
+exports.ctx = exports.canvas.getContext('2d', { alpha: true });
 
-utils.wait_for(() => document.documentElement).then(() => document.documentElement.appendChild(frame));
+resize_canvas();
+
+window.addEventListener('contextmenu', event => !(event.target != null && event.target instanceof HTMLTextAreaElement) && event.preventDefault());
+
+window.addEventListener('resize', resize_canvas);
 
 var actions = require('./actions');
 
@@ -61,8 +43,6 @@ exports.alert = actions.alert;
 exports.prompt = actions.prompt;
 exports.options = actions.options;
 exports.frame = frame;
-exports.keybinds = keybinds;
-exports.panels = panels;
-exports.Loading = require('./loading');
+exports.Loading = require('./loading/');
 exports.Config = require('./config/');
 exports.Editor = require('./editor/');

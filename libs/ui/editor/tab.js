@@ -1,6 +1,6 @@
 'use strict';
 
-var { utils, store, frame } = require('../consts'),
+var { utils, store } = require('../consts'),
 	svg = require('./svg');
 
 class Tab {
@@ -22,60 +22,15 @@ class Tab {
 		
 		this.namen = utils.add_ele('div', this.node, { className: 'name' });
 		
-		this.node.insertAdjacentHTML('beforeend', svg.rename);
-		
-		this.node.lastElementChild.addEventListener('click', event => {
-			event.stopImmediatePropagation();
-			this.rename_input.textContent = this.name;
-			this.node.classList.add('rename');
-			this.rename_input.focus();
-		});
-		
-		this.activen = utils.add_ele('div', this.node, { className: 'active' });
-		
-		this.activen.addEventListener('click', async () => {
-			this.active = !this.active;
-			
-			await this.save();
-			
-			this.update();
-			
-			this.panel.load();
-		});
-		
-		this.node.insertAdjacentHTML('beforeend', svg.close);
-		
-		this.node.lastElementChild.addEventListener('click', event => {
-			event.stopImmediatePropagation();
-			this.remove();
-		});
-		
-		this.rename_input = utils.add_ele('span', this.node, { className: 'rename-input' });
-		
-		this.rename_input.setAttribute('contenteditable', '');
-		
-		this.rename_input.addEventListener('focus', () => {
-			console.log('focus');
-			
-			var range = document.createRange();
-			
-			range.selectNodeContents(this.rename_input);
-			
-			var selection = frame.contentWindow.getSelection();
-			
-			selection.removeAllRanges();
-			
-			selection.addRange(range);
-		});
-		
-		this.rename_input.addEventListener('keydown', event => {
-			if(event.code == 'Enter')event.preventDefault(), this.rename_input.blur();
-		});
-		
-		this.rename_input.addEventListener('blur', () => {
-			this.node.classList.remove('rename');
-			this.rename(this.rename_input.textContent);
-			this.rename_input.textContent = '';
+		utils.add_ele('raw', this.node, {
+			html: svg.close,
+			className: 'close button',
+			events: {
+				click: event => {
+					event.stopImmediatePropagation();
+					this.remove();
+				},
+			},
 		});
 		
 		this.node.addEventListener('click', () => this.focus());
@@ -104,17 +59,22 @@ class Tab {
 	}
 	update(){
 		this.namen.textContent = this.name;
-		this.activen.className = 'active ' + this.active;
+		this.panel.update_overflow();
+		// this.activen.className = 'active ' + this.active;
 	}
 	async focus(){
-		if(this.focused)return;
+		if(this.focused)return this;
 		
 		for(let tab of this.panel.tabs)tab.blur();
 		this.focused = true;
 		this.node.classList.add('active');
 		this.panel.editor.setValue(await this.get_value());
+		this.panel.filename.value = this.name;
+		this.panel.fileactive.checked = this.active;
 		this.panel.saved = true;
 		this.panel.update();
+		
+		return this;
 	}
 	blur(){
 		this.focused = false;
@@ -126,7 +86,16 @@ class Tab {
 		await store.set_raw(this.id, '');
 		await this.save();
 		await this.panel.load();
-		await this.panel.focus_first();
+		(await this.panel.first_tab()).focus();
+	}
+	async toggle_active(){
+		this.active = !this.active;
+		
+		await this.save();
+		
+		this.update();
+		
+		this.panel.load();
 	}
 };
 
