@@ -87,8 +87,6 @@ class Main {
 	async load(){
 		utils.add_ele('style', () => document.documentElement, { textContent: require('./index.css') });
 		
-		window.main = this;
-		
 		var self = this,
 			socket = Socket(this.interface),
 			input = new Input(this.interface);
@@ -163,6 +161,10 @@ class Main {
 				WebSocket: socket,
 				WP_fetchMMToken: api.token(),
 			};
+		
+		var ls = localStorage.getItem('ssjunkconfig');
+		
+		if(!GM_getValue('config') && ls && typeof GM_setValue == 'function')GM_setValue('config', ls);
 		
 		await this.menu.load_config();
 		

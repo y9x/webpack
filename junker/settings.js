@@ -4,7 +4,7 @@ var meta = require('./meta'),
 	UIMenu = require('../libs/uimenu'),
 	DiscordAddon = require('../libs/uimenu/addons/discord'),
 	SettingsAddon = require('../libs/uimenu/addons/settings'),
-	menu = new UIMenu('Junk', meta.icon, 'junkconfig'),
+	menu = new UIMenu('Junk', meta.icon, 'config'),
 	{ api, utils, meta } = require('../libs/consts'),
 	doc_body = utils.wait_for(() => document.body);
 

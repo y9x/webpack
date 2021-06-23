@@ -2,7 +2,6 @@
 
 var DataStore = require('./datastore'),
 	API = require('./api'),
-	Updater = require('./updater'),
 	Utils = require('./utils'),
 	utils = new Utils();
 

@@ -99,7 +99,7 @@ class Main {
 		if(this.config.game.custom_loading){
 			var loading = new UI.Loading(meta.discord, 'https://y9x.github.io/webpack/libs/gg.gif');
 			
-			token.finally(() => loading.hide());
+			token.then(() => loading.hide()).catch(() => loading.hide());
 		}
 		
 		api.on_instruct = () => {

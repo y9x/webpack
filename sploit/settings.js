@@ -177,9 +177,9 @@ weapon.add_control('Draw Target FOV', {
 weapon.add_control('Target FOV', {
 	type: 'slider',
 	walk: 'aim.fov',
-	min: 10,
+	min: 5,
 	max: 110,
-	step: 10,
+	step: 5,
 	labels: {
 		110: 'Inf',
 	},

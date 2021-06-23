@@ -7,8 +7,8 @@ var GM = {
 
 class DataStore {
 	ls_prefix = 'ss';
-	async get(key, expect){
-		var data = await this.get_raw(key);
+	get(key, expect){
+		var data = this.get_raw(key);
 		
 		if(typeof data == 'string')try{
 			return JSON.parse(data);
@@ -37,11 +37,11 @@ class DataStore {
 		
 		return this.set_raw(key, JSON.stringify(value));
 	}
-	async get_raw(key){
-		return await(GM.get_value ? GM.get_value(key) : localStorage.getItem(this.ls_prefix + key));
+	get_raw(key){
+		return GM.get_value ? GM.get_value(key) : localStorage.getItem(this.ls_prefix + key);
 	}
-	async set_raw(key, value){
-		return await(GM.set_value ? GM.set_value(key, value) : localStorage.setItem(this.ls_prefix + key, value));
+	set_raw(key, value){
+		return GM.set_value ? GM.set_value(key, value) : localStorage.setItem(this.ls_prefix + key, value);
 	}
 };
 
