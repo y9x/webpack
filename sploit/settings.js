@@ -239,10 +239,10 @@ player.add_control('Unlock Skins', {
 
 var game = config.add_tab('Game');
 
-game.add_control('Custom Loading Screen', {
+/*game.add_control('Custom Loading Screen', {
 	type: 'boolean',
 	walk: 'game.custom_loading',
-});
+});*/
 
 game.add_control('Auto Activate Nuke', {
 	type: 'boolean',

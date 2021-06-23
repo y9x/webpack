@@ -20,7 +20,7 @@
 }
 
 .loading a {
-	background-image: url('https://y9x.github.io/webpack/libs/ui/discord-normal.png');
+	background-image: url('https://y9x.github.io/webpack/libs/ui/loading/discord-normal.png');
 	width: 50px;
 	height: 56px;
 	background-size: contain;
@@ -33,10 +33,10 @@
 }
 
 .loading a:hover {
-	background-image: url('https://y9x.github.io/webpack/libs/ui/discord-hover.png');
+	background-image: url('https://y9x.github.io/webpack/libs/ui/loading/discord-hover.png');
 	transform: scale(.95);
 }
 
 .loading a:active {
-	background-image: url('https://y9x.github.io/webpack/libs/ui/discord-pressed.png');
+	background-image: url('https://y9x.github.io/webpack/libs/ui/loading/discord-pressed.png');
 }

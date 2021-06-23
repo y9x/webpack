@@ -96,11 +96,11 @@ class Main {
 		if(this.config.aim.target == 'feet')this.config.aim.target == 'legs';
 		else if(this.config.aim.target == 'chest')this.config.aim.target == 'torso';
 		
-		if(this.config.game.custom_loading){
+		/*if(this.config.game.custom_loading){
 			var loading = new UI.Loading(meta.discord, 'https://y9x.github.io/webpack/libs/gg.gif');
 			
 			token.then(() => loading.hide()).catch(() => loading.hide());
-		}
+		}*/
 		
 		api.on_instruct = () => {
 			if(api.has_instruct('connection banned 0x2'))localStorage.removeItem('krunker_token'), UI.alert([
