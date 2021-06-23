@@ -9,6 +9,9 @@ var { api, utils, meta } = require('../libs/consts.js'),
 			if(config.visible)config.hide();
 			else document.exitPointerLock(), config.show();
 		}),
+		reset: new Keybind().add_callback(() => config.load_preset('Default', {
+			binds: config.config.binds,
+		})),
 	};
 
 config.css_editor = new UI.Editor({
@@ -39,12 +42,8 @@ config.css_editor = new UI.Editor({
 
 config.add_preset('Default', {
 	binds: {
-		reverse_cam: 'KeyF',
 		toggle: 'KeyC',
-		aim: 'Digit3',
-		bhop: 'Digit4',
-		esp: 'Digit6',
-		overlay: 'Digit7',
+		reset: null,
 	},
 	aim: {
 		status: 'off',
@@ -55,6 +54,8 @@ config.add_preset('Default', {
 		// percentage of screen
 		fov_box: false,
 		fov: 60,
+		wallbangs: false,
+		force_auto: false,
 	},
 	color: {
 		risk: '#FF7700',
@@ -98,11 +99,6 @@ render.add_control('ESP Mode', {
 	},
 });
 
-render.add_control('Draw FOV box', {
-	type: 'boolean',
-	walk: 'aim.fov_box',
-});
-
 render.add_control('Nametags', {
 	type: 'boolean',
 	walk: 'esp.nametags',
@@ -130,6 +126,11 @@ render.add_control('Overlay', {
 	type: 'boolean',
 	walk: 'game.overlay',
 	key: 'binds.overlay',
+});
+
+render.add_control('Custom CSS', {
+	type: 'function',
+	value(){ config.css_editor.show() },
 });
 
 var weapon = config.add_tab('Weapon');
@@ -168,6 +169,11 @@ weapon.add_control('Target Sorting', {
 	},
 });
 
+weapon.add_control('Draw Target FOV', {
+	type: 'boolean',
+	walk: 'aim.fov_box',
+});
+
 weapon.add_control('Target FOV', {
 	type: 'slider',
 	walk: 'aim.fov',
@@ -196,14 +202,19 @@ weapon.add_control('Hitchance', {
 	step: 10,
 });
 
-weapon.add_control('Auto reload', {
-	type: 'boolean',
-	walk: 'aim.auto_reload',
-});
-
 weapon.add_control('Wallbangs', {
 	type: 'boolean',
 	walk: 'aim.wallbangs',
+});
+
+weapon.add_control('Force auto-fire', {
+	type: 'boolean',
+	walk: 'aim.force_auto',
+});
+
+weapon.add_control('Auto reload', {
+	type: 'boolean',
+	walk: 'aim.auto_reload',
 });
 
 var player = config.add_tab('Player');
@@ -224,11 +235,6 @@ player.add_control('Auto Bhop Mode', {
 player.add_control('Unlock Skins', {
 	type: 'boolean',
 	walk: 'player.skins',
-});
-
-render.add_control('Custom CSS', {
-	type: 'function',
-	value(){ config.css_editor.show() },
 });
 
 var game = config.add_tab('Game');
@@ -295,5 +301,10 @@ interf.add_control('Menu Toggle', {
 	type: 'keybind',
 	walk: 'binds.toggle',
 }).on('change', value => binds.toggle.set_key('F1', value));
+
+interf.add_control('Reset settings', {
+	type: 'keybind',
+	walk: 'binds.reset',
+}).on('change', value => binds.reset.set_key(value));
 
 module.exports = config;

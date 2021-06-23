@@ -76,10 +76,10 @@ class Config extends PanelDraggable {
 		
 		this.update(true);
 	}
-	async load_preset(preset){
+	async load_preset(preset, addon = {}){
 		if(!this.presets.has(preset))throw new Error('Invalid preset:', preset);
 		
-		this.insert_config(this.presets.get(preset), true);
+		this.insert_config(utils.assign_deep(this.presets.get(preset), addon), true);
 	}
 	async save_config(){
 		await this.store.set(this.config_key, this.config);

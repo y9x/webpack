@@ -19,6 +19,9 @@ class Main {
 			get game(){
 				return self.game;
 			},
+			get force_auto(){
+				return self.config.aim.force_auto;
+			},
 			get controls(){
 				return self.controls;
 			},
@@ -81,7 +84,7 @@ class Main {
 		
 		utils.canvas = UI.canvas;
 		
-		this.ui = require('./entries');
+		this.ui = require('./settings');
 		
 		await this.ui.load_config();
 		
