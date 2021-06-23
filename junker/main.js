@@ -66,7 +66,7 @@ class Main {
 				return self.config.player.skins;
 			},
 			pick_target(){
-				self.target = self.players.filter(player => player.can_target).sort((p1, p2) => self.dist2d(p1, p2) * (p1.frustum ? 1 : 0.5))[0];
+				self.target = self.players.filter(player => player.can_target && player.rect).sort((p1, p2) => self.dist2d(p1, p2) * (p1.frustum ? 1 : 0.5))[0];
 			},
 		};
 		
