@@ -38,7 +38,7 @@ class Updater {
 	async check(){
 		if(this.halted)return this.log('Updater halted, skipping check'), false;
 		
-		var script = await(await fetch(this.script)).text();
+		var script = await(await fetch(this.script, { cache: 'no-store' })).text();
 		
 		this.log('Latest script fetched from', this.script);
 		
