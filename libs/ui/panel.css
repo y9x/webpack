@@ -130,7 +130,7 @@ section.hidden {
 	display: flex;
 }
 
-a.control {
+.control a {
 	color: #D2D2D2;
 }
 

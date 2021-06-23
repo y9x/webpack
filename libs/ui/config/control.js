@@ -6,14 +6,15 @@ var { keybinds, utils } = require('../consts'),
 	EventLite  = require('event-lite');
 
 class Control {
-	static content_tag = 'div';
 	constructor(name, data, section){
 		this.name = name;
 		this.data = data;
 		this.panel = section.panel;
 		this.section = section;
-		this.content = utils.add_ele(this.constructor.content_tag, this.section.node, { className: 'control' });
-		this.label = utils.add_ele('text', this.content);
+		this.content = utils.add_ele('div', this.section.node, { className: 'control' });
+		this.label = utils.add_ele('text', this.content, {
+			nodeValue: this.name,
+		});
 		
 		this.create();
 	}
@@ -58,16 +59,12 @@ class Control {
 		console.warn('No defined interaction for', this);
 	}
 	update(){}
-	label_text(){
-		this.label.nodeValue = this.name;
-	}
 };
 
 EventLite.mixin(Control.prototype);
 
 class BooleanControl extends Control {
 	static id = 'boolean';
-	static content_tag = 'label';
 	create(){
 		this.input = utils.add_ele('ez-checkbox', this.content);
 		this.input.addEventListener('change', () => this.value = this.input.checked);
@@ -76,7 +73,6 @@ class BooleanControl extends Control {
 		this.value = !this.value;
 	}
 	update(init){
-		super.label_text(this.name);
 		if(init)this.input.checked = this.value;
 	}
 };
@@ -100,34 +96,29 @@ class RotateControl extends Control {
 		this.select.value = this.value = keys[ind + 1] || keys[0];
 	}
 	update(init){
-		this.label_text(this.name);
 		if(init)this.select.value = this.value;
 	}
 };
 
 class LinkControl extends Control {
 	static id = 'link';
-	static content_tag = 'a';
+	create(){
+		this.link = utils.add_ele('a', this.content);
+		this.link.append(this.label);
+	}
 	interact(){
-		this.content.click();
+		this.link.click();
 	}
 	update(){
-		super.label_text(this.name);
-		this.content.href = this.value;
+		this.link.href = this.value;
 	}
 };
 
-class FunctionControl extends Control {
+class FunctionControl extends LinkControl {
 	static id = 'function';
-	static content_tag = 'a';
 	create(){
-		this.content.addEventListener('click', () => this.interact());
-	}
-	interact(){
-		this.value();
-	}
-	update(){
-		super.label_text(this.name);
+		super.create();
+		this.link.addEventListener('click', () => this.interact());
 	}
 };
 
@@ -151,7 +142,6 @@ class KeybindControl extends Control {
 		});
 	}
 	update(init){
-		this.label_text(this.name);
 		this.input.value = this.value ? utils.string_key(this.value) : 'Unset';
 	}
 };
@@ -178,7 +168,6 @@ class SliderControl extends Control {
 		this.input.addEventListener('change', () => this.value = this.input.value);
 	}
 	update(init){
-		this.label_text(this.name);
 		if(init)this.input.value = this.value;
 		else this.input.render();
 	}
