@@ -16,7 +16,7 @@ class Editor extends PanelDraggable {
 		this.data = data;
 		
 		// user stylesheets
-		this.sheet = utils.add_ele('style', document.documentElement);
+		this.sheet = utils.add_ele('style', () => document.documentElement);
 		
 		this.title = utils.add_ele('div', this.node, { textContent: this.data.title, className: 'bar' });
 		
