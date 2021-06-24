@@ -61,11 +61,13 @@ var create_script = (basename, url) => {
 		plugins: [
 			new ModifyPlugin({
 				file: basename + '.user.js',
-				prefix: new TMHeaders({
-					...meta,
-					extracted: new Date().toGMTString(),
-					...metaaddon,
-				}) + '\n\n',
+				get prefix(){
+					return new TMHeaders({
+						...meta,
+						extracted: new Date().toGMTString(),
+						...metaaddon,
+					}) + '\n\n';
+				},
 				replace: {
 					SCRIPT_URL: JSON.stringify(url),
 				},
@@ -97,12 +99,14 @@ var create_script = (basename, url) => {
 		plugins: [
 			new ModifyPlugin({
 				file: basename + '.user.js',
-				prefix: new TMHeaders({
-					...meta,
+				get prefix(){
+					return new TMHeaders({
+						...meta,
 					description: 'This script is served by the auto updater, do not use it outside of development.',
 					extracted: new Date().toGMTString(),
 					...metaaddon,
-				}) + '\n\n',
+					}) + '\n\n';
+				},
 			}),
 		],
 		...terser,

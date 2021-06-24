@@ -3,10 +3,8 @@
 var webpack = require('webpack');
 
 class ModifyPlugin {
-	constructor({ file, replace = {}, prefix = '' }){
-		this.replace = replace;
-		this.prefix = prefix;
-		this.file = file;
+	constructor(data = {}){
+		this.data = data;
 	}
 	to_regex(string, flags){
 		return new RegExp(string.replace(/[-[\]{}()*+?.,\\^$|#\s]/g, '\\$&'), flags);
@@ -17,10 +15,10 @@ class ModifyPlugin {
 				name: 'Replace',
 				stage: webpack.Compilation.PROCESS_ASSETS_STAGE_REPORT,
 			}, () => {
-				var asset = compilation.getAsset(this.file),
-					source = this.prefix + asset.source.source();
+				var asset = compilation.getAsset(this.data.file),
+					source = (this.data.prefix || '') + asset.source.source();
 				
-				for(let data in this.replace)source = source.replace(this.to_regex(data, 'g'), this.replace[data]);
+				for(let data in (this.data.replace || {}))source = source.replace(this.to_regex(data, 'g'), this.data.replace[data]);
 				
 				compilation.updateAsset(asset.name, new webpack.sources.RawSource(source));
 			});

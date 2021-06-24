@@ -31,6 +31,10 @@ var headers_obj = headers => {
 };
 
 class GMResponse {
+	constructor(){
+		this.text_promise = promise();
+		this.headers = new Headers();
+	}
 	run(opts){
 		return new Promise((resolve, reject) => {
 			opts.onreadystatechange = res => {
@@ -52,10 +56,6 @@ class GMResponse {
 			
 			GM.xmlHttpRequest(opts);
 		});
-	}
-	constructor(){
-		this.text_promise = promise();
-		this.headers = new Headers();
 	}
 	async text(){
 		return await this.text_promise;
@@ -123,7 +123,7 @@ request.fetch = typeof GM == 'object' ? (async (url, req) => {
 	
 	if(req.body)opts.data = req.body;
 	
-	return new GMResponse.run(opts);
+	return new GMResponse().run(opts);
 }) : window.fetch.bind(window);
 
 module.exports = request;
