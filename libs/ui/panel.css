@@ -48,10 +48,6 @@ a:hover {
 	text-decoration: underline;
 }
 
-main:hover, main.focus {
-	opacity: 1;
-}
-
 .title {
 	position: relative;
 	display: flex;
