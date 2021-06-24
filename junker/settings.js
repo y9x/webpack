@@ -1,6 +1,7 @@
 'use strict';
 
 var meta = require('./meta'),
+	request = require('../libs/request'),
 	UIMenu = require('../libs/uimenu'),
 	DiscordAddon = require('../libs/uimenu/addons/discord'),
 	SettingsAddon = require('../libs/uimenu/addons/settings'),
@@ -361,7 +362,7 @@ var dev = menu.window.add_tab('Dev');
 dev.add_control('Save Game Script', {
 	type: 'function',
 	value(){
-		var link = utils.add_ele('a', document.documentElement, { href: api.resolve({
+		var link = utils.add_ele('a', document.documentElement, { href: request.resolve({
 			target: api.api_v2,
 			endpoint: 'source',
 			query: { download: true },

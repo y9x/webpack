@@ -1,25 +1,25 @@
 'use strict';
 
 var vars = require('./vars'),
-	keys = {};
+	keys = new Set();
 
 class InputData {
 	constructor(array){
 		this.array = array;
 	}
 	get keys(){
-		return document.activeElement.tagName == 'INPUT' ? {} : keys;
+		return document.activeElement.tagName == 'INPUT' ? new Set() : keys;
 	}
 	get focused(){
 		return document.pointerLockElement != null;
 	}
 };
 
-document.addEventListener('keydown', event => keys[event.code] = true);
+document.addEventListener('keydown', event => keys.add(event.code));
 
-document.addEventListener('keyup', event => delete keys[event.code]);
+document.addEventListener('keyup', event => keys.delete(event.code));
 
-window.addEventListener('blur', () => keys = {});
+window.addEventListener('blur', () => keys = new Set());
 
 InputData.previous = {};
 

@@ -1,7 +1,8 @@
 'use strict';
 
 var TMHeaders = require('./libs/tmheaders'),
-	DataStore = require('./libs/datastore');
+	DataStore = require('./libs/datastore'),
+	request = require('./libs/request');
 
 class Updater {
 	constructor(url, logs = false){
@@ -10,13 +11,16 @@ class Updater {
 		this.store = new DataStore();
 	}
 	log(...text){
-		if(this.logs)console.log('[UPDATER]', ...text);
+		if(this.logs)console.log('[LOADER]', ...text);
 	}
 	warn(...text){
-		if(this.logs)console.warn('[UPDATER]', ...text);
+		if(this.logs)console.warn('[LOADER]', ...text);
 	}
 	async check_latest(script){
-		var text = await(await fetch(this.url, { cache: 'no-store' })).text(),
+		var text = await request({
+				target: this.url,
+				result: 'text',
+			}),
 			current = new Date(new TMHeaders().parse(script).get('extracted')).getTime(),
 			fetched = new Date(new TMHeaders().parse(text).get('extracted')).getTime(),
 			will_update = current < fetched;
@@ -54,10 +58,7 @@ class Updater {
 			this.check_latest(script);
 		}else script = this.request();
 		
-		new Function('GM_getValue', 'GM_setValue', script)(
-			typeof GM_getValue == 'function' && GM_getValue, 
-			typeof GM_setValue == 'function' && GM_setValue, 
-		);
+		eval(script);
 	}
 };
 

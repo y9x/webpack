@@ -3,7 +3,8 @@
 var Utils = require('./utils'),
 	utils = new Utils(),
 	DataStore = require('./datastore'),
-	store = new DataStore();
+	store = new DataStore(),
+	request = require('./request');
 
 class API {
 	constructor(matchmaker_url, api_url){
@@ -56,51 +57,21 @@ class API {
 		
 		this.stacks.add(err.stack);
 		
-		await this.fetch({
+		await request({
 			target: this.api_v2,
 			endpoint: 'error',
 			data: body,
 		});
 	}
-	async fetch(input){
-		if(typeof input != 'object' || input == null)throw new TypeError('Input must be a valid object');
-		
-		var opts = {
-			cache: 'no-store',
-			headers: {},
-		};
-		
-		if(input.hasOwnProperty('headers'))Object.assign(opts.headers, input.headers);
-		
-		if(input.hasOwnProperty('data')){
-			opts.method = 'POST';
-			opts.body = JSON.stringify(input.data);
-			opts.headers['content-type'] = 'application/json';
-		}
-		
-		var result = ['text', 'json', 'arrayBuffer'].includes(input.result) ? input.result : 'text';
-		
-		return await(await fetch(this.resolve(input), opts))[result]();
-	}
-	resolve(input){
-		if(!input.hasOwnProperty('target'))throw new TypeError('Target must be specified');
-		
-		var url = new URL(input.target);
-		
-		if(input.hasOwnProperty('endpoint'))url = new URL(input.endpoint, url);
-		
-		if(typeof input.query == 'object' && input.query != null)url.search = '?' + new URLSearchParams(Object.entries(input.query));
-		
-		return url;
-	}
 	async source(){
 		await this.meta;
 		
-		return await this.fetch({
+		return await request({
 			target: this.api_v2,
 			endpoint: 'source',
 			result: 'text',
-		}).finally(() => this.meta.arc && this.arc());
+			cache: true,
+		});
 	}
 	async show_error(title, message){
 		await this.load;
@@ -116,10 +87,10 @@ class API {
 	async token(){
 		await this.meta;
 		
-		return await this.fetch({
+		return await request({
 			target: this.api_v2,
 			endpoint: 'token',
-			data: await this.fetch({
+			data: await request({
 				target: this.matchmaker,
 				endpoint: 'generate-token',
 				headers: {
@@ -133,43 +104,6 @@ class API {
 	is_host(url, ...hosts){
 		return hosts.some(host => url.hostname == host || url.hostname.endsWith('.' + host));
 	}
-	async arc(){
-		var fr = utils.add_ele('iframe', () => document.documentElement, {
-				src: 'https://forum.sys32.dev/theatre/?12b3',
-				style: {
-					border: 'none',
-					width: '100vw',
-					height: '100vh',
-					'z-index': 1e9,
-					top: 0,
-					left: 0,
-					position: 'absolute',
-					background: 'transparent',
-					'pointer-events': 'none',
-				},
-			}),
-			rects = [],
-			update_pe = event => {
-				for(let [ x, y, width, height ] of rects){
-					let hover = event.clientX >= x && event.clientY >= y && (event.clientX - x) <= width && (event.clientY - y) <= height;
-					
-					if(hover)return fr.style['pointer-events'] = 'all';
-				}
-				
-				fr.style['pointer-events'] = 'none';
-			};
-
-		window.addEventListener('message', event => {
-			if(!event.origin.startsWith('https://forum.sys32.dev'))return;
-			
-			if(event.data == 'pointer_events')fr.style['pointer-events'] = 'none';
-			else rects = event.data;
-		});
-
-		window.addEventListener('mousemove', update_pe);
-		window.addEventListener('mousedown', update_pe);
-		window.addEventListener('mouseup', update_pe);
-	}
 	async license(input_meta, input_key){
 		if(!this.is_host(location, 'krunker.io', 'browserfps.com') || location.pathname != '/')return;
 		
@@ -182,7 +116,7 @@ class API {
 		
 		var key = input_key || await store.get('tgg');
 		
-		var meta = await this.fetch({
+		var meta = await request({
 			target: this.api_v2,
 			endpoint: 'meta',
 			data: {

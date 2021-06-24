@@ -1,9 +1,13 @@
 'use strict';
+
+var production = true;
+
 var os = require('os'),
 	fs = require('fs'),
 	path = require('path'),
 	https = require('https'),
 	webpack = require('webpack'),
+	TerserPlugin = require('terser-webpack-plugin'),
 	serve = path.join(__dirname, 'dist', 'serve'),
 	dist = path.join(__dirname, 'dist'),
 	hosts = [ 'krunker.io', '*.browserfps.com' ],
@@ -12,12 +16,27 @@ var os = require('os'),
 		junker: 'https://y9x.github.io/userscripts/serve/junker.user.js',
 	},
 	metaaddon = {
-		grant: [ 'GM_setValue', 'GM_getValue' ],
+		connect: [ 'sys32.dev', 'github.io' ],
+		// GM_getValue is sync, loader needs to run instantly
+		grant: [ 'GM.setValue', 'GM_getValue', 'GM.xmlHttpRequest' ],
 		source: 'https://github.com/y9x/webpack/',
 		supportURL: 'https://y9x.github.io/discord/',
 		match: hosts.map(host => '*://' + host + '/*'),
 		'run-at': 'document-start',
 		noframes: '',
+	},
+	terser = {
+		optimization: {
+			minimize: true,
+			minimizer: [ new TerserPlugin({
+				terserOptions: {
+					mangle: {
+						eval: true, 
+					},
+				},
+			}) ],
+			concatenateModules: true,
+		},
 	},
 	TMHeaders = require('./libs/tmheaders');
 
@@ -43,7 +62,8 @@ var create_script = (basename, url) => {
 			{ test: /\.css$/, use: [ { loader: path.join(__dirname, 'loaders', 'css.js') } ] },
 			{ test: /\.json$/, use: [ { loader: path.join(__dirname, 'loaders', 'json.js') } ], type: 'javascript/auto' },
 		] },
-		mode: 'production',
+		devtool: false,
+		mode: production ? 'production' : 'development',
 		plugins: [
 			{ apply: compiler => compiler.hooks.thisCompilation.tap('Replace', compilation => compilation.hooks.processAssets.tap({ name: 'Replace', stage: webpack.Compilation.PROCESS_ASSETS_STAGE_REPORT }, () => {
 				var file = compilation.getAsset(compiler.options.output.filename),
@@ -57,6 +77,7 @@ var create_script = (basename, url) => {
 				compilation.updateAsset(file.name, new webpack.sources.RawSource(`${headers}\n${source}`));
 			})) },
 		],
+		...terser,
 	}, (err, stats) => {
 		if(get_errs(err, stats))return console.error('Creating loader compiler', basename, 'fail');
 		
@@ -77,7 +98,8 @@ var create_script = (basename, url) => {
 			{ test: /\.css$/, use: [ { loader: path.join(__dirname, 'loaders', 'css.js') } ] },
 			{ test: /\.json$/, use: [ { loader: path.join(__dirname, 'loaders', 'json.js') } ], type: 'javascript/auto' },
 		] },
-		mode: 'production',
+		devtool: false,
+		mode: production ? 'production' : 'development',
 		plugins: [
 			{ apply: compiler => compiler.hooks.thisCompilation.tap('Replace', compilation => compilation.hooks.processAssets.tap({ name: 'Replace', stage: webpack.Compilation.PROCESS_ASSETS_STAGE_REPORT }, () => {
 				var file = compilation.getAsset(compiler.options.output.filename),
@@ -93,6 +115,7 @@ var create_script = (basename, url) => {
 				compilation.updateAsset(file.name, new webpack.sources.RawSource(`${headers}\n${source}`));
 			})) },
 		],
+		...terser,
 	}, (err, stats) => {
 		if(get_errs(err, stats))return console.error('Creating compiler', basename, 'fail');
 		

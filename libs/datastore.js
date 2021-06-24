@@ -1,12 +1,8 @@
 'use strict';
 
-var GM = {
-	get_value: typeof GM_getValue == 'function' && GM_getValue,
-	set_value: typeof GM_setValue == 'function' && GM_setValue,
-};
-
 class DataStore {
 	ls_prefix = 'ss';
+	gm = typeof GM_getValue == 'function';
 	get(key, expect){
 		var data = this.get_raw(key);
 		
@@ -38,10 +34,10 @@ class DataStore {
 		return this.set_raw(key, JSON.stringify(value));
 	}
 	get_raw(key){
-		return GM.get_value ? GM.get_value(key) : localStorage.getItem(this.ls_prefix + key);
+		return this.gm ? GM_getValue(key) : localStorage.getItem(this.ls_prefix + key);
 	}
 	set_raw(key, value){
-		return GM.set_value ? GM.set_value(key, value) : localStorage.setItem(this.ls_prefix + key, value);
+		return this.gm ? GM.setValue(key, value) : localStorage.setItem(this.ls_prefix + key, value);
 	}
 };
 

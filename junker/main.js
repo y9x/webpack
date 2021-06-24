@@ -164,7 +164,7 @@ class Main {
 		
 		var ls = localStorage.getItem('ssjunkconfig');
 		
-		if(typeof GM_setValue == 'function' && typeof GM_setValue == 'function' && !GM_getValue('config') && ls)GM_setValue('config', ls);
+		if(typeof GM_setValue == 'function' && typeof GM == 'object' && !GM_getValue('config') && ls)await GM.setValue('config', ls);
 		
 		await this.menu.load_config();
 		

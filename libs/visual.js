@@ -44,10 +44,9 @@ class Visual {
 		var width = (this.canvas.width * fov) / 100,
 			height = (this.canvas.height * fov) / 100;
 		
-		this.ctx.fillStyle = '#F00';
-		this.ctx.globalAlpha = 0.4;
-		this.ctx.fillRect((this.canvas.width - width) / 2, (this.canvas.height - height) / 2, width, height);
-		this.ctx.globalAlpha = 1;
+		this.ctx.strokeStyle = '#000';
+		this.ctx.lineWidth = 2;
+		this.ctx.strokeRect((this.canvas.width - width) / 2, (this.canvas.height - height) / 2, width, height);
 	}
 	walls(){
 		utils.world.scene.children.forEach(obj => {

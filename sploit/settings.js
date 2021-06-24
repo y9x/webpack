@@ -4,6 +4,7 @@ var { api, utils, meta } = require('../libs/consts.js'),
 	UI = require('../libs/ui'),
 	Keybind = require('../libs/keybind'),
 	config = new UI.Config('Sploit', 'config'),
+	request = require('../libs/request'),
 	binds = {
 		toggle: new Keybind().add_callback(() => {
 			if(config.visible)config.hide();
@@ -283,7 +284,7 @@ info.add_control('Forum', {
 
 info.add_control('Download Game', {
 	type: 'link',
-	value: api.resolve({
+	value: request.resolve({
 		target: api.api_v2,
 		endpoint: 'source',
 		query: { download: true },
