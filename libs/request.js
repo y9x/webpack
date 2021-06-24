@@ -1,5 +1,20 @@
 'use strict';
 
+var promise = () => {
+	var res, rej,
+		promise = new Promise((resolve, reject) => {
+			res = resolve;
+			rej = reject;
+		});
+	
+	promise.resolve = res;
+	promise.reject = rej;
+	
+	promise.resolve_in = (time = 0, data) => setTimeout(() => promise.resolve(data), time);
+	
+	return promise;
+};
+
 var is_obj = data => typeof data == 'object' && data != null;
 
 var is_url = data => typeof data == 'string' || data instanceof Location || data instanceof URL;
@@ -16,18 +31,40 @@ var headers_obj = headers => {
 };
 
 class GMResponse {
-	constructor(textp){
-		this.textp = textp;
+	run(opts){
+		return new Promise((resolve, reject) => {
+			opts.onreadystatechange = res => {
+				switch(res.readyState){
+					case res.DONE:
+						
+						this.text_promise.resolve(res.responseText);
+						
+						break;
+					case res.HEADERS_RECEIVED:
+					
+						resolve(this.parse_headers(res.responseHeaders));
+						
+						break;
+					}
+			};
+			
+			opts.onerror = res => reject('Unknown error');
+			
+			GM.xmlHttpRequest(opts);
+		});
+	}
+	constructor(){
+		this.text_promise = promise();
 		this.headers = new Headers();
 	}
 	async text(){
-		return await this.textp;
+		return await this.text_promise;
 	}
 	async json(){
-		return JSON.parse(await this.textp);
+		return JSON.parse(await this.text_promise);
 	}
 	async arrayBuffer(){
-		return new TextEncoder().encode(await this.textp).buffer;
+		return new TextEncoder().encode(await this.text_promise).buffer;
 	}
 	parse_headers(data){
 		for(let line of data.split('\r\n')){
@@ -86,25 +123,7 @@ request.fetch = typeof GM == 'object' ? (async (url, req) => {
 	
 	if(req.body)opts.data = req.body;
 	
-	return new Promise((resolve, reject) => {
-		var resp = new GMResponse(new Promise(resolve => opts.onload = res => resolve(res.responseText)));
-		
-		opts.onreadystatechange = res => {
-			var state;
-			
-			for(let prop in XMLHttpRequest)if(XMLHttpRequest[prop] == res.readyState)state = prop;
-			
-			if(state == 'HEADERS_RECEIVED'){
-				resp.parse_headers(res.responseHeaders);
-				
-				resolve(resp);
-			}
-		};
-		
-		opts.onerror = res => reject('Unknown error');
-		
-		GM.xmlHttpRequest(opts);
-	});
-}) : fetch;
+	return new GMResponse.run(opts);
+}) : window.fetch.bind(window);
 
 module.exports = request;

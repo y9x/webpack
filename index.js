@@ -25,17 +25,21 @@ var os = require('os'),
 		'run-at': 'document-start',
 		noframes: '',
 	},
+	wp_mode = production ? 'production' : 'development',
+	{ errors, ModifyPlugin } = require('./loaders/utils'),
 	terser = {
 		optimization: {
-			minimize: true,
+			minimize: production,
 			minimizer: [ new TerserPlugin({
 				terserOptions: {
 					mangle: {
 						eval: true, 
 					},
+					format: {
+						quote_style: 1,
+					},
 				},
 			}) ],
-			concatenateModules: true,
 		},
 	},
 	TMHeaders = require('./libs/tmheaders');
@@ -43,16 +47,6 @@ var os = require('os'),
 var create_script = (basename, url) => {
 	var folder = path.join(__dirname, basename),
 		meta = require(path.join(folder, 'meta.js'));
-	
-	var get_errs = (err, stats = { compilation: { errors: [] } }) => {
-		var error = !!(err || stats.compilation.errors.length);
-		
-		for(var ind = 0; ind < stats.compilation.errors.length; ind++)error = true, console.error(stats.compilation.errors[ind]);
-		
-		if(err)console.error(err);
-		
-		return error;
-	};
 	
 	var loader_compiler = webpack({
 		entry: path.join(__dirname, 'loader.js'),
@@ -63,26 +57,26 @@ var create_script = (basename, url) => {
 			{ test: /\.json$/, use: [ { loader: path.join(__dirname, 'loaders', 'json.js') } ], type: 'javascript/auto' },
 		] },
 		devtool: false,
-		mode: production ? 'production' : 'development',
+		mode: wp_mode,
 		plugins: [
-			{ apply: compiler => compiler.hooks.thisCompilation.tap('Replace', compilation => compilation.hooks.processAssets.tap({ name: 'Replace', stage: webpack.Compilation.PROCESS_ASSETS_STAGE_REPORT }, () => {
-				var file = compilation.getAsset(compiler.options.output.filename),
-					headers = new TMHeaders({
-						...meta,
-						extracted: new Date().toGMTString(),
-						...metaaddon,
-					}),
-					source = file.source.source().replace(/SCRIPT_URL/g, JSON.stringify(url));
-				
-				compilation.updateAsset(file.name, new webpack.sources.RawSource(`${headers}\n${source}`));
-			})) },
+			new ModifyPlugin({
+				file: basename + '.user.js',
+				prefix: new TMHeaders({
+					...meta,
+					extracted: new Date().toGMTString(),
+					...metaaddon,
+				}) + '\n\n',
+				replace: {
+					SCRIPT_URL: JSON.stringify(url),
+				},
+			}),
 		],
 		...terser,
 	}, (err, stats) => {
-		if(get_errs(err, stats))return console.error('Creating loader compiler', basename, 'fail');
+		if(errors(err, stats))return console.error('Creating loader compiler', basename, 'fail');
 		
 		var callback = (err, stats) => {
-			if(get_errs(err, stats))return console.error('Build of loader', basename, 'fail');
+			if(errors(err, stats))return console.error('Build of loader', basename, 'fail');
 			else console.log('Build of loader', basename, 'success');
 		};
 		
@@ -99,28 +93,24 @@ var create_script = (basename, url) => {
 			{ test: /\.json$/, use: [ { loader: path.join(__dirname, 'loaders', 'json.js') } ], type: 'javascript/auto' },
 		] },
 		devtool: false,
-		mode: production ? 'production' : 'development',
+		mode: wp_mode,
 		plugins: [
-			{ apply: compiler => compiler.hooks.thisCompilation.tap('Replace', compilation => compilation.hooks.processAssets.tap({ name: 'Replace', stage: webpack.Compilation.PROCESS_ASSETS_STAGE_REPORT }, () => {
-				var file = compilation.getAsset(compiler.options.output.filename),
-					extracted = new Date(),
-					headers = new TMHeaders({
-						...meta,
-						description: 'This script is served by the auto updater, do not use it outside of development.',
-						extracted: extracted.toGMTString(),
-						...metaaddon,
-					}),
-					source = file.source.source().replace(/Date\.now\('build_extracted'\)/g, extracted.getTime());
-				
-				compilation.updateAsset(file.name, new webpack.sources.RawSource(`${headers}\n${source}`));
-			})) },
+			new ModifyPlugin({
+				file: basename + '.user.js',
+				prefix: new TMHeaders({
+					...meta,
+					description: 'This script is served by the auto updater, do not use it outside of development.',
+					extracted: new Date().toGMTString(),
+					...metaaddon,
+				}) + '\n\n',
+			}),
 		],
 		...terser,
 	}, (err, stats) => {
-		if(get_errs(err, stats))return console.error('Creating compiler', basename, 'fail');
+		if(errors(err, stats))return console.error('Creating compiler', basename, 'fail');
 		
 		var callback = (err, stats) => {
-			if(get_errs(err, stats))return console.error('Build of', basename, 'fail');
+			if(errors(err, stats))return console.error('Build of', basename, 'fail');
 			else console.log('Build of', basename, 'success');
 		};
 		

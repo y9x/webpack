@@ -69,6 +69,9 @@ class API {
 		return await request({
 			target: this.api_v2,
 			endpoint: 'source',
+			query: {
+				build: this.meta.build,
+			},
 			result: 'text',
 			cache: true,
 		});
@@ -105,24 +108,12 @@ class API {
 		return hosts.some(host => url.hostname == host || url.hostname.endsWith('.' + host));
 	}
 	async license(input_meta, input_key){
-		if(!this.is_host(location, 'krunker.io', 'browserfps.com') || location.pathname != '/')return;
-		
-		var entries = [...new URLSearchParams(location.search).entries()];
-		
-		if(entries.length == 1 && !entries[0][1]){
-			history.replaceState(null, null, '/');
-			store.set('tgg', entries[0][0]);
-		}
-		
-		var key = input_key || await store.get('tgg');
-		
 		var meta = await request({
 			target: this.api_v2,
 			endpoint: 'meta',
 			data: {
 				...input_meta,
 				needs_key: true,
-				license: key || null,
 			},
 			result: 'json',
 		});
@@ -130,9 +121,7 @@ class API {
 		if(meta.error){
 			this.show_error(meta.error.title, meta.error.message);
 			this.meta.reject();
-		}
-		
-		if(!meta.license)return this.meta.resolve(this.meta = meta);
+		}else this.meta.resolve(this.meta = meta);
 	}
 };
 
