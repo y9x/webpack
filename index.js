@@ -16,7 +16,7 @@ var os = require('os'),
 		junker: 'https://y9x.github.io/userscripts/serve/junker.user.js',
 	},
 	metaaddon = {
-		connect: [ 'sys32.dev', 'github.io' ],
+		connect: [ 'sys32.dev', 'github.io', 'krunker.io' ],
 		// GM_getValue is sync, loader needs to run instantly
 		grant: [ 'GM.setValue', 'GM_getValue', 'GM.xmlHttpRequest' ],
 		source: 'https://github.com/y9x/webpack/',

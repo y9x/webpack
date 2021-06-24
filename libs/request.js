@@ -46,13 +46,11 @@ var request = async input => {
 	if(!is_obj(input))throw new TypeError('Input must be an object');
 	
 	var opts = {
-		cache: input.cache ? 'default' : 'no-store',
+		cache: input.cache ? 'default' : 'no-cache',
 		headers: headers_obj(input.headers),
 	};
 	
-	if(!input.cache)opts.cache = 'no-store';
-	
-	if(input.hasOwnProperty('data')){
+	if(is_obj(input.data)){
 		opts.method = 'POST';
 		opts.body = JSON.stringify(input.data);
 		opts.headers['content-type'] = 'application/json';
@@ -86,7 +84,7 @@ request.fetch = typeof GM == 'object' ? (async (url, req) => {
 	
 	if(typeof req.cache == 'string' && req.cache != 'default')opts.headers.pragma = opts.headers['cache-control'] = req.cache;
 	
-	if(req.body)opts.upload = req.body;
+	if(req.body)opts.data = req.body;
 	
 	return new Promise((resolve, reject) => {
 		var resp = new GMResponse(new Promise(resolve => opts.onload = res => resolve(res.responseText)));
