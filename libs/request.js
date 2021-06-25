@@ -32,10 +32,37 @@ var headers_obj = headers => {
 
 class GMResponse {
 	constructor(){
-		this.text_promise = promise();
 		this.headers = new Headers();
 	}
+	static request_xhr(opts){
+		var req = new XMLHttpRequest();
+		
+		req.open(opts.method, opts.url, !opts.synchronous);
+		
+		for(let prop in opts.headers)req.setRequestHeader(prop, opts.headers[prop]);
+		
+		req.send(opts.data);
+		
+		return req;
+	}
+	static gen_opts(url, req){
+		if(!is_obj(req))req = {};
+		
+		var opts = {
+			headers: headers_obj(req.headers),
+			url: new URL(url, location).href,
+			method: typeof req.method == 'string' ? req.method : 'GET',
+		};
+		
+		if(typeof req.cache == 'string' && req.cache != 'default')opts.headers.pragma = opts.headers['cache-control'] = req.cache;
+		
+		if(req.body)opts.data = req.body;
+		
+		return opts;
+	}
 	run(opts){
+		this.text_promise = promise();
+		
 		return new Promise((resolve, reject) => {
 			opts.onreadystatechange = res => {
 				switch(res.readyState){
@@ -61,10 +88,10 @@ class GMResponse {
 		return await this.text_promise;
 	}
 	async json(){
-		return JSON.parse(await this.text_promise);
+		return JSON.parse(await this.text());
 	}
 	async arrayBuffer(){
-		return new TextEncoder().encode(await this.text_promise).buffer;
+		return new TextEncoder().encode(await this.text()).buffer;
 	}
 	parse_headers(data){
 		for(let line of data.split('\r\n')){
@@ -77,9 +104,26 @@ class GMResponse {
 		
 		return this;
 	}
-}
+};
 
-var request = async input => {
+class ResponseSync extends GMResponse {
+	constructor(res){
+		super();
+		this.res = res;
+		this.parse_headers(this.res.responseHeaders);
+	}
+	json(){
+		return JSON.parse(this.text());
+	}
+	arrayBuffer(){
+		return new TextEncoder().encode(this.text()).buffer;
+	}
+	text(){
+		return this.res.responseText;
+	}
+};
+
+var request = input => {
 	if(!is_obj(input))throw new TypeError('Input must be an object');
 	
 	var opts = {
@@ -93,10 +137,25 @@ var request = async input => {
 		opts.headers['content-type'] = 'application/json';
 	}
 	
-	var result = ['text', 'json', 'arrayBuffer'].includes(input.result) ? input.result : 'text';
+	var result = ['text', 'json', 'arrayBuffer'].includes(input.result) ? input.result : 'text',
+		url = request.resolve(input);
 	
-	return await(await request.fetch(request.resolve(input), opts))[result]();
+	if(input.sync){
+		let genned = GMResponse.gen_opts(url, opts);
+		
+		genned.synchronous = true;
+		
+		delete genned.headers;
+		
+		let req = GMResponse.request_xhr(genned);
+		
+		return new ResponseSync(req)[result]();
+	}else{
+		return request.fetch(url, opts).then(res => res[result]());
+	}
 };
+
+request.is_gm = typeof GM == 'object';
 
 request.resolve = input => {
 	if(!is_url(input.target))throw new TypeError('Target must be specified');
@@ -111,19 +170,7 @@ request.resolve = input => {
 };
 
 request.fetch = typeof GM == 'object' ? (async (url, req) => {
-	if(!is_obj(req))req = {};
-	
-	var opts = {
-		headers: headers_obj(req.headers),
-		url: new URL(url, location).href,
-		method: typeof req.method == 'string' ? req.method : 'GET',
-	};
-	
-	if(typeof req.cache == 'string' && req.cache != 'default')opts.headers.pragma = opts.headers['cache-control'] = req.cache;
-	
-	if(req.body)opts.data = req.body;
-	
-	return new GMResponse().run(opts);
+	return new GMResponse().run(GMResponse.gen_opts(url, req));
 }) : window.fetch.bind(window);
 
 module.exports = request;
