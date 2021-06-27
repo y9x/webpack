@@ -155,7 +155,7 @@ var request = input => {
 	}
 };
 
-request.is_gm = typeof GM == 'object';
+request.is_gm = typeof GM == 'object' && typeof GM.xmlHttpRequest == 'function';
 
 request.resolve = input => {
 	if(!is_url(input.target))throw new TypeError('Target must be specified');
@@ -169,7 +169,7 @@ request.resolve = input => {
 	return url;
 };
 
-request.fetch = typeof GM == 'object' ? (async (url, req) => {
+request.fetch = exports.is_gm ? (async (url, req) => {
 	return new GMResponse().run(GMResponse.gen_opts(url, req));
 }) : window.fetch.bind(window);
 

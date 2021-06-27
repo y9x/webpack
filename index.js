@@ -2,10 +2,7 @@
 
 var production = true;
 
-var os = require('os'),
-	fs = require('fs'),
-	path = require('path'),
-	https = require('https'),
+var path = require('path'),
 	webpack = require('webpack'),
 	TerserPlugin = require('terser-webpack-plugin'),
 	serve = path.join(__dirname, 'dist', 'serve'),
