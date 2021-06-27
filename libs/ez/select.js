@@ -23,15 +23,26 @@ class Select extends HTMLElement {
 		window.addEventListener('mousedown', event => {
 			var path = event.composedPath();
 			
-			for(let node of path)if(node instanceof Option)node.selected = true;
+			for(let node of path)if(node instanceof Option)return;
 			
-			this.wrapper.classList[path.includes(this.wrapper) ? 'toggle' : 'remove']('active');
+			if(path.includes(this.wrapper))this.toggle_dropdown();
+			else this.hide_dropdown();
 			
 			this.set_pos();
 		});
 		
 		window.addEventListener('resize', () => this.set_pos());
 		window.addEventListener('blur', () => this.wrapper.classList.remove('active'));
+	}
+	toggle_dropdown(){
+		this.wrapper.classList.toggle('active');
+	}
+	hide_dropdown(){
+		this.wrapper.classList.remove('active');
+	}
+	changed(){
+		this.hide_dropdown();
+		this.dispatchEvent(new Event('change'));
 	}
 	set_pos(){
 		this.wrapper.classList.remove('bottom');
@@ -56,11 +67,23 @@ class Select extends HTMLElement {
 };
 
 class Option extends HTMLElement {
+	constructor(){
+		super();
+		
+		this.addEventListener('mousedown', () => {
+			this.selected = true;
+			this.parentNode.changed();
+		});
+	}
 	get value(){
 		return this.getAttribute('value');
 	}
 	set value(value){
-		return this.setAttribute('value', value);
+		this.setAttribute('value', value);
+		
+		if(!this.textContent)this.textContent = this.getAttribute('value');
+		
+		return value;
 	}
 	get selected(){
 		return this.hasAttribute('selected');
@@ -69,9 +92,7 @@ class Option extends HTMLElement {
 		if(value){
 			this.setAttribute('selected', '');
 			for(let option of this.parentNode.options)if(option != this && option.selected)option.selected = false;
-			
 			this.parentNode.label.nodeValue = this.textContent;
-			this.parentNode.dispatchEvent(new Event('change'));
 		}else this.removeAttribute('selected');
 	}
 	connectedCallback(){

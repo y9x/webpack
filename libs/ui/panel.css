@@ -121,9 +121,11 @@ section.hidden {
 
 .control {
 	margin-left: 11px;
+	margin-right: 11px;
 	height: 36px;
 	align-items: center;
 	display: flex;
+	gap: 4px;
 }
 
 .control a {
@@ -155,13 +157,14 @@ ez-select, ez-slider, ez-input {
 }
 
 ez-slider {
-	margin-right: 25px;
-}
-
-ez-select, ez-checkbox, ez-input {
-	margin-right: 11px;
+	margin-right: 14px;
 }
 
 ez-checkbox, ez-select, ez-slider, ez-input {
 	margin-left: auto;
+}
+
+ez-button {
+	width: 100%;
+	height: 30px;
 }

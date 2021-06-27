@@ -1,6 +1,7 @@
 'use strict';
 
-var { frame, utils, store } = require('./consts');
+var { frame, utils, store } = require('./consts'),
+	EventLite  = require('event-lite');
 
 utils.add_ele('style', frame, { textContent: require('./panel.css') });
 
@@ -40,5 +41,7 @@ class Panel {
 		this.node.remove();
 	}
 };
+
+EventLite.mixin(Panel.prototype);
 
 module.exports = Panel;

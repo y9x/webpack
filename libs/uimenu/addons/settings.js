@@ -2,7 +2,6 @@
 
 // Implements the settings bar (search, presets, export, import, reset) found in the settings menu
 
-
 var Addon = require('./addon'),
 	File = require('../../file'),
 	{ utils, consts } = require('../consts');
@@ -10,7 +9,6 @@ var Addon = require('./addon'),
 class SettingsAddon extends Addon {
 	async create(input){
 		this.name = 'Krunker Settings';
-		
 		
 		this.config = utils.crt_ele('div', { style: {
 			'text-align': 'right',
@@ -21,31 +19,40 @@ class SettingsAddon extends Addon {
 		utils.add_ele('div', this.config, {
 			className: 'settingsBtn',
 			textContent: 'Reset',
-		}).addEventListener('click', () => this.menu.load_preset('Default'));
+			events: {
+				click: () => this.menu.load_preset('Default'),
+			},
+		});
 		
 		utils.add_ele('div', this.config, {
 			className: 'settingsBtn',
 			textContent: 'Export',
-		}).addEventListener('click', () => File.save({
-			name: 'junker.json',
-			data: JSON.stringify(this.menu.config),
-		}));
+			events: {
+				click: () => File.save({
+					name: 'menu.json',
+					data: JSON.stringify(this.menu.config),
+				}),
+			},
+		});
 		
 		utils.add_ele('div', this.config, {
 			className: 'settingsBtn',
 			textContent: 'Import',
-		}).addEventListener('click', () => File.pick({
-			accept: 'junker.json',
-		}).then(async file => {
-			var data = await file.read();
-			
-			try{
-				await this.menu.insert_config(JSON.parse(data), true);
-			}catch(err){
-				console.error(err);
-				alert('Invalid config');
-			}
-		}));
+			events: {
+				click: () => File.pick({
+					accept: 'menu.json',
+				}).then(async file => {
+					var data = await file.read();
+					
+					try{
+						await this.menu.insert_config(JSON.parse(data), true);
+					}catch(err){
+						console.error(err);
+						alert('Invalid config');
+					}
+				}),
+			},
+		});
 		
 		this.preset = utils.add_ele('select', this.config, {
 			id: 'settingsPreset',
@@ -54,12 +61,13 @@ class SettingsAddon extends Addon {
 				'margin-left': '0px',
 				'font-size': '14px',
 			},
-		});
-		
-		this.preset.addEventListener('change', () => {
-			if(this.preset.value == 'Custom')return;
-			
-			this.menu.load_preset(this.preset.value);
+			events: {
+				change: () => {
+					if(this.preset.value == 'Custom')return;
+					
+					this.menu.load_preset(this.preset.value);
+				},
+			},
 		});
 		
 		utils.add_ele('option', this.preset, {
@@ -75,28 +83,29 @@ class SettingsAddon extends Addon {
 				display: 'inline-block',
 				width: '220px',
 			},
-		});
-		
-		this.search.addEventListener('input', () => {
-			if(!this.search.value)return [...this.menu.window.tabs][0].show();
-				
-			for(let tab of this.menu.window.tabs){
-				tab.hide();
-				
-				for(let category of tab.categories){
-					category.hide();
-					
-					for(let control of category.controls){
-						control.hide_content();
+			events: {
+				input: () => {
+					if(!this.search.value)return [...this.menu.window.tabs][0].show();
 						
-						if(control.name.toLowerCase().includes(this.search.value.toLowerCase())){
-							control.show_content();
-							tab.show_content();
-							category.show();
+					for(let tab of this.menu.window.tabs){
+						tab.hide();
+						
+						for(let category of tab.categories){
+							category.hide();
+							
+							for(let control of category.controls){
+								control.hide_content();
+								
+								if(control.name.toLowerCase().includes(this.search.value.toLowerCase())){
+									control.show_content();
+									tab.show_content();
+									category.show();
+								}
+							}
 						}
 					}
-				}
-			}
+				},
+			},
 		});
 		
 		this.menu.on('preset', label => utils.add_ele('option', this.preset, {

@@ -15,6 +15,7 @@ exports.content = utils.add_ele('div', () => document.documentElement, { style: 
 	background: '#0000',
 	width: '100vw',
 	height: '100vh',
+	overflow: 'hidden',
 } });
 
 exports.frame = exports.content.attachShadow({ mode: 'open' });

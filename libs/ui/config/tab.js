@@ -43,6 +43,7 @@ class Tab {
 		this.update(init);
 		
 		this.panel.config.section = this.name;
+		// save secton change
 		if(!init)this.panel.save_config();
 	}
 	hide(){
@@ -51,6 +52,8 @@ class Tab {
 		this.node.classList.add('hidden');
 	}
 	add_control(name, data){
+		if(typeof data == 'undefined' && typeof name == 'object')data = name, name = '';
+		
 		for(let type of Control.Types)if(type.id == data.type){
 			let control = new type(name, data, this);
 			

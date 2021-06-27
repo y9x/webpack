@@ -274,6 +274,15 @@ class Utils {
 		
 		return target;
 	}
+	filter_deep(target, match){
+		for(let key in target){
+			if(!(key in match))delete target[key];
+			
+			if(typeof match[key] == 'object' && match[key] != null)this.filter_deep(target[key], match[key]);
+		}
+		
+		return target;
+	}
 	redirect(name, from, to){
 		var proxy = Symbol();
 		
@@ -300,6 +309,9 @@ class Utils {
 		promise.resolve_in = (time = 0, data) => setTimeout(() => promise.resolve(data), time);
 		
 		return promise;
+	}
+	rtn(number, unit){
+		return (number / unit).toFixed() * unit;
 	}
 }
 

@@ -66,7 +66,7 @@ class Slider extends HTMLElement {
 			perc = ((event.pageX - slider_box.x) / slider_box.width) * 100,
 			value = Math.max((((max_val)*perc/100)), min_val);
 		
-		if(unit)value = this.rtn(value, unit);
+		if(unit)value = utils.rtn(value, unit);
 		
 		value = +value.toFixed(2);
 		
@@ -87,9 +87,6 @@ class Slider extends HTMLElement {
 			slider_bounds = this.wrapper.getBoundingClientRect();
 		
 		this.thumb.style.left = Math.min(Math.max((slider_bounds.width * bg_perc / 100) - (thumb_bounds.width / 2), 0), slider_bounds.width) + 'px';
-	}
-	rtn(number, unit){
-		return (number / unit).toFixed() * unit;
 	}
 	connectedCallback(){
 		

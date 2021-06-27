@@ -2,89 +2,21 @@
 
 var { api, utils, meta } = require('../libs/consts.js'),
 	UI = require('../libs/ui'),
+	File = require('../libs/file'),
 	Keybind = require('../libs/keybind'),
-	config = new UI.Config('Sploit', 'config'),
+	menu = new UI.Config('Sploit', 'config'),
 	request = require('../libs/request'),
 	binds = {
 		toggle: new Keybind().add_callback(() => {
-			if(config.visible)config.hide();
-			else document.exitPointerLock(), config.show();
+			if(menu.visible)menu.hide();
+			else document.exitPointerLock(), menu.show();
 		}),
-		reset: new Keybind().add_callback(() => config.load_preset('Default', {
-			binds: config.config.binds,
+		reset: new Keybind().add_callback(() => menu.load_preset('Default', {
+			binds: menu.menu.binds,
 		})),
 	};
 
-config.css_editor = new UI.Editor({
-	help: [
-		`<h3>Glossary:</h3><ul>`,
-			`<li>Menu bar - set of buttons found in the top left of the panel.</li>`,
-		`</ul>`,
-		`<h3>What does this menu do?</h3>`,
-		`<p>This is a CSS manager/ide for Krunker.</p>`,
-		`<h3>How do I add my CSS?</h3>`,
-		`<p>1. Press the svg.web button found in the menu bar.</p>`,
-		`<p>2. In the new window, input the link to your CSS then press OK.</p>`,
-		// `<p>3. Reload by pressing the svg.reload button in the menu bar.</p>`,
-		`<h3>How do I manually add CSS?</h3>`,
-		`<p>1. Create a new file with the svg.add_file button found in the top right of the CSS manager.<p>`,
-		`<p>2. In the text editor, input your CSS.<p>`,
-		`<p>3. When you are finished, press the svg.save button to save changes.<p>`,
-		// `<p>4. Reload by pressing the svg.reload button in the menu bar.</p>`,
-		'<h3>How do I turn on/off my CSS?</h3>',
-		`<p>Pressing the square icon in your CSS's tab will toggle the visibility. When the square is filled, the tab is enabled, when the square is empty, the tab is disabled.<p>`,
-		'<h3>How do I rename my CSS?</h3>',
-		`<p>Pressing the svg.rename icon in your CSS's tab will change the tab to renaming mode. Type in the new name then press enter to save changes.<p>`,
-		'<h3>How do I remove my CSS?</h3>',
-		`<p>Pressing the svg.close icon in your CSS's tab will remove your CSS.<p>`,
-		`<p>For further help, search or post on the forum found by <a target="_blank" href="${meta.forum}">clicking here</a>.<p>`,
-	].join(''),
-});
-
-config.add_preset('Default', {
-	binds: {
-		toggle: 'KeyC',
-		reset: null,
-	},
-	aim: {
-		status: 'off',
-		offset: 'random',
-		target_sorting: 'dist2d',
-		smooth: 0.2,
-		hitchance: 100,
-		// percentage of screen
-		fov_box: false,
-		fov: 60,
-		wallbangs: false,
-		force_auto: false,
-	},
-	color: {
-		risk: '#FF7700',
-		hostile: '#FF0000',
-		friendly: '#00FF00',
-	},
-	esp: {
-		wireframe: false,
-		status: 'off',
-		walls: 100,
-		labels: false,
-		tracers: false,
-	},
-	game: {
-		auto_nuke: false,
-		auto_lobby: false,
-		auto_start: false,
-		inactivity: true,
-		custom_loading: true,
-		inactivity: true,
-	},
-	player: {
-		bhop: 'off',
-		skins: false,
-	},
-});
-
-var render = config.add_tab('Render');
+var render = menu.add_tab('Render');
 
 render.add_control('ESP Mode', {
 	name: 'ESP Mode',
@@ -131,10 +63,10 @@ render.add_control('Overlay', {
 
 render.add_control('Custom CSS', {
 	type: 'function',
-	value(){ config.css_editor.show() },
+	value(){ menu.css_editor.show() },
 });
 
-var weapon = config.add_tab('Weapon');
+var weapon = menu.add_tab('Weapon');
 
 weapon.add_control('Aimbot Mode', {
 	type: 'rotate',
@@ -218,7 +150,7 @@ weapon.add_control('Auto reload', {
 	walk: 'aim.auto_reload',
 });
 
-var player = config.add_tab('Player');
+var player = menu.add_tab('Player');
 
 player.add_control('Auto Bhop Mode', {
 	type: 'rotate',
@@ -238,7 +170,7 @@ player.add_control('Unlock Skins', {
 	walk: 'player.skins',
 });
 
-var game = config.add_tab('Game');
+var game = menu.add_tab('Game');
 
 /*game.add_control('Custom Loading Screen', {
 	type: 'boolean',
@@ -265,7 +197,7 @@ game.add_control('No Inactivity kick', {
 	walk: 'game.inactivity',
 });
 
-var info = config.add_tab('Info');
+var info = menu.add_tab('Info');
 
 info.add_control('GitHub', {
 	type: 'link',
@@ -291,12 +223,62 @@ info.add_control('Download Game', {
 	}),
 });
 
-info.add_control('Reset Settings', {
-	type: 'function',
-	value(){ config.load_preset('Default') },
+var interf = menu.add_tab('Interface');
+
+interf.add_control({
+	type: 'functions',
+	value: {
+		Reset(){
+			menu.load_preset('Default');
+		},
+		async Import(){
+			var file = await File.pick({
+					accept: 'menu.json',
+				}),
+				data = await file.read();
+			
+			try{
+				await menu.insert_config(JSON.parse(data), true);
+			}catch(err){
+				console.error(err);
+				alert('Invalid config');
+			}
+		},
+		Export(){
+			File.save({
+				name: 'menu.json',
+				data: JSON.stringify(menu.config),
+			})
+		},
+	},
 });
 
-var interf = config.add_tab('Interface');
+var preset = interf.add_control('Preset', {
+	type: 'rotate',
+	value: {},
+}).select;
+
+preset.addEventListener('change', () => {
+	if(preset.value == 'Custom')return;
+	
+	menu.load_preset(preset.value, { section: menu.config.section });
+});
+
+utils.add_ele('ez-option', preset, { value: 'Custom' });
+
+menu.on('add-preset', label => utils.add_ele('ez-option', preset, { value: label }));
+
+menu.on('config', () => {
+	var Default = menu.presets.get('Default'),
+		// remove excess such as .section
+		string = JSON.stringify(utils.filter_deep(utils.clone_obj(menu.config), Default));
+	
+	for(let [ label, value ] of menu.presets){
+		if(JSON.stringify(utils.assign_deep(utils.clone_obj(Default), value)) == string)return preset.value = label;
+	}
+	
+	preset.value = 'Custom';
+});
 
 interf.add_control('Menu Toggle', {
 	type: 'keybind',
@@ -308,4 +290,105 @@ interf.add_control('Reset settings', {
 	walk: 'binds.reset',
 }).on('change', value => binds.reset.set_key(value));
 
-module.exports = config;
+menu.css_editor = new UI.Editor({
+	help: [
+		`<h3>Glossary:</h3><ul>`,
+			`<li>Menu bar - set of buttons found in the top left of the menu.</li>`,
+		`</ul>`,
+		`<h3>What does this menu do?</h3>`,
+		`<p>This is a CSS manager/ide for Krunker.</p>`,
+		`<h3>How do I add my CSS?</h3>`,
+		`<p>1. Press the svg.web button found in the menu bar.</p>`,
+		`<p>2. In the new window, input the link to your CSS then press OK.</p>`,
+		// `<p>3. Reload by pressing the svg.reload button in the menu bar.</p>`,
+		`<h3>How do I manually add CSS?</h3>`,
+		`<p>1. Create a new file with the svg.add_file button found in the top right of the CSS manager.<p>`,
+		`<p>2. In the text editor, input your CSS.<p>`,
+		`<p>3. When you are finished, press the svg.save button to save changes.<p>`,
+		// `<p>4. Reload by pressing the svg.reload button in the menu bar.</p>`,
+		'<h3>How do I turn on/off my CSS?</h3>',
+		`<p>Pressing the square icon in your CSS's tab will toggle the visibility. When the square is filled, the tab is enabled, when the square is empty, the tab is disabled.<p>`,
+		'<h3>How do I rename my CSS?</h3>',
+		`<p>Pressing the svg.rename icon in your CSS's tab will change the tab to renaming mode. Type in the new name then press enter to save changes.<p>`,
+		'<h3>How do I remove my CSS?</h3>',
+		`<p>Pressing the svg.close icon in your CSS's tab will remove your CSS.<p>`,
+		`<p>For further help, search or post on the forum found by <a target="_blank" href="${meta.forum}">clicking here</a>.<p>`,
+	].join(''),
+});
+
+menu.add_preset('Default', {
+	binds: {
+		toggle: 'KeyC',
+		reset: null,
+	},
+	aim: {
+		status: 'off',
+		offset: 'random',
+		target_sorting: 'dist2d',
+		smooth: 0.2,
+		hitchance: 100,
+		// percentage of screen
+		fov_box: false,
+		fov: 60,
+		wallbangs: false,
+		auto_reload: false,
+		force_auto: false,
+	},
+	color: {
+		risk: '#FF7700',
+		hostile: '#FF0000',
+		friendly: '#00FF00',
+	},
+	esp: {
+		wireframe: false,
+		status: 'off',
+		walls: 100,
+		labels: false,
+		tracers: false,
+	},
+	game: {
+		auto_nuke: false,
+		auto_lobby: false,
+		auto_start: false,
+		inactivity: true,
+		custom_loading: true,
+		inactivity: true,
+	},
+	player: {
+		bhop: 'off',
+		skins: false,
+	},
+});
+
+menu.add_preset('Assist', {
+	aim: {
+		status: 'assist',
+		fov: 70,
+		offset: 'random',
+		smooth: 0.6,
+	},
+	player: {
+		bhop: 'keyslide',
+	},
+});
+
+menu.add_preset('Rage', {
+	esp: {
+		status: 'full',
+		tracers: true,
+	},
+	aim: {
+		status: 'auto',
+		fov: 0,
+		smooth: 0,
+		force_auto: true,
+		auto_reload: true,
+		wallbangs: true,
+		offset: 'head',
+	},
+	player: {
+		bhop: 'autoslide',
+	},
+});
+
+module.exports = menu;

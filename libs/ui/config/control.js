@@ -45,6 +45,8 @@ class Control {
 		return walked[0][walked[1]];
 	}
 	set value(value){
+		if(!this.data.walk)return this.emit('change', value);
+		
 		var walked = this.walk(this.data.walk);
 		
 		walked[0][walked[1]] = value;
@@ -89,12 +91,6 @@ class RotateControl extends Control {
 			value: value,
 		});
 	}
-	interact(){
-		var keys = Object.keys(this.data.value),
-			ind = keys.indexOf(this.value);
-		
-		this.select.value = this.value = keys[ind + 1] || keys[0];
-	}
 	update(init){
 		if(init)this.select.value = this.value;
 	}
@@ -114,13 +110,26 @@ class LinkControl extends Control {
 	}
 };
 
-class FunctionControl extends LinkControl {
+class FunctionControl extends Control {
 	static id = 'function';
 	create(){
-		super.create();
-		this.link.addEventListener('click', () => this.interact());
+		this.button = utils.add_ele('ez-button', this.content);
+		this.button.append(this.label);
+		this.button.addEventListener('click', () => this.data.value());
 	}
 };
+
+class ManyFunctionsControl extends Control {
+	static id = 'functions';
+	create(){
+		for(let label in this.value)utils.add_ele('ez-button', this.content, {
+			textContent: label,
+			events: {
+				click: this.value[label],
+			},
+		});
+	}
+}
 
 class KeybindControl extends Control {
 	static id = 'keybind';
@@ -178,6 +187,7 @@ Control.Types = [
 	RotateControl,
 	BooleanControl,
 	FunctionControl,
+	ManyFunctionsControl,
 	LinkControl,
 	TextBoxControl,
 	SliderControl,

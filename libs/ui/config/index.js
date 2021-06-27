@@ -53,7 +53,7 @@ class Config extends PanelDraggable {
 		for(let section of this.sections){
 			section.update(init);
 			
-			if(section == this.default_section)section.show();
+			if(section == this.default_section)section.show(init);
 			else section.hide();
 		}
 		
@@ -68,20 +68,25 @@ class Config extends PanelDraggable {
 	}
 	add_preset(label, value){
 		this.presets.set(label, value);
+		this.emit('add-preset', label, value);
 	}
-	async insert_config(data, save = false){
-		this.config = utils.assign_deep(utils.clone_obj(this.presets.get('Default')), data);
+	async insert_config(data, save = false, addon = {}){
+		this.config = utils.assign_deep(utils.clone_obj(this.presets.get('Default')), data, addon);
 		
 		if(save)await this.save_config();
+		
+		this.emit('config', save);
 		
 		this.update(true);
 	}
 	async load_preset(preset, addon = {}){
 		if(!this.presets.has(preset))throw new Error('Invalid preset:', preset);
 		
-		this.insert_config(utils.assign_deep(this.presets.get(preset), addon), true);
+		this.insert_config(this.presets.get(preset), true, addon);
 	}
 	async save_config(){
+		this.emit('config');
+		
 		await this.store.set(this.config_key, this.config);
 	}
 	async load_config(){
