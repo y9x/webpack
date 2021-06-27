@@ -363,7 +363,7 @@ menu.add_preset('Default', {
 menu.add_preset('Assist', {
 	aim: {
 		status: 'assist',
-		fov: 70,
+		fov: 25,
 		offset: 'random',
 		smooth: 0.6,
 	},
