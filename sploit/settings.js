@@ -197,6 +197,11 @@ game.add_control('No Inactivity kick', {
 	walk: 'game.inactivity',
 });
 
+game.add_control('Error code tips', {
+	type: 'boolean',
+	walk: 'game.error_tips',
+});
+
 var info = menu.add_tab('Info');
 
 info.add_control('GitHub', {
@@ -353,6 +358,7 @@ menu.add_preset('Default', {
 		inactivity: true,
 		custom_loading: true,
 		inactivity: true,
+		error_tips: true,
 	},
 	player: {
 		bhop: 'off',

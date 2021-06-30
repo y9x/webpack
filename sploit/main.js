@@ -103,18 +103,24 @@ class Main {
 		}*/
 		
 		api.on_instruct = () => {
-			if(api.has_instruct('connection banned 0x2'))localStorage.removeItem('krunker_token'), UI.alert([
-				`<p>You were IP banned, Sploit has signed you out.\nSpoof your IP to bypass this ban with one of the following:</p>`,
-				`<ul>`,
-					`<li>Using your mobile hotspot</li>`,
-					...proxy_addons.filter(data => data[supported_store]).map(data => `<li><a target='_blank' href=${JSON.stringify(data[supported_store])}>${data.name}</a></li>`),
-					`<li>Use a <a target="_blank" href=${JSON.stringify(addon_url('Proxy VPN'))}>Search for a VPN</a></li>`,
-				`</ul>`,
-			].join(''));
-			else if(api.has_instruct('banned'))localStorage.removeItem('krunker_token'), UI.alert(
-				`<p>You were banned, Sploit has signed you out.\nCreate a new account to bypass this ban.</p>`,
-			);
-			else if(this.config.game.auto_lobby && api.has_instruct('connection error', 'game is full', 'kicked by vote', 'disconnected'))location.href = '/';
+			if(this.config.game.error_tips){
+				if(api.has_instruct('connection banned 0x2'))localStorage.removeItem('krunker_token'), UI.alert([
+					`<p>You were IP banned, Sploit has signed you out.\nSpoof your IP to bypass this ban with one of the following:</p>`,
+					`<ul>`,
+						`<li>Using your mobile hotspot</li>`,
+						...proxy_addons.filter(data => data[supported_store]).map(data => `<li><a target='_blank' href=${JSON.stringify(data[supported_store])}>${data.name}</a></li>`),
+						`<li>Use a <a target="_blank" href=${JSON.stringify(addon_url('Proxy VPN'))}>Search for a VPN</a></li>`,
+					`</ul>`,
+				].join(''));
+				else if(api.has_instruct('banned - '))UI.alert(
+					`<p>You were match-banned. Find a new game to bypass this.</p>`,
+				);
+				else if(api.has_instruct('banned'))localStorage.removeItem('krunker_token'), UI.alert(
+					`<p>You were banned, Sploit has signed you out.\nCreate a new account to bypass this ban.</p>`,
+				);
+			}
+			
+			if(this.config.game.auto_lobby && api.has_instruct('connection error', 'game is full', 'kicked by vote', 'disconnected'))location.href = '/';
 			else if(this.config.game.auto_start && api.has_instruct('to play') && (!this.player || !this.player.active)){
 				this.controls.locklessChange(true);
 				this.controls.locklessChange(false);
