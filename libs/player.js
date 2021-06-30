@@ -9,6 +9,7 @@ setInterval(() => random_target = Math.random(), 2000);
 
 class Player {
 	// every x ticks calculate heavy pos data
+	part_keys = [ 'head', 'torso', 'legs' ];
 	calc_ticks = 4;
 	constructor(cheat, entity){
 		this.cheat = cheat;
@@ -17,7 +18,6 @@ class Player {
 		this.position = new Vector3();
 		this.esp_hex = new Hex();
 		this.hp_hex = new Hex();
-		this.dont_calc = 0;
 		
 		this.parts = {
 			hitbox_head: new Vector3(),
@@ -29,7 +29,7 @@ class Player {
 	get distance_scale(){
 		var world_pos = utils.camera_world();
 		
-		return Math.max(.3, 1 - utils.getD3D(world_pos.x, world_pos.y, world_pos.z, this.x, this.y, this.z) / 600);
+		return Math.max(.3, 1 - utils.getD3D(world_pos.x, world_pos.y, world_pos.z, this.position.x, this.position.y, this.position.z) / 600);
 	}
 	calc_rect(){
 		let playerScale = (2 * vars.consts.armScale + vars.consts.chestWidth + vars.consts.armInset) / 2;
@@ -119,9 +119,6 @@ class Player {
 		
 		return ret;
 	}
-	get can_target(){
-		return this.active && this.can_see && this.enemy && this.in_fov;
-	}
 	get ping(){ return this.entity.ping }
 	get jump_bob_y(){ return this.entity.jumpBobY }
 	get clan(){ return this.entity.clan }
@@ -199,6 +196,10 @@ class Player {
 		return this.chest;
 	}
 	calc_parts(){
+		this.can_target = false;
+		
+		if(!this.active || this.is_you || !this.enemy)return;
+		
 		var head_size = 1.5,
 			chest_box = new utils.three.Box3().setFromObject(this.chest),
 			chest_size = chest_box.getSize(),
@@ -228,24 +229,20 @@ class Player {
 			z: 0,
 		}));
 		
-		var keys = [ 'head', 'torso', 'legs' ];
-		
-		var part = this.cheat.config.aim.offset == 'random' ? keys[~~(random_target * keys.length)] : this.cheat.config.aim.offset;
+		var part = this.cheat.config.aim.offset == 'random' ? this.part_keys[~~(random_target * this.part_keys.length)] : this.cheat.config.aim.offset;
 		
 		this.aim_point = part == 'head' ? this.parts.hitbox_head : (this.parts[part] || (console.error(part, 'not registered'), Vector3.Blank));
 		
+		this.frustum = utils.contains_point(this.aim_point);
+		this.in_fov = this.calc_in_fov();
 		
-		// every 4 ticks
-		// if((this.dont_calc++) % (this.calc_ticks + 1) == 0){
-			this.frustum = utils.contains_point(this.aim_point);
-			this.in_fov = this.calc_in_fov();
-			
-			this.world_pos = this.active ? this.obj[vars.getWorldPosition]() : { x: 0, y: 0, z: 0 };
-			
-			this.can_see = this.cheat.player &&
-				utils.obstructing(utils.camera_world(), this.aim_point, (!this.cheat.player || this.cheat.player.weapon && this.cheat.player.weapon.pierce) && this.cheat.config.aim.wallbangs)
-			== null ? true : false;
-		// }
+		this.world_pos = this.active ? this.obj[vars.getWorldPosition]() : { x: 0, y: 0, z: 0 };
+		
+		this.can_see = this.cheat.player &&
+			utils.obstructing(utils.camera_world(), this.aim_point, (!this.cheat.player || this.cheat.player.weapon && this.cheat.player.weapon.pierce) && this.cheat.config.aim.wallbangs)
+		== null ? true : false;
+		
+		this.can_target = this.active && this.can_see && this.enemy && this.in_fov;
 	}
 	tick(){
 		this.position.set(this.entity.x, this.entity.y, this.entity.z);
@@ -260,7 +257,6 @@ class Player {
 		this.esp_hex.set_style(this.cheat.config.esp.rainbow ? this.cheat.overlay.rainbow.col : this.cheat.config.color[this.enemy ? this.risk ? 'risk' : 'hostile' : 'friendly']);
 		
 		if(!this.can_see)this.esp_hex.sub_scalar(0x77);
-		
 		
 		this.esp_color = this.esp_hex.toString();
 		

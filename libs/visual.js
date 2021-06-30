@@ -81,6 +81,10 @@ class Visual {
 		var data = {
 			Player: this.data.player ? this.axis_join(this.data.player.position) : null,
 			Target: this.data.target ? this.axis_join(this.data.target.position) : null,
+			/*'Target FOV': this.data.target && this.data.target.in_fov,
+			'Target Frustrum': this.data.target && this.data.target.frustum,
+			'Target Active': this.data.target && this.data.target.active,
+			'Target Can Target': this.data.target && this.data.target._can_target,*/
 		};
 		
 		var lines = [];

@@ -379,7 +379,7 @@ menu.add_preset('Rage', {
 	},
 	aim: {
 		status: 'auto',
-		fov: 0,
+		fov: 110,
 		smooth: 0,
 		force_auto: true,
 		auto_reload: true,
