@@ -47,24 +47,6 @@ class Input {
 		
 		if(this.data.player.aimed && raycaster.intersectObjects(this.data.players.filter(ent => ent.can_target).map(ent => ent.obj), true).length)return true;
 	}
-	calc_rot(player){
-		var camera = utils.camera_world(),
-			target = player.aim_point;
-		
-		// target.position.add(player.velocity);
-		
-		var x_dire = utils.getXDire(camera.x, camera.y, camera.z, target.x, target.y
-			- this.data.player.jump_bob_y
-			, target.z)
-			- this.data.player.land_bob_y * 0.1
-			- this.data.player.recoil_y * vars.consts.recoilMlt,
-			y_dire = utils.getDir(camera.z, camera.x, target.z, target.x);
-		
-		return {
-			x: x_dire || 0,
-			y: y_dire || 0,
-		};
-	}
 	smooth(target, setup){
 		var x_ang = utils.getAngleDst(this.data.controls[vars.pchObjc].rotation.x, target.x),
 			y_ang = utils.getAngleDst(this.data.controls.object.rotation.y, target.y);
@@ -117,7 +99,7 @@ class Input {
 		
 		if(this.data.player.can_shoot)if(this.data.aim == 'trigger')data.shoot = this.enemy_sight() || data.shoot;
 		else if(this.data.aim != 'off' && this.data.target && this.data.player.health){
-			var rot = this.calc_rot(this.data.target);
+			var rot = this.data.target.calc_rot();
 			
 			if(hitchance)if(this.data.aim == 'correction' && nauto)this.correct_aim(rot, data);
 			else if(this.data.aim == 'auto'){

@@ -12,7 +12,7 @@ class Player {
 	part_keys = [ 'head', 'torso', 'legs' ];
 	calc_ticks = 4;
 	constructor(cheat, entity){
-		this.cheat = cheat;
+		this.data = cheat;
 		this.entity = typeof entity == 'object' && entity != null ? entity : {};
 		this.velocity = new Vector3();
 		this.position = new Vector3();
@@ -51,7 +51,7 @@ class Player {
 							broken = true;
 							break;
 						}
-						position.project(this.cheat.world.camera);
+						position.project(this.data.world.camera);
 						xmin = Math.min(xmin, position.x);
 						xmax = Math.max(xmax, position.x);
 						ymin = Math.min(ymin, position.y);
@@ -101,13 +101,13 @@ class Player {
 	}
 	calc_in_fov(){
 		if(!this.active)return false;
-		if(this.cheat.config.aim.fov == 110)return true;
+		if(this.data.config.aim.fov == 110)return true;
 		if(!this.frustum)return false;
 		
 		var fov_bak = utils.world.camera.fov;
 		
 		// config fov is percentage of current fov
-		utils.world.camera.fov = this.cheat.config.aim.fov / fov_bak * 100;
+		utils.world.camera.fov = this.data.config.aim.fov / fov_bak * 100;
 		utils.world.camera.updateProjectionMatrix();
 		
 		utils.update_frustum();
@@ -129,10 +129,10 @@ class Player {
 	get risk(){ return this.entity.level >= 30 || this.entity.account && (this.entity.account.featured || this.entity.account.premiumT) }
 	get is_you(){ return this.entity[vars.isYou] }
 	get target(){
-		return this.cheat.target && this.entity == this.cheat.target.entity;
+		return this.data.target && this.entity == this.data.target.entity;
 	}
 	get can_melee(){
-		return this.weapon.melee && this.cheat.target && this.cheat.target.active && this.position.distance_to(this.cheat.target) <= 18 || false;
+		return this.weapon.melee && this.data.target && this.data.target.active && this.position.distance_to(this.data.target) <= 18 || false;
 	}
 	get reloading(){
 		// reloadTimer in var randomization array
@@ -154,7 +154,7 @@ class Player {
 	get can_shoot(){
 		return !this.reloading && this.has_ammo && (this.can_throw || !this.weapon.melee || this.can_melee);
 	}
-	get aim_press(){ return this.cheat.controls[vars.mouseDownR] || this.cheat.controls.keys[this.cheat.controls.binds.aim.val] }
+	get aim_press(){ return this.data.controls[vars.mouseDownR] || this.data.controls.keys[this.data.controls.binds.aim.val] }
 	get crouch(){ return this.entity[vars.crouchVal] || 0 }
 	get box_scale(){
 		var view = utils.camera_world(),	
@@ -183,7 +183,7 @@ class Player {
 	get max_health(){ return this.entity[vars.maxHealth] || 100 }
 	//  && (this.is_you ? true : this.chest && this.leg)
 	get active(){ return this.entity.active && this.entity.x != null && this.health > 0 && (this.is_you ? true : this.chest && this.leg) && true }
-	get teammate(){ return this.is_you || this.cheat.player && this.team && this.team == this.cheat.player.team }
+	get teammate(){ return this.is_you || this.data.player && this.team && this.team == this.data.player.team }
 	get enemy(){ return !this.teammate }
 	get team(){ return this.entity.team }
 	get streaks(){ return Object.keys(this.entity.streaks || {}) }
@@ -194,6 +194,25 @@ class Player {
 	get leg(){
 		for(var mesh of this.entity.legMeshes)if(mesh.visible)return mesh;
 		return this.chest;
+	}
+	// Rotation to look at aim_point
+	calc_rot(){
+		var camera = utils.camera_world(),
+			target = this.aim_point;
+		
+		target.add(this.velocity);
+		
+		var x_dire = utils.getXDire(camera.x, camera.y, camera.z, target.x, target.y
+			- this.data.player.jump_bob_y
+			, target.z)
+			- this.data.player.land_bob_y * 0.1
+			- this.data.player.recoil_y * vars.consts.recoilMlt,
+			y_dire = utils.getDir(camera.z, camera.x, target.z, target.x);
+		
+		return {
+			x: x_dire || 0,
+			y: y_dire || 0,
+		};
 	}
 	calc_parts(){
 		this.can_target = false;
@@ -229,7 +248,7 @@ class Player {
 			z: 0,
 		}));
 		
-		var part = this.cheat.config.aim.offset == 'random' ? this.part_keys[~~(random_target * this.part_keys.length)] : this.cheat.config.aim.offset;
+		var part = this.data.config.aim.offset == 'random' ? this.part_keys[~~(random_target * this.part_keys.length)] : this.data.config.aim.offset;
 		
 		this.aim_point = part == 'head' ? this.parts.hitbox_head : (this.parts[part] || (console.error(part, 'not registered'), Vector3.Blank));
 		
@@ -238,8 +257,8 @@ class Player {
 		
 		this.world_pos = this.active ? this.obj[vars.getWorldPosition]() : { x: 0, y: 0, z: 0 };
 		
-		this.can_see = this.cheat.player &&
-			utils.obstructing(utils.camera_world(), this.aim_point, (!this.cheat.player || this.cheat.player.weapon && this.cheat.player.weapon.pierce) && this.cheat.config.aim.wallbangs)
+		this.can_see = this.data.player &&
+			utils.obstructing(utils.camera_world(), this.aim_point, (!this.data.player || this.data.player.weapon && this.data.player.weapon.pierce) && this.data.config.aim.wallbangs)
 		== null ? true : false;
 		
 		this.can_target = this.active && this.can_see && this.enemy && this.in_fov;
@@ -254,7 +273,7 @@ class Player {
 		
 		if(this.frustum)this.rect = this.calc_rect();
 		
-		this.esp_hex.set_style(this.cheat.config.esp.rainbow ? this.cheat.overlay.rainbow.col : this.cheat.config.color[this.enemy ? this.risk ? 'risk' : 'hostile' : 'friendly']);
+		this.esp_hex.set_style(this.data.config.esp.rainbow ? this.data.overlay.rainbow.col : this.data.config.color[this.enemy ? this.risk ? 'risk' : 'hostile' : 'friendly']);
 		
 		if(!this.can_see)this.esp_hex.sub_scalar(0x77);
 		
