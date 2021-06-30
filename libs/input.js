@@ -93,6 +93,8 @@ class Input {
 		if(slide && (auto || data.keys.has('Space')) && this.data.player.velocity.y < -0.02 && this.data.player.can_slide)setTimeout(() => this.data.controls.keys[this.data.controls.binds.crouch.val] = 0, 325), this.data.controls.keys[this.data.controls.binds.crouch.val] = 1;
 	}
 	modify(data){
+		for(let player of this.data.players)player.calc_parts();
+		
 		// bhop
 		this.bhop(data);
 		

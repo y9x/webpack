@@ -198,14 +198,7 @@ class Player {
 		for(var mesh of this.entity.legMeshes)if(mesh.visible)return mesh;
 		return this.chest;
 	}
-	tick(){
-		this.position.set(this.entity.x, this.entity.y, this.entity.z);
-		this.velocity.set(this.entity.xVel, this.entity.yVel, this.entity.zVel);
-		
-		this.parts.hitbox_head.copy(this.position).set_y(this.position.y + this.height - (this.crouch * vars.consts.crouchDst));
-		
-		if(this.is_you)return;
-		
+	calc_parts(){
 		var head_size = 1.5,
 			chest_box = new utils.three.Box3().setFromObject(this.chest),
 			chest_size = chest_box.getSize(),
@@ -241,8 +234,9 @@ class Player {
 		
 		this.aim_point = part == 'head' ? this.parts.hitbox_head : (this.parts[part] || (console.error(part, 'not registered'), Vector3.Blank));
 		
+		
 		// every 4 ticks
-		if((this.dont_calc++) % (this.calc_ticks + 1) == 0){
+		// if((this.dont_calc++) % (this.calc_ticks + 1) == 0){
 			this.frustum = utils.contains_point(this.aim_point);
 			this.in_fov = this.calc_in_fov();
 			
@@ -251,7 +245,15 @@ class Player {
 			this.can_see = this.cheat.player &&
 				utils.obstructing(utils.camera_world(), this.aim_point, (!this.cheat.player || this.cheat.player.weapon && this.cheat.player.weapon.pierce) && this.cheat.config.aim.wallbangs)
 			== null ? true : false;
-		}
+		// }
+	}
+	tick(){
+		this.position.set(this.entity.x, this.entity.y, this.entity.z);
+		this.velocity.set(this.entity.xVel, this.entity.yVel, this.entity.zVel);
+		
+		this.parts.hitbox_head.copy(this.position).set_y(this.position.y + this.height - (this.crouch * vars.consts.crouchDst));
+		
+		if(this.is_you)return;
 		
 		if(this.frustum)this.rect = this.calc_rect();
 		

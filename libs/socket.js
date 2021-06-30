@@ -14,6 +14,10 @@ module.exports = inter => {
 				var [ label, ...data ] = msgpack.decode(new Uint8Array(event.data)),
 					client;
 				
+				/*console.groupCollapsed('%cINCOMING', 'color:#0F0', label);
+				console.log(...data);
+				console.groupEnd();*/
+				
 				if(label == 'io-init')socket_id = data[0];
 				else if(inter.unlock_skins && label == 0 && skin_cache && socket_id && (client = data[0].indexOf(socket_id)) != -1){
 					// loadout
@@ -46,12 +50,18 @@ module.exports = inter => {
 				}
 			});
 		}
-		send(data){
-			var [ label, ...sdata ] = msgpack.decode(data.slice(0, -2));
+		send(binary){
+			var [ label, ...data ] = msgpack.decode(binary.slice(0, -2));
 			
-			if(label == 'en')skin_cache = sdata[0];
+			if(label == 'en')skin_cache = data[0];
 			
-			super.send(data);
+			if(label == 'q' && window.log_q){
+				// console.groupCollapsed('%cOUTGOING', 'color:#F00', label);
+				console.log(label, ...data);
+				// console.groupEnd();
+			}
+			
+			super.send(binary);
 		}
 	};
 	
