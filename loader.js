@@ -36,11 +36,10 @@ class Updater {
 	request(){
 		this.log('Requesting latest script...');
 		
-		var script = request({
-			target: this.url,
-			sync: true,
-			result: 'text',
-		});
+		var request = new XMLHttpRequest();
+		request.open('GET', this.url);
+		request.send();
+		var script = request.responseText;
 		
 		this.store.set(this.url, script);
 		

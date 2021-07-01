@@ -200,7 +200,7 @@ class Player {
 		var camera = utils.camera_world(),
 			target = this.aim_point;
 		
-		target.add(this.velocity);
+		// target.add(this.velocity);
 		
 		var x_dire = utils.getXDire(camera.x, camera.y, camera.z, target.x, target.y
 			- this.data.player.jump_bob_y
