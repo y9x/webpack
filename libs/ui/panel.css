@@ -103,7 +103,6 @@ a:hover {
 }
 
 section {
-	overflow-y: auto;
 	vertical-align: top;
 	width: 275px;
 	height: 288px;
@@ -111,7 +110,7 @@ section {
 	background: #424242;
 	box-shadow: 0px 0px 4px #1A1A1A;
 	border-radius: 3px;
-	/* overflow: visible; */
+	overflow-x: hidden;
 	overflow-y: auto;
 }
 

@@ -56,7 +56,7 @@ add_var('getWorldPosition', /var \w+=\w+\.camera\.(\w+)\(\);/, 1);
 
 add_patch('Skins', /((?:[a-zA-Z]+(?:\.|(?=\.skins)))+)\.skins(?!=)/g, (match, player) => `${key}.skins(${player})`);
 
-add_patch('Nametags', /(&&)((\w+)\.canBSeen)/, (match, start, can_see) => `${start}${key}.can_see(${can_see})`);
+add_patch('Nametags', /&&((\w+)\.isSeen)(?=\){if\(\(\w+=\2\.objInstances)/, (match, can_see) => `&& ${key}.can_see(${can_see})`);
 
 add_patch('Game', /(\w+)\.moveObj=func/, (match, game) => `${key}.game(${game}),${match}`);
 
