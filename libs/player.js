@@ -217,7 +217,7 @@ class Player {
 	calc_parts(){
 		this.can_target = false;
 		
-		if(!this.active || this.is_you || !this.enemy)return;
+		if(!this.active || this.is_you)return;
 		
 		var head_size = 1.5,
 			chest_box = new utils.three.Box3().setFromObject(this.chest),
