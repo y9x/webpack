@@ -113,7 +113,7 @@ class Main {
 					`</ul>`,
 				].join(''));
 				else if(api.has_instruct('banned - '))UI.alert(
-					`<p>You were match-banned. Find a new game to bypass this.</p>`,
+					`<p>You were banned from this match. Find a new game to bypass this.</p>`,
 				);
 				else if(api.has_instruct('banned'))localStorage.removeItem('krunker_token'), UI.alert(
 					`<p>You were banned, Sploit has signed you out.\nCreate a new account to bypass this ban.</p>`,
