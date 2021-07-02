@@ -18,6 +18,7 @@ class Player {
 		this.position = new Vector3();
 		this.esp_hex = new Hex();
 		this.hp_hex = new Hex();
+		this.dont_calc = 0;
 		
 		this.parts = {
 			hitbox_head: new Vector3(),
@@ -218,6 +219,8 @@ class Player {
 		this.can_target = false;
 		
 		if(!this.active || this.is_you)return;
+		
+		if(this.aim_point && (this.dont_calc++) % (this.calc_ticks + 1) != 0)return;
 		
 		var head_size = 1.5,
 			chest_box = new utils.three.Box3().setFromObject(this.chest),
