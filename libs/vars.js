@@ -118,7 +118,7 @@ exports.key = key;
 ];
 */
 
-exports.keys = { frame: 0, delta: 1, xdir: 2, ydir: 3, moveDir: 4, shoot: 5, scope: 6, jump: 7, reload: 8, crouch: 9, weaponScroll: 10, weaponSwap: 11, moveLock: 12, speed_limit: 13, reset: 14, interact: 15 };
+exports.keys = { frame: 0, delta: 1, xdir: 2, ydir: 3, move_dir: 4, shoot: 5, scope: 6, jump: 7, reload: 8, crouch: 9, weapon_scroll: 10, weapon_swap: 11, move_lock: 12, speed_limit: 13, reset: 14, interact: 15 };
 
 exports.consts = {
 	twoPI: Math.PI * 2,

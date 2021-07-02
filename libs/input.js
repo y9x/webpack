@@ -59,6 +59,8 @@ class Input {
 		};
 	}
 	bhop(data){
+		if(data.move_dir == -1)return
+		
 		var status = this.data.bhop,
 			auto = status.startsWith('auto'),
 			key = status.startsWith('key'),
