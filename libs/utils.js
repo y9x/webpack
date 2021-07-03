@@ -71,14 +71,17 @@ class Utils {
 			view_y = player.y + (player.height || 0) - 1.15; // 1.15 = config.cameraHeight
 		
 		// iterate through game objects
-		for(var ind in this.game.map.manager.objects){
-			var obj = this.game.map.manager.objects[ind];
+		for(let obj of this.game.map.manager.objects)if(!obj.noShoot && obj.active && (wallbangs ? !obj.penetrable : true)){
+			var in_rect = this.lineInRect(player.x, player.z, view_y, ad, ae, af,
+				obj.x - Math.max(0, obj.width - offset),
+				obj.z - Math.max(0, obj.length - offset),
+				obj.y - Math.max(0, obj.height - offset),
+				obj.x + Math.max(0, obj.width - offset),
+				obj.z + Math.max(0, obj.length - offset),
+				obj.y + Math.max(0, obj.height - offset)
+			);
 			
-			if(!obj.noShoot && obj.active && (wallbangs ? !obj.penetrable : true)){
-				var in_rect = this.lineInRect(player.x, player.z, view_y, ad, ae, af, obj.x - Math.max(0, obj.width - offset), obj.z - Math.max(0, obj.length - offset), obj.y - Math.max(0, obj.height - offset), obj.x + Math.max(0, obj.width - offset), obj.z + Math.max(0, obj.length - offset), obj.y + Math.max(0, obj.height - offset));
-				
-				if(in_rect && 1 > in_rect)return in_rect;
-			}
+			if(in_rect && 1 > in_rect)return in_rect;
 		}
 		
 		// iterate through game terrain
