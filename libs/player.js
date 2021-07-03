@@ -216,9 +216,7 @@ class Player {
 		};
 	}
 	calc_parts(){
-		this.can_target = false;
-		
-		if(!this.active || this.is_you)return;
+		if(!this.active || this.is_you)return this.can_target = false;
 		
 		if(this.aim_point && (this.dont_calc++) % (this.calc_ticks + 1) != 0)return;
 		
