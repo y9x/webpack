@@ -71,7 +71,7 @@ class Controls {
 class Loader {
 	version = meta.version;
 	og_loaders = {
-		doge: 'DogeWare',
+		doge: 'Dogeware',
 		skid: 'SkidFest',
 		shit: 'Sploit',
 		sploit: 'Sploit',
