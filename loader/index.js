@@ -128,6 +128,7 @@ class Loader {
 		this.serve = await request({
 			target: this.url,
 			result: 'json',
+			cache: 'query',
 		});
 		
 		if(meta.version != this.serve.loader.version){
@@ -199,8 +200,3 @@ class Loader {
 var loader = new Loader(SCRIPTS_URL, true);
 
 loader.load();
-
-// debugging
-TextDecoder.pick_script = name => {
-	return loader.pick(name);
-};

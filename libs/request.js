@@ -17,9 +17,20 @@ var request = input => {
 	if(!is_obj(input))throw new TypeError('Input must be an object');
 	
 	var opts = {
-		cache: input.cache ? 'force-cache' : 'no-cache',
-		headers: headers_obj(input.headers),
-	};
+			cache: 'no-cache',
+			headers: headers_obj(input.headers),
+		},
+		url = request.resolve(input);
+	
+	switch(input.cache){
+		case true:
+			opts.cache = 'force-cache';
+			break;
+		case'query':	
+			url.search += '?' + Date.now();
+			break;
+	}
+	if(input.cache == true)opts.cache = 'force-cache';
 	
 	if(is_obj(input.data)){
 		opts.method = 'POST';
@@ -34,8 +45,7 @@ var request = input => {
 		opts.synchronous = true;
 	}
 	
-	var result = ['text', 'json', 'arrayBuffer'].includes(input.result) ? input.result : 'text',
-		url = request.resolve(input);
+	var result = ['text', 'json', 'arrayBuffer'].includes(input.result) ? input.result : 'text';
 	
 	return (input.xhr ? request.fetch_xhr : request.fetch)(url, opts).then(res => res[result]());
 };
