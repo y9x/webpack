@@ -47,7 +47,7 @@ var request = input => {
 	
 	var result = ['text', 'json', 'arrayBuffer'].includes(input.result) ? input.result : 'text';
 	
-	return (input.xhr ? request.fetch_xhr : request.fetch)(url, opts).then(res => res[result]());
+	return (opts.xhr ? request.fetch_xhr : request.fetch)(url, opts).then(res => res[result]());
 };
 
 request.fetch = window.fetch.bind(window);

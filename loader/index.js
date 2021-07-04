@@ -121,7 +121,6 @@ class Loader {
 		this.save();
 		location.assign('/');
 	}
-	// async will only Await for the sub ms processing time for the sync XMLHttpRequest
 	async load(){
 		this.log('Loading...');
 		
@@ -129,6 +128,7 @@ class Loader {
 			target: this.url,
 			result: 'json',
 			cache: 'query',
+			sync: true,
 		});
 		
 		if(meta.version != this.serve.loader.version){
@@ -173,18 +173,17 @@ class Loader {
 		}
 		
 		if(JSON.stringify(data) != JSON.stringify(this.script)){
-			console.log(data, this.script);
-			this.log('Script data changed, cache invalidated.');
+			this.warn('Script data changed, cache invalidated.');
 			cache_invalidated = true;
 		}else if(!(code = sessionStorage.getItem(this.script.url))){
-			this.log('No script in sessionStorage, cache invalidated.');
+			this.warn('No script in sessionStorage, cache invalidated.');
 			cache_invalidated = true;
-		}
+		}else this.log('Loading cache...');
 			
 		if(cache_invalidated){
 			this.save();
 			
-			console.log('Requesting new script...');
+			this.log('Requesting new script...');
 			
 			sessionStorage.setItem(this.script.url, code = await request({
 				target: this.script.url + '?' + this.serve.loader.version,
@@ -193,7 +192,7 @@ class Loader {
 			}));
 		}
 		
-		new Function('LOADER', code)(this);
+		new Function('LOADER', code)(this)
 	}
 };
 
