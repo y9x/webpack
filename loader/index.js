@@ -1,7 +1,6 @@
 'use strict';
 
-var TMHeaders = require('../libs/tmheaders'),
-	request = require('../libs/request'),
+var request = require('../libs/request'),
 	meta = require('./meta'),
 	Utils = require('../libs/utils'),
 	utils = new Utils();

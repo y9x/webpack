@@ -1,6 +1,6 @@
 'use strict';
 
-var production = false;
+var production = true;
 
 var targets = ['loader', 'junker', 'sploit'];
 
