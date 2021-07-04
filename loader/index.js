@@ -121,6 +121,7 @@ class Loader {
 		this.save();
 		location.assign('/');
 	}
+	// all requests sync but awaited for compatibility
 	async load(){
 		this.log('Loading...');
 		
