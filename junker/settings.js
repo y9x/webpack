@@ -235,7 +235,7 @@ aimbot.add_control('Smoothness', {
 	walk: 'aim.smooth',
 	min: 0,
 	max: 1,
-	step: 0.2,
+	step: 0.1,
 });
 
 aimbot.add_control('Hitchance', {
