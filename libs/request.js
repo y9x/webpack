@@ -29,13 +29,47 @@ var request = input => {
 	
 	if(typeof input.method == 'string')opts.method = input.method;
 	
+	if(input.sync){
+		opts.xhr = true;
+		opts.synchronous = true;
+	}
+	
 	var result = ['text', 'json', 'arrayBuffer'].includes(input.result) ? input.result : 'text',
 		url = request.resolve(input);
 	
-	return request.fetch(url, opts).then(res => res[result]());
+	return (input.xhr ? request.fetch_xhr : request.fetch)(url, opts).then(res => res[result]());
 };
 
 request.fetch = window.fetch.bind(window);
+
+request.fetch_xhr = (url, opts = {}) => {
+	if(!is_url(url))throw new TypeError('url param is not resolvable');
+	
+	var url = new URL(url, location).href,
+		method = typeof opts.method == 'string' ? opts.method : 'GET';
+	
+	// if(opts.cache == 'no-cache')url += '?' + Date.now();
+	
+	var req = new XMLHttpRequest();
+	
+	req.open(method, url, !opts.synchronous);
+	
+	return new Promise((resolve, reject) => {
+		req.addEventListener('load', () => resolve({
+			async text(){
+				return req.responseText;
+			},
+			async json(){
+				return JSON.parse(req.responseText);
+			},
+			headers: new Headers(),
+		}));
+		
+		req.addEventListener('error', event => reject(event.error));
+		
+		req.send(opts.body);
+	});
+};
 
 request.resolve = input => {
 	if(!is_url(input.target))throw new TypeError('Target must be specified');

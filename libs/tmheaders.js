@@ -36,7 +36,7 @@ class TMHeaders {
 		
 		var headers = '// ==UserScript==\n';
 		
-		for(let key in this.data)for(let value of [].concat(this.data[key]))headers += '// @' + key.padEnd(value ? whitespace + 4 : 0, ' ') + value + '\n';
+		for(let key in this.data)for(let value of [].concat(this.data[key]))headers += '// @' + (value ? key.padEnd(whitespace + 4, ' ') + value : key) + '\n';
 		
 		headers += '// ==/UserScript==';
 		

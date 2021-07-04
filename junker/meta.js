@@ -8,4 +8,6 @@ module.exports = {
 	license: 'gpl-3.0',
 	namespace: 'https://greasyfork.org/users/704479',
 	icon: 'https://y9x.github.io/webpack/junker/junker.png',
+	// GM_getValue is sync, loader needs to run instantly
+	grant: [ 'GM.setValue', 'GM_getValue' ],
 };

@@ -8,4 +8,6 @@ module.exports = {
 	license: 'gpl-3.0',
 	namespace: 'https://e9x.github.io/',
 	icon: 'https://y9x.github.io/webpack/libs/gg.gif?',
+	// GM_getValue is sync, loader needs to run instantly
+	grant: [ 'GM.setValue', 'GM_getValue' ],
 };

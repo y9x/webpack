@@ -2,8 +2,23 @@
 
 var vars = require('./vars');
 
+class FakeNode {
+	constructor(){
+		this.children = [];
+	}
+	appendChild(node){
+		this.children.push(node);
+	}
+	append(){}
+	append_into(target){
+		for(let node of this.children)target.append(node);
+	}
+};
+
 class Utils {
 	constructor(canvas, three, game, world){
+		this.FakeNode = FakeNode;
+		
 		this.canvas = canvas;
 		this.three = three;
 		this.game = game;
