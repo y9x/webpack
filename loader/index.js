@@ -71,6 +71,13 @@ class Controls {
 
 class Loader {
 	version = meta.version;
+	og_loaders = {
+		doge: 'DogeWare',
+		skid: 'SkidFest',
+		shit: 'Sploit',
+		sploit: 'Sploit',
+		junk: 'Junker',
+	};
 	constructor(url, logs = false){
 		this.url = url;
 		this.logs = logs;
@@ -129,7 +136,10 @@ class Loader {
 			return location.assign(this.serve.loader.url + '?' + this.serve.loader.version);
 		}
 		
-		var { name, data } = JSON.parse(localStorage.getItem('scriptinfo') || '[]');
+		var { name, data } = JSON.parse(localStorage.getItem('scriptinfo') || '[]'),
+			og = localStorage.getItem('userScripts');
+		
+		if(og && !name)name = this.og_loaders[og];
 		
 		this.active = name;
 		
