@@ -12,8 +12,15 @@ class UIMenu {
 		
 		this.config_key = key;
 		
-		utils.wait_for(() => document.querySelector('#menuItemContainer')).then(node => this.button.attach(node));
-		utils.wait_for(() => document.querySelector('#uiBase')).then(node => this.window.attach(node));
+		// utils.wait_for(() => document.querySelector('#menuItemContainer')).then(node => this.button.attach(node));
+		// utils.wait_for(() => document.querySelector('#uiBase')).then(node => this.window.attach(node));
+		
+		new MutationObserver((mutations, observer) => {
+			for(let mutation of mutations)for(let node of mutation.addedNodes){
+				if(node.id == 'menuItemContainer')this.attach(node);
+				else if(node.id == 'uiBase')this.window.attach(node);
+			}
+		}).observe(document, { childList: true, subtree: true });
 		
 		this.presets = new Map();
 		
