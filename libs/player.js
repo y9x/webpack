@@ -1,8 +1,8 @@
 'use strict';
 
-var vars = require('../libs/vars'),
+var vars = require('../libs/Vars'),
+	{ Vector3, Hex } = require('../libs/Space'),
 	{ utils } = require('../libs/consts'),
-	{ Vector3, Hex } = require('../libs/space'),
 	random_target = 0;
 
 setInterval(() => random_target = Math.random(), 2000);

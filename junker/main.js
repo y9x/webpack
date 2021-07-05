@@ -1,11 +1,11 @@
  'use strict';
 
 var { api, meta, utils } = require('../libs/consts'),
-	vars = require('../libs/vars'),
-	Input = require('../libs/input'),
-	Player = require('../libs/player'),
+	vars = require('../libs/Vars'),
+	Input = require('../libs/Input'),
+	Player = require('../libs/Player'),
 	Visual = require('./visual'),
-	Socket = require('../libs/socket');
+	Socket = require('../libs/Socket');
 
 vars.load(require('./vars'));
 

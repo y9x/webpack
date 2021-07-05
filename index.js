@@ -28,7 +28,7 @@ var path = require('path'),
 			}) ],
 		},
 	},
-	TMHeaders = require('./libs/tmheaders');
+	TMHeaders = require('./libs/TMHeaders');
 
 var create_script = (basename, served) => {
 	var folder = path.join(__dirname, basename),

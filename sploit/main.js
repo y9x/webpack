@@ -1,11 +1,11 @@
 'use strict';
 
-var UI = require('../libs/ui/'),
-	vars = require('../libs/vars'),
-	Visual = require('../libs/visual'),
-	Input = require('../libs/input'),
-	Socket = require('../libs/socket'),
-	Player = require('../libs/player'),
+var UI = require('../libs/FloatUI'),
+	vars = require('../libs/Vars'),
+	Visual = require('../libs/Visual'),
+	Input = require('../libs/Input'),
+	Socket = require('../libs/Socket'),
+	Player = require('../libs/Player'),
 	{ utils, proxy_addons, supported_store, addon_url, meta, api, store } = require('../libs/consts');
 
 class Main {

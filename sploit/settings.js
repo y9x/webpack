@@ -1,11 +1,11 @@
 'use strict';
 
 var { api, utils, meta } = require('../libs/consts.js'),
-	UI = require('../libs/ui'),
-	File = require('../libs/file'),
-	Keybind = require('../libs/keybind'),
+	UI = require('../libs/FloatUI'),
+	File = require('../libs/File'),
+	Keybind = require('../libs/Keybind'),
+	Request = require('../libs/Request'),
 	menu = new UI.Config('Sploit', 'config'),
-	request = require('../libs/request'),
 	binds = {
 		toggle: new Keybind().add_callback(() => {
 			if(menu.visible)menu.hide();
@@ -221,7 +221,7 @@ info.add_control('Forum', {
 
 info.add_control('Download Game', {
 	type: 'link',
-	value: request.resolve({
+	value: Request.resolve({
 		target: api.api_v2,
 		endpoint: 'source',
 		query: { download: true },

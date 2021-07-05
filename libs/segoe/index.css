@@ -1,29 +1,29 @@
 @font-face {
 	font-family: 'SegoeUI';
 	font-weight: 400;
-	src: url('https://y9x.github.io/webpack/libs/segoe/400.woff2?a') format('woff2');
+	src: url('https://y9x.github.io/webpack/libs/Segoe/400.woff2?a') format('woff2');
 }
 
 @font-face {
 	font-family: 'SegoeUI';
 	font-weight: 100;
-	src: url('https://y9x.github.io/webpack/libs/segoe/100.woff2?a') format('woff2');
+	src: url('https://y9x.github.io/webpack/libs/Segoe/100.woff2?a') format('woff2');
 }
 
 @font-face {
 	font-family: 'SegoeUI';
 	font-weight: 200;
-	src: url('https://y9x.github.io/webpack/libs/segoe/200.woff2?a') format('woff2');
+	src: url('https://y9x.github.io/webpack/libs/Segoe/200.woff2?a') format('woff2');
 }
 
 @font-face {
 	font-family: 'SegoeUI';
 	font-weight: 600;
-	src: url('https://y9x.github.io/webpack/libs/segoe/600.woff2?a') format('woff2');
+	src: url('https://y9x.github.io/webpack/libs/Segoe/600.woff2?a') format('woff2');
 }
 
 @font-face {
 	font-family: 'SegoeUI';
 	font-weight: 700;
-	src: url('https://y9x.github.io/webpack/libs/segoe/700.woff2?a') format('woff2');
+	src: url('https://y9x.github.io/webpack/libs/Segoe/700.woff2?a') format('woff2');
 }

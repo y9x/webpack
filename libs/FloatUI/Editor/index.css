@@ -1,0 +1,262 @@
+main.editor {
+	width: 500px;
+}
+
+main.editor .write {
+	width: 100%;
+	height: 300px;
+}
+
+main.editor .bar {
+	width: 100%;
+	height: 36px;
+	display: flex;
+	background: #CCC;
+}
+
+main.editor .actions {
+	display: flex;
+	flex-grow: 1;
+}
+
+main.editor .files {
+	display: flex;
+	margin: 0px;
+	margin-left: 4px;
+	margin-right: 4px;
+	margin-top: 4px;
+	flex-direction: row;
+	overflow: hidden;
+}
+
+main.editor > .bar > .scroll {
+	--color: #747474;
+	margin-top: 4px;
+	height: 32px;
+	width: 32px;
+	position: relative;
+	display: none;
+	align-items: center;
+	justify-content: center;
+	flex: none;
+	padding: 1px;
+	border: none;
+}
+
+main.editor > .bar > .scroll:hover:not(:active, [disabled]) {
+	border: 1px solid #626262;
+	padding: 0px;
+	background: #A3A3A3;
+	color: #434343;
+}
+main.editor > .bar > .scroll:active {
+	color: #323232;
+	background: #7A7A7A;
+}
+
+main.editor > .bar.overflow .scroll {
+	display: flex;
+}
+
+main.editor > .bar.overflow .scroll[disabled] {
+	background: #A3A3A3;
+	color: #7D7D7D;
+}
+
+main.editor > .bar.overflow .files {
+	margin-left: 0px;
+	margin-right: 0px;
+}
+
+main.editor .actions button {
+	height: 36px;
+	width: 36px;
+	text-align: center;
+	position: relative;
+	color: #0D0D0D;
+	border: none;
+	border-radius: 0px;
+	background: transparent;
+	font-size: 14px;
+}
+
+main.editor .actions button svg {
+	width: 16px;
+	height: 16px;
+}
+
+main.editor .actions button:hover {
+	background: #A3A3A3;
+}
+
+main.editor .actions button:hover:active {
+	background: #7A7A7A;
+}
+
+main.editor .actions .new {
+	--color: #747474;
+	margin-top: 4px;
+	height: 32px;
+	width: 32px;
+	position: relative;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	margin-right: 25px;
+	padding: 0px;
+	border: none;
+}
+
+main.editor .actions .new:hover {
+	--color: #3E3E3E;
+	background: #E0E0E0;
+}
+
+main.editor .actions .new:hover:active {
+	--color: #414141;
+	background: #EBEBEB;
+}
+
+main.editor .actions .new::before, main.editor .actions .new::after {
+	content: '';
+	width: 1px;
+	height: 12px;
+	position: absolute;
+	margin: auto;
+	background: var(--color);
+}
+
+main.editor .actions .new::after {
+	width: 12px;
+	height: 1px;
+}
+
+main.editor .save {
+	margin-left: auto;
+}
+
+main.editor .save.saved > * {
+	opacity: 0.3;
+}
+
+main.editor .web svg {
+	width: 16px;
+	height: 16px;
+}
+
+.tab {
+	white-space: nowrap;
+	display: flex;
+	align-items: center;
+	padding: 0px 10px;
+	color: #000;
+	border-top-left-radius: 4px;
+	border-top-right-radius: 4px;
+}
+
+.tab:last-of-type {
+	margin-right: 0px;
+}
+
+.tab:hover {
+	background: #E0E0E0;
+}
+
+.tab.active {
+	background: #FFF;
+}
+
+.tab > .name {
+	overflow: hidden;
+	text-overflow: ellipsis;
+}
+
+.tab .close {
+	margin-left: 5px;
+}
+
+.tab.active .close {
+	color: #626262;
+}
+
+.tab .close:hover {
+	color: #474747;
+	background: #CACACA;
+}
+
+.tab.active .close:hover {
+	background: #E6E6E6;
+}
+
+.tab .close:hover:active {
+	color: #5C5C5C;
+	background: #B3B3B3;
+}
+
+.tab.active .close:hover:active {
+	background: #CCC;
+}
+
+.tab > .active {
+	margin-left: 5px;
+	box-sizing: border-box;
+	border: 2px solid #000;
+	position: relative;
+}
+
+.tab > .active.true::after {
+	content: '';
+	width: 7px;
+	height: 7px;
+	display: block;
+	margin: auto;
+	position: absolute;
+	top: 0px;
+	bottom: 0px;
+	left: 0px;
+	right: 0px;
+	background: #000;
+}
+
+.tab > .active, .tab > .close, .tab > .rename {
+	width: 15px;
+	height: 15px;
+}
+
+main.editor footer {
+    position: relative;
+    display: flex;
+	height: 30px;
+	align-items: center;
+	padding: 0px 15px;
+}
+
+main.editor footer svg {
+	width: 1.5em;
+	height: 1.5em;
+	vertical-align: middle;
+	white-space
+}
+
+main.editor footer .text {
+	display: flex;
+	align-items: center;
+	margin-right: auto;
+	white-space: pre-wrap;
+}
+
+main.editor footer .file-opt {
+	display: flex;
+	align-items: center;
+	flex-direction: row;
+	margin-right: 10px;
+}
+
+main.editor footer .file-opt ez-input {
+	width: 100px;
+	height: 23px;
+}
+
+main.editor footer .file-opt ez-input, main.editor footer .file-opt ez-checkbox {
+	margin-left: 10px;
+}

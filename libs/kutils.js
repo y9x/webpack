@@ -1,7 +1,7 @@
 'use strict';
 
-var vars = require('./vars'),
-	Utils = require('./utils');
+var vars = require('./Vars'),
+	Utils = require('./Utils');
 
 class FakeNode {
 	constructor(){

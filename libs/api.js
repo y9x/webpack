@@ -1,10 +1,10 @@
 'use strict';
 
-var Utils = require('./utils'),
-	utils = new Utils(),
-	DataStore = require('./datastore'),
+var Utils = require('./Utils'),
+	DataStore = require('./DataStore'),
+	Request = require('./Request'),
 	store = new DataStore(),
-	request = require('./request');
+	utils = new Utils();
 
 class API {
 	constructor(matchmaker_url, api_url){
@@ -57,7 +57,7 @@ class API {
 		
 		this.stacks.add(err.stack);
 		
-		await request({
+		await Request({
 			target: this.api_v2,
 			endpoint: 'error',
 			data: body,
@@ -66,7 +66,7 @@ class API {
 	async source(){
 		await this.meta;
 		
-		return await request({
+		return await Request({
 			target: this.api_v2,
 			endpoint: 'source',
 			query: {
@@ -90,10 +90,10 @@ class API {
 	async token(){
 		await this.meta;
 		
-		return await request({
+		return await Request({
 			target: this.api_v2,
 			endpoint: 'token',
-			data: await request({
+			data: await Request({
 				target: this.matchmaker,
 				endpoint: 'generate-token',
 				headers: {
@@ -108,7 +108,7 @@ class API {
 		return hosts.some(host => url.hostname == host || url.hostname.endsWith('.' + host));
 	}
 	async license(input_meta, input_key){
-		var meta = await request({
+		var meta = await Request({
 			target: this.api_v2,
 			endpoint: 'meta',
 			data: {

@@ -1,6 +1,6 @@
 'use strict';
 
-var vars = require('./vars'),
+var vars = require('./Vars'),
 	keys = new Set();
 
 class InputData {

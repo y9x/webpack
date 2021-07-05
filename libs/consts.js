@@ -1,8 +1,8 @@
 'use strict';
 
-var DataStore = require('./datastore'),
-	API = require('./api'),
-	KUtils = require('./kutils'),
+var DataStore = require('./DataStore'),
+	API = require('./API'),
+	KUtils = require('./KUtils'),
 	utils = new KUtils();
 
 exports.store = new DataStore();

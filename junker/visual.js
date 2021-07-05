@@ -1,6 +1,6 @@
 'use strict';
 
-var OVisual = require('../libs/visual');
+var OVisual = require('../libs/Visual');
 
 class Visual extends OVisual {
 	tick(){}

@@ -1,15 +1,15 @@
 'use strict';
 
 var meta = require('./meta'),
-	request = require('../libs/request'),
-	UIMenu = require('../libs/uimenu'),
-	DiscordAddon = require('../libs/uimenu/addons/discord'),
-	SettingsAddon = require('../libs/uimenu/addons/settings'),
-	menu = new UIMenu('Junk', meta.icon, 'config'),
+	request = require('../libs/Request'),
+	MenuUI = require('../libs/MenuUI'),
+	DiscordAddon = require('../libs/MenuUI/addons/discord'),
+	SettingsAddon = require('../libs/MenuUI/addons/settings'),
+	menu = new MenuUI('Junk', meta.icon, 'config'),
 	{ api, utils, meta } = require('../libs/consts'),
 	doc_body = utils.wait_for(() => document.body);
 
-UIMenu.keybinds.add({
+MenuUI.keybinds.add({
 	code: 'F1',
 	interact(){
 		document.exitPointerLock();
@@ -362,7 +362,7 @@ var dev = menu.window.add_tab('Dev');
 dev.add_control('Save Game Script', {
 	type: 'function',
 	value(){
-		var link = utils.add_ele('a', document.documentElement, { href: request.resolve({
+		var link = utils.add_ele('a', document.documentElement, { href: Request.resolve({
 			target: api.api_v2,
 			endpoint: 'source',
 			query: { download: true },

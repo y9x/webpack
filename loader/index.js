@@ -1,72 +1,10 @@
 'use strict';
 
-var request = require('../libs/request'),
-	meta = require('./meta'),
+var Request = require('../libs/Request'),
 	Utils = require('../libs/utils'),
-	utils = new Utils();
-
-class SelectControl {
-	constructor(controls, name, data){
-		this.name = name;
-		this.data = data;
-		this.controls = controls;
-		
-		this.content = utils.crt_ele('div', { className: 'setBodH' });
-		
-		this.sub = utils.add_ele('div', this.content, { className: 'settName' });
-		
-		this.label = utils.add_ele('text', this.sub, { nodeValue: this.name });
-		
-		this.select = utils.add_ele('select', this.sub, {
-			className: 'inputGrey2',
-			events: { change: () => this.change() },
-		});
-		
-		for(let key in this.data.value)utils.add_ele('option', this.select, {
-			value: key,
-			textContent: key,
-		});
-		
-		this.init = true;
-		this.value = this.data.value;
-		this.init = false;
-		
-		this.controls.list.push(this);
-	}
-	get value(){
-		return this.data.value[this.select.value];
-	}
-	set value(value){
-		for(let prop in this.data.value)if(this.data.value[prop] == value)this.select.value = prop;
-		this.select.value = value;
-		this.change();
-		return value;
-	}
-	change(){
-		if(typeof this.data.change == 'function')this.data.change(this.init, this.value, value => this.select.value = value);
-	}
-};
-
-class Controls {
-	constructor(){
-		var list = this.list = [];
-		
-		this.id = 'a-' + Math.random().toString().slice(2);
-		
-		customElements.define(this.id, class extends HTMLElement {
-			connectedCallback(){
-				this.replaceWith(list[this.id].content);
-			}
-		});
-	}
-	html(){
-		var html = '';
-		
-		for(let control in this.list)html += `<${this.id} id="${control}"></${this.id}>`;
-		
-		return html;
-	}
-};
+	utils = new Utils(),
+	Controls = require('../libs/ExtendMenu'),
+	meta = require('./meta');
 
 class Loader {
 	type = 'Userscript';
@@ -121,11 +59,11 @@ class Loader {
 		this.save();
 		location.assign('/');
 	}
-	// all requests sync but awaited for compatibility
+	// all Requests sync but awaited for compatibility
 	async load(){
 		this.log('Loading...');
 		
-		this.serve = await request({
+		this.serve = await Request({
 			target: this.url,
 			result: 'json',
 			cache: 'query',
@@ -152,7 +90,8 @@ class Loader {
 		
 		for(let name in this.serve.scripts)vals[name] = name;
 		
-		var select = new SelectControl(this.controls, 'Script', {
+		var select = this.controls.add_control('Script', {
+			type: 'rotate',
 			value: vals,
 			change: (init, value, set_val) => {
 				if(init)set_val(this.active || 'None');
@@ -185,7 +124,7 @@ class Loader {
 			
 			this.log('Requesting new script...');
 			
-			sessionStorage.setItem(this.script.url, code = await request({
+			sessionStorage.setItem(this.script.url, code = await Request({
 				target: this.script.url + '?' + this.serve.loader.version,
 				sync: true,
 				result: 'text',

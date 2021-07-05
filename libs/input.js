@@ -1,8 +1,8 @@
 'use strict';
 
-var vars = require('./vars'),
-	InputData = require('./inputdata'),
-	{ Vector3 } = require('./space'),
+var vars = require('./Vars'),
+	InputData = require('./InputData'),
+	{ Vector3 } = require('./Space'),
 	{ api, utils } = require('./consts');
 
 class Input {
