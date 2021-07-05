@@ -61,6 +61,7 @@ exports.utils = utils;
 exports.api = api;
 
 // old loader compatibility
+// !navigator.useragent.includes('Electron') &&
 if(typeof LOADER != 'object' && document.currentScript && document.currentScript.nodeName == 'SCRIPT'){
 	alert('The new loader will update/install.');
 	location.assign('https://y9x.github.io/userscripts/loader.user.js');
