@@ -66,7 +66,7 @@ class Controls {
 		
 		return html;
 	}
-}
+};
 
 class Loader {
 	type = 'Userscript';
@@ -159,7 +159,6 @@ class Loader {
 				else this.pick(value);
 			},
 		});
-		
 		
 		if(!this.active)return this.log('No script active, skipping loading...');
 		

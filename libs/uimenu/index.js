@@ -40,6 +40,9 @@ class UIMenu {
 		
 		this.button.hide();
 	}
+	attach(bar){
+		this.button.attach(bar);
+	}
 	load_style(css){
 		utils.add_ele('style', this.window.node, { textContent: css });
 	}

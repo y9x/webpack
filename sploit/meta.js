@@ -10,4 +10,5 @@ module.exports = {
 	icon: 'https://y9x.github.io/webpack/libs/gg.gif?',
 	// GM_getValue is sync, loader needs to run instantly
 	grant: [ 'GM.setValue', 'GM_getValue' ],
+	match: [ 'https://krunker.io/*', 'https://*.browserfps.com/*' ],
 };

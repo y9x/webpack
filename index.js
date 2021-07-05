@@ -11,14 +11,6 @@ var path = require('path'),
 	TerserPlugin = require('terser-webpack-plugin'),
 	dist = path.join(__dirname, 'dist'),
 	serve = path.join(dist, 'serve'),
-	hosts = [ 'krunker.io', '*.browserfps.com' ],
-	metaaddon = {
-		// source: 'https://github.com/y9x/webpack/',
-		supportURL: 'https://y9x.github.io/discord/',
-		match: hosts.map(host => '*://' + host + '/*'),
-		'run-at': 'document-start',
-		noframes: null
-	},
 	wp_mode = production ? 'production' : 'development',
 	{ errors, ModifyPlugin } = require('./webpack/utils'),
 	terser = {
@@ -64,7 +56,8 @@ var create_script = (basename, served) => {
 					return new TMHeaders({
 						...meta,
 						...addon,
-						...metaaddon,
+						'run-at': 'document-start',
+						noframes: null,
 					}) + '\n\n';
 				},
 				replace: {

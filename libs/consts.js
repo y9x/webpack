@@ -2,8 +2,8 @@
 
 var DataStore = require('./datastore'),
 	API = require('./api'),
-	Utils = require('./utils'),
-	utils = new Utils();
+	KUtils = require('./kutils'),
+	utils = new KUtils();
 
 exports.store = new DataStore();
 
