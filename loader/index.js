@@ -69,6 +69,7 @@ class Controls {
 }
 
 class Loader {
+	type = 'Userscript';
 	version = meta.version;
 	og_loaders = {
 		doge: 'Dogeware',
