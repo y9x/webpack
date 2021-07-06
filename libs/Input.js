@@ -47,15 +47,15 @@ class Input {
 		
 		if(this.data.player.aimed && raycaster.intersectObjects(this.data.players.filter(ent => ent.can_target).map(ent => ent.obj), true).length)return true;
 	}
-	smooth(target, setup){
+	smooth(target, speed, turn){
 		var x_ang = utils.getAngleDst(this.data.controls[vars.pchObjc].rotation.x, target.x),
 			y_ang = utils.getAngleDst(this.data.controls.object.rotation.y, target.y);
 		
 		// camChaseSpd used on .object
 		
 		return {
-			y: this.data.controls.object.rotation.y + y_ang * setup.speed,
-			x: this.data.controls[vars.pchObjc].rotation.x + x_ang * setup.turn,
+			y: this.data.controls.object.rotation.y + y_ang * speed,
+			x: this.data.controls[vars.pchObjc].rotation.x + x_ang * turn,
 		};
 	}
 	bhop(data){
@@ -140,10 +140,7 @@ class Input {
 				speed: 0.0012,
 				*/
 				
-				rot = this.smooth(rot, {
-					turn: spd,
-					speed: spd,
-				});
+				rot = this.smooth(rot, spd, spd * 0.65);
 				
 				this.aim_camera(rot, data);
 				
