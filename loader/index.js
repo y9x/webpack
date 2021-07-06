@@ -71,9 +71,6 @@ class Loader {
 		this.serve = await Request({
 			target: this.url,
 			result: 'json',
-			query: {
-				from: this.version,
-			},
 			cache: 'query',
 			sync: true,
 		});
