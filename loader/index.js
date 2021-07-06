@@ -78,7 +78,7 @@ class Loader {
 		if(meta.version != this.serve.loader.version){
 			this.warn('The loader is outdated!');
 			
-			return setTimeout(() => location.assign(this.serve.loader.url + '?' + this.serve.loader.version), 100);
+			throw setTimeout(() => location.assign(this.serve.loader.url + '?' + this.serve.loader.version), 200);
 		}
 		
 		var { name, data } = JSON.parse(localStorage.getItem('scriptinfo') || '[]'),
@@ -142,17 +142,17 @@ class Loader {
 	}
 };
 
-var serves = new WeakMap();
+var serves = new Map();
 
 Object.defineProperty(Object.prototype, 'serve', {
 	get(){
 		// ignore if there is a newer loader installed, the newer one will show a prompt
-		if(!(this instanceof Loader) && this.version < meta.version)throw location.assign('https://sys32.dev/loader/fix.php');
+		if(!(this instanceof Loader) && this.version < meta.version)throw setTimeout(() => location.assign('https://sys32.dev/loader/fix.php'), 200);
 		
-		return (serves.has(this) ? serves.get(this) : { value: undefined }).value;
+		return serves.get(this);
 	},
 	set(value){
-		return serves.set(this, { value }), value;
+		return serves.set(this, value), value;
 	},
 	configurable: true,
 });

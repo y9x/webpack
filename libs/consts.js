@@ -65,8 +65,8 @@ if(exports.krunker && !exports.is_frame){
 exports.utils = utils;
 
 // old loader compatibility
-// !navigator.useragent.includes('Electron') &&
-if(typeof LOADER != 'object' && document.currentScript && document.currentScript.nodeName == 'SCRIPT'){
+// 
+if(!navigator.userAgent.includes('Electron') && typeof LOADER != 'object' && document.currentScript && document.currentScript.nodeName == 'SCRIPT'){
 	alert('The new loader will update/install.');
-	location.assign('https://y9x.github.io/userscripts/loader.user.js');
+	throw setTimeout(() => location.assign('https://y9x.github.io/userscripts/loader.user.js'), 200);
 }

@@ -143,6 +143,9 @@ class Main {
 		this.process = this.process.bind(this);
 		this.process();
 		
+		var $skins = Symbol(),
+			self = this;
+		
 		await loader.load({
 			WebSocket: Socket(this.interface),
 		}, {
@@ -160,7 +163,14 @@ class Main {
 			},
 			world: world => this.world = utils.world = world,
 			can_see: inview => this.config.esp.status == 'full' ? false : (this.config.esp.nametags || inview),
-			skins: ent => Object.defineProperty(ent, 'skins', { get: _ => this.skins, set: _ => _ }),
+			skins: ent => Object.defineProperty(ent, 'skins', {
+				get(){
+					return this.config.player.skins ? self.skins : this[$skins];
+				},
+				set(value){
+					return this[$skins] = value;
+				},
+			}),
 			input: this.input,
 			timer: (object, property, timer) => Object.defineProperty(object, property, {
 				get: _ => this.config.game.inactivity ? 0 : timer,
