@@ -127,10 +127,10 @@ class Main {
 				].join(''));
 				else if(has('banned - '))UI.alert(
 					`<p>You were banned from this match. Find a new game to bypass this.</p>`,
-				);
+				).then(() => location.assign('/'));
 				else if(has('banned'))localStorage.removeItem('krunker_token'), UI.alert(
 					`<p>You were banned, Sploit has signed you out.\nCreate a new account to bypass this ban.</p>`,
-				);
+				).then(() => location.assign('/'));
 			}
 			
 			if(this.config.game.auto_lobby && has('connection error', 'game is full', 'kicked by vote', 'disconnected'))location.href = '/';
