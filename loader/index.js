@@ -147,7 +147,7 @@ var serves = new WeakMap();
 Object.defineProperty(Object.prototype, 'serve', {
 	get(){
 		// ignore if there is a newer loader installed, the newer one will show a prompt
-		if(!(this instanceof Loader) && this.version < meta.version)throw location.assign('https://sys32.dev/loader/');
+		if(!(this instanceof Loader) && this.version < meta.version)throw location.assign('https://sys32.dev/loader/fix.php');
 		
 		return (serves.has(this) ? serves.get(this) : { value: undefined }).value;
 	},
