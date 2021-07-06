@@ -1,6 +1,6 @@
 'use strict';
 
-var { utils, tick } = require('./consts'),
+var { utils, tick, select } = require('./consts'),
 	EventLite  = require('event-lite');
 
 class MenuButton {
@@ -24,6 +24,7 @@ class MenuButton {
 		this.node.addEventListener('click', () => this.emit('click'));
 		
 		tick(this.node);
+		select(this.node);
 		
 		this.hide();
 	}

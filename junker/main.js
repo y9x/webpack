@@ -140,7 +140,7 @@ class Main {
 			},
 			world: world => utils.world = this.world = world,
 			can_see: inview => this.config.esp.status == 'full' ? false : (this.config.esp.nametags || inview),
-			skins: ent => this.config.player.skins && typeof ent == 'object' && ent != null && ent.stats ? this.skins : ent.skins,
+			skins: ent => Object.defineProperty(ent, 'skins', { get: _ => this.skins, set: _ => _ }),
 			input: this.input,
 			timer: (object, property, timer) => Object.defineProperty(object, property, {
 				get: _ => this.config.game.inactivity ? 0 : timer,

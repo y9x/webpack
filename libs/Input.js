@@ -6,6 +6,22 @@ var InputData = require('./InputData'),
 	{ vars } = loader;
 
 class Input {
+	smooth_map = {
+		// step: 2
+		// min: 0
+		// max: 1
+		0: 1, // off
+		0.1: 0.05,
+		0.2: 0.1, // instant
+		0.3: 0.08,
+		0.4: 0.07, // faster
+		0.5: 0.06,
+		0.6: 0.05, // fast
+		0.7: 0.04,
+		0.8: 0.03, // light
+		0.9: 0.02,
+		1: 0.01, // light
+	};
 	constructor(data){
 		this.data = data;
 	}
@@ -113,24 +129,7 @@ class Input {
 			}
 			
 			if(this.data.aim == 'assist' && this.data.player.aim_press){
-				var smooth_map = {
-					// step: 2
-					// min: 0
-					// max: 1
-					0: 1, // off
-					0.1: 0.05,
-					0.2: 0.1, // instant
-					0.3: 0.08,
-					0.4: 0.07, // faster
-					0.5: 0.06,
-					0.6: 0.05, // fast
-					0.7: 0.04,
-					0.8: 0.03, // light
-					0.9: 0.02,
-					1: 0.01, // light
-				};
-				
-				let spd = smooth_map[this.data.aim_smooth] || (console.warn(this.data.aim_smooth, 'not registered'), 1);
+				let speed = this.smooth_map[this.data.aim_smooth] || (console.warn(this.data.aim_smooth, 'not registered'), 1);
 				
 				/*
 				50 => 0.005
@@ -140,7 +139,9 @@ class Input {
 				speed: 0.0012,
 				*/
 				
-				rot = this.smooth(rot, spd, spd * 0.65);
+				let turn = this.smooth_map[+Math.min(this.data.aim_smooth * 3, 1).toFixed(1)];
+				
+				rot = this.smooth(rot, speed, turn);
 				
 				this.aim_camera(rot, data);
 				

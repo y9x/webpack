@@ -1,6 +1,6 @@
 'use strict';
 
-var { utils, tick } = require('../consts'),
+var { utils, tick, select } = require('../consts'),
 	Category = require('./Category');
 
 class Tab {
@@ -10,17 +10,19 @@ class Tab {
 		this.button = utils.add_ele('div', this.window.tab_layout, {
 			className: 'settingTab',
 			textContent: label,
+			events: {
+				click: () => this.show(),
+			},
 		});
 		
 		tick(this.button);
+		select(this.button);
 		
 		this.categories = new Set();
 		
 		this.content = utils.add_ele('div', window.container, { id: 'settHolder' });
 		
 		this.hide();
-		
-		this.button.addEventListener('click', () => this.show());
 	}
 	add_category(label){
 		var category = this.last_category = new Category(this, label);
