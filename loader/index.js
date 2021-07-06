@@ -95,7 +95,6 @@ class Loader {
 		
 		this.active = name;
 		
-		
 		var vals = {
 			None: null,
 		};
@@ -106,8 +105,10 @@ class Loader {
 			type: 'rotate',
 			value: vals,
 			change: (init, value, set_val) => {
-				if(init)set_val(this.active || 'None');
-				else this.pick(value);
+				if(init){
+					set_val('None');
+					set_val(this.active || 'None');
+				}else this.pick(value);
 			},
 		});
 		
