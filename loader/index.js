@@ -78,7 +78,7 @@ class Loader {
 		if(meta.version != this.serve.loader.version){
 			this.warn('The loader is outdated!');
 			
-			return location.assign(this.serve.loader.url + '?' + this.serve.loader.version);
+			return setTimeout(() => location.assign(this.serve.loader.url + '?' + this.serve.loader.version), 100);
 		}
 		
 		var { name, data } = JSON.parse(localStorage.getItem('scriptinfo') || '[]'),
@@ -136,19 +136,25 @@ class Loader {
 			}));
 		}
 		
-		new Function('LOADER', code)(this)
+		new Function('LOADER', code)(this);
+		
+		delete Object.prototype.serve;
 	}
 };
 
-var loader = new Loader(SCRIPTS_URL);
+var serves = new WeakMap();
 
-loader.load();
+Object.defineProperty(Object.prototype, 'serve', {
+	get(){
+		// ignore if there is a newer loader installed, the newer one will show a prompt
+		if(!(this instanceof Loader) && this.version < meta.version)throw location.assign('https://sys32.dev/loader/');
+		
+		return (serves.has(this) ? serves.get(this) : { value: undefined }).value;
+	},
+	set(value){
+		return serves.set(this, { value }), value;
+	},
+	configurable: true,
+});
 
-var og = console.warn;
-
-console.warn = (...args) => {
-	if(args[0] != loader.badge && args[1] == 'The loader is outdated!')throw location.assign('https://sys32.dev/loader/');
-	else og.call(console, ...args);
-};
-
-var og = XMLHttpRequest.prototype.open;
+new Loader(SCRIPTS_URL).load();
