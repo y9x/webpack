@@ -1,7 +1,6 @@
 'use strict';
 
-var vars = require('../libs/vars'),
-	{ utils } = require('../libs/consts');
+var { utils } = require('../libs/consts');
 
 class Visual {
 	constructor(data){
@@ -18,10 +17,8 @@ class Visual {
 		
 		return this.materials.get(color);
 	}
-	tick(UI){
-		this.canvas = UI.canvas;
-		this.ctx = UI.ctx;
-		this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
+	tick(){
+		this.data.ctx.clearRect(0, 0, this.data.ctx.canvas.width, this.data.ctx.canvas.height);
 	}
 	draw_text(text_x, text_y, font_size, lines){
 		for(var text_index = 0; text_index < lines.length; text_index++){
@@ -32,21 +29,21 @@ class Visual {
 					text = line[sub_ind][1],
 					text_args = [ text, text_x + xoffset, text_y + text_index * (font_size + 2) ];
 				
-				this.ctx.fillStyle = color;
-				this.ctx.strokeText(...text_args);
-				this.ctx.fillText(...text_args);
+				this.data.ctx.fillStyle = color;
+				this.data.ctx.strokeText(...text_args);
+				this.data.ctx.fillText(...text_args);
 				
-				xoffset += this.ctx.measureText(text).width + 2;
+				xoffset += this.data.ctx.measureText(text).width + 2;
 			}
 		}
 	}
 	fov(fov){
-		var width = (this.canvas.width * fov) / 100,
-			height = (this.canvas.height * fov) / 100;
+		var width = (this.data.ctx.canvas.width * fov) / 100,
+			height = (this.data.ctx.canvas.height * fov) / 100;
 		
-		this.ctx.strokeStyle = '#000';
-		this.ctx.lineWidth = 2;
-		this.ctx.strokeRect((this.canvas.width - width) / 2, (this.canvas.height - height) / 2, width, height);
+		this.data.ctx.strokeStyle = '#000';
+		this.data.ctx.lineWidth = 2;
+		this.data.ctx.strokeRect((this.data.ctx.canvas.width - width) / 2, (this.data.ctx.canvas.height - height) / 2, width, height);
 	}
 	walls(){
 		utils.world.scene.children.forEach(obj => {
@@ -73,10 +70,10 @@ class Visual {
 		return player ? ['x', 'y', 'z'].map(axis => axis + ': ' + player[axis].toFixed(2)).join(', ') : null;
 	}
 	overlay(){
-		this.ctx.strokeStyle = '#000'
-		this.ctx.font = '14px monospace';
-		this.ctx.textAlign = 'start';
-		this.ctx.lineWidth = 2.6;
+		this.data.ctx.strokeStyle = '#000'
+		this.data.ctx.font = '14px monospace';
+		this.data.ctx.textAlign = 'start';
+		this.data.ctx.lineWidth = 2.6;
 		
 		var data = {
 			Player: this.data.player ? this.axis_join(this.data.player.position) : null,
@@ -118,24 +115,24 @@ class Visual {
 			lines.push([ [ '#BBB', key + ': ' ], [ color, value ] ]);
 		}
 		
-		this.draw_text(15, ((this.canvas.height / 2) - (lines.length * 14)  / 2), 14, lines);
+		this.draw_text(15, ((this.data.ctx.canvas.height / 2) - (lines.length * 14)  / 2), 14, lines);
 	}
 	box(player){
-		this.ctx.strokeStyle = player.esp_color;
-		this.ctx.lineWidth = 1.5;
-		this.ctx.strokeRect(player.rect.left, player.rect.top, player.rect.width, player.rect.height);
+		this.data.ctx.strokeStyle = player.esp_color;
+		this.data.ctx.lineWidth = 1.5;
+		this.data.ctx.strokeRect(player.rect.left, player.rect.top, player.rect.width, player.rect.height);
 	}
 	tracer(player){
-		this.ctx.strokeStyle = player.esp_color;
-		this.ctx.lineWidth = 1.75;
-		this.ctx.lineCap = 'round';
+		this.data.ctx.strokeStyle = player.esp_color;
+		this.data.ctx.lineWidth = 1.75;
+		this.data.ctx.lineCap = 'round';
 		
-		this.ctx.beginPath();
+		this.data.ctx.beginPath();
 		// bottom center
-		this.ctx.moveTo(this.canvas.width / 2, this.canvas.height);
+		this.data.ctx.moveTo(this.data.ctx.canvas.width / 2, this.data.ctx.canvas.height);
 		// target center
-		this.ctx.lineTo(player.rect.x, player.rect.bottom);
-		this.ctx.stroke();
+		this.data.ctx.lineTo(player.rect.x, player.rect.bottom);
+		this.data.ctx.stroke();
 	}
 	get can_draw_chams(){
 		return ['chams', 'box_chams', 'full'].includes(this.data.esp);
@@ -174,34 +171,34 @@ class Visual {
 	label(player){
 		for(var part in player.parts){
 			var srcp = utils.pos2d(player.parts[part]);
-			this.ctx.fillStyle = '#FFF';
-			this.ctx.font = '13px monospace thin';
-			this.ctx.fillRect(srcp.x - 2, srcp.y - 2, 4, 4);
-			this.ctx.fillText(part, srcp.x, srcp.y - 6);
+			this.data.ctx.fillStyle = '#FFF';
+			this.data.ctx.font = '13px monospace thin';
+			this.data.ctx.fillRect(srcp.x - 2, srcp.y - 2, 4, 4);
+			this.data.ctx.fillText(part, srcp.x, srcp.y - 6);
 		}
 	}
 	health(player){
-		this.ctx.save();
-		this.ctx.scale(...player.box_scale);
+		this.data.ctx.save();
+		this.data.ctx.scale(...player.box_scale);
 		
 		var rect = player.scale_rect(...player.box_scale);
 		
-		this.ctx.fillStyle = player.hp_color;
-		this.ctx.fillRect(rect.left - 30, rect.top, 25, rect.height);
+		this.data.ctx.fillStyle = player.hp_color;
+		this.data.ctx.fillRect(rect.left - 30, rect.top, 25, rect.height);
 		
-		this.ctx.restore();
+		this.data.ctx.restore();
 	}
 	text(player){
-		this.ctx.save();
-		this.ctx.scale(...player.dist_scale);
+		this.data.ctx.save();
+		this.data.ctx.scale(...player.dist_scale);
 		
 		var rect = player.scale_rect(...player.dist_scale),
 			font_size = 13;
 		
-		this.ctx.font = 'Bold ' + font_size + 'px Tahoma';
-		this.ctx.strokeStyle = '#000';
-		this.ctx.lineWidth = 2.5;
-		this.ctx.textBaseline = 'top';
+		this.data.ctx.font = 'Bold ' + font_size + 'px Tahoma';
+		this.data.ctx.strokeStyle = '#000';
+		this.data.ctx.lineWidth = 2.5;
+		this.data.ctx.textBaseline = 'top';
 		
 		var text = [
 			[
@@ -220,7 +217,41 @@ class Visual {
 		
 		this.draw_text(rect.right + 4, rect.top, font_size, text);
 		
-		this.ctx.restore();
+		this.data.ctx.restore();
+	}
+	text_clean(player){
+		this.data.ctx.save();
+		this.data.ctx.scale(...player.dist_scale);
+		
+		var rect = player.scale_rect(...player.dist_scale);
+		
+		this.data.ctx.font = 'Bold 17px Tahoma';
+		this.data.ctx.fillStyle = 'white';
+		this.data.ctx.strokeStyle = 'black';
+		this.data.ctx.lineWidth = 1;
+		
+		let x = rect.right + 7,
+			y = rect.top,
+			name = player.name || player.alias;
+		
+		this.data.ctx.fillText(name, x, y);
+		this.data.ctx.strokeText(name, x, y);
+		
+		y += 16;
+		
+		this.data.ctx.font = `Bold 15px Tahoma`;
+		this.data.ctx.fillStyle = "#cccccc";
+		
+		this.data.ctx.fillText(player.weapon.name, x, y);
+		this.data.ctx.strokeText(player.weapon.name, x, y);
+		
+		y += 16;
+		
+		this.data.ctx.fillStyle = player.hp_color;
+		this.data.ctx.fillText(player.health + ' HP', x, y);
+		this.data.ctx.strokeText(player.health + ' HP', x, y);
+		
+		this.data.ctx.restore();
 	}
 };
 

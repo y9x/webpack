@@ -67,13 +67,6 @@ class Utils {
 			interval = run() || setInterval(run, time || 50);
 		});
 	}
-	css(obj){
-		var string = [];
-		
-		for(var name in obj)string.push(name + ':' + obj[name] + ';');
-		
-		return string.join('\n');
-	}
 	sanitize(string){
 		var node = document.createElement('div');
 		
@@ -158,14 +151,10 @@ class Utils {
 		})));
 	}
 	promise(){
-		var res, rej,
-			promise = new Promise((resolve, reject) => {
-				res = resolve;
-				rej = reject;
-			});
+		var temp,
+			promise = new Promise((resolve, reject) => temp = { resolve, reject });
 		
-		promise.resolve = res;
-		promise.reject = rej;
+		Object.assign(promise, temp);
 		
 		promise.resolve_in = (time = 0, data) => setTimeout(() => promise.resolve(data), time);
 		

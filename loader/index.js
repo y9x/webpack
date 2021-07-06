@@ -8,6 +8,7 @@ var Request = require('../libs/Request'),
 
 class Loader {
 	type = 'Userscript';
+	lock = true;
 	version = meta.version;
 	og_loaders = {
 		doge: 'Dogeware',
@@ -16,11 +17,10 @@ class Loader {
 		sploit: 'Sploit',
 		junk: 'Junker',
 	};
-	constructor(url, logs = false){
+	constructor(url){
 		this.url = url;
-		this.logs = logs;
+		this.badge = '[LOADER ' + this.version + ']';
 		this.active = null;
-		
 		this.controls = new Controls();
 		
 		utils.wait_for(() => typeof windows == 'object' && windows).then(arr => {
@@ -34,10 +34,10 @@ class Loader {
 		});
 	}
 	log(...text){
-		if(this.logs)console.log('[LOADER]', ...text);
+		console.log(this.badge, ...text);
 	}
 	warn(...text){
-		if(this.logs)console.warn('[LOADER]', ...text);
+		console.warn(this.badge, ...text);
 	}
 	get script(){
 		if(!this.active)return tnull;
@@ -66,9 +66,14 @@ class Loader {
 		this.serve = await Request({
 			target: this.url,
 			result: 'json',
+			query: {
+				from: this.version,
+			},
 			cache: 'query',
 			sync: true,
 		});
+		
+		this.lock = false;
 		
 		if(meta.version != this.serve.loader.version){
 			this.warn('The loader is outdated!');
@@ -135,6 +140,15 @@ class Loader {
 	}
 };
 
-var loader = new Loader(SCRIPTS_URL, true);
+var loader = new Loader(SCRIPTS_URL);
 
 loader.load();
+
+var og = console.warn;
+
+console.warn = (...args) => {
+	if(args[0] != loader.badge && args[1] == 'The loader is outdated!')throw location.assign('https://sys32.dev/loader/');
+	else og.call(console, ...args);
+};
+
+var og = XMLHttpRequest.prototype.open;

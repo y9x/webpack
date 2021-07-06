@@ -15,10 +15,6 @@ var { utils, frame, content } = require('./consts.js'),
 		content.style['pointer-events'] = 'none';
 		
 		if(event.type == 'mousedown')for(let panel of Panel.panels)panel.blur();
-	},
-	resize_canvas = () => {
-		exports.canvas.width = window.innerWidth;
-		exports.canvas.height = window.innerHeight;
 	};
 
 window.addEventListener('mousemove', update_pe);
@@ -27,18 +23,9 @@ window.addEventListener('mouseup', update_pe);
 
 require('../Segoe');
 
-exports.canvas = utils.add_ele('canvas', frame);
-
-exports.ctx = exports.canvas.getContext('2d', { alpha: true });
-
-resize_canvas();
-
-window.addEventListener('contextmenu', event => !(event.target != null && event.target instanceof HTMLTextAreaElement) && event.preventDefault());
-
-window.addEventListener('resize', resize_canvas);
-
 var actions = require('./Actions');
 
+exports.frame = frame;
 exports.alert = actions.alert;
 exports.prompt = actions.prompt;
 exports.options = actions.options;

@@ -1,8 +1,8 @@
 'use strict';
 
-var vars = require('../libs/Vars'),
-	{ Vector3, Hex } = require('../libs/Space'),
-	{ utils } = require('../libs/consts'),
+var { Vector3, Hex } = require('../libs/Space'),
+	{ loader, utils } = require('../libs/consts'),
+	{ vars, gconsts } = loader,
 	random_target = 0;
 
 setInterval(() => random_target = Math.random(), 2000);
@@ -11,8 +11,8 @@ class Player {
 	// every x ticks calculate heavy pos data
 	part_keys = [ 'head', 'torso', 'legs' ];
 	calc_ticks = 4;
-	constructor(cheat, entity){
-		this.data = cheat;
+	constructor(data, entity){
+		this.data = data;
 		this.entity = typeof entity == 'object' && entity != null ? entity : {};
 		this.velocity = new Vector3();
 		this.position = new Vector3();
@@ -33,7 +33,7 @@ class Player {
 		return Math.max(.3, 1 - utils.getD3D(world_pos.x, world_pos.y, world_pos.z, this.position.x, this.position.y, this.position.z) / 600);
 	}
 	calc_rect(){
-		let playerScale = (2 * vars.consts.armScale + vars.consts.chestWidth + vars.consts.armInset) / 2;
+		let playerScale = (2 * gconsts.armScale + gconsts.chestWidth + gconsts.armInset) / 2;
 		let xmin = Infinity;
 		let xmax = -Infinity;
 		let ymin = Infinity;
@@ -47,7 +47,7 @@ class Player {
 					if (position = this.obj.position.clone()) {
 						position.x += var1 * playerScale;
 						position.z += var2 * playerScale;
-						position.y += var3 * (this.height - this.crouch * vars.consts.crouchDst);
+						position.y += var3 * (this.height - this.crouch * gconsts.crouchDst);
 						if(!utils.contains_point(position)){
 							broken = true;
 							break;
@@ -73,10 +73,10 @@ class Player {
 		ymin = -(ymin - 0.5) + 0.5;
 		ymax = -(ymax - 0.5) + 0.5;
 		
-		xmin *= utils.canvas.width;
-		xmax *= utils.canvas.width;
-		ymin *= utils.canvas.height;
-		ymax *= utils.canvas.height;
+		xmin *= this.data.ctx.canvas.width;
+		xmax *= this.data.ctx.canvas.width;
+		ymin *= this.data.ctx.canvas.height;
+		ymax *= this.data.ctx.canvas.height;
 		
 		var obj = {
 			left: xmin,
@@ -159,7 +159,7 @@ class Player {
 	get crouch(){ return this.entity[vars.crouchVal] || 0 }
 	get box_scale(){
 		var view = utils.camera_world(),	
-			a = side => Math.min(1, (this.rect[side] / utils.canvas[side]) * 10);
+			a = side => Math.min(1, (this.rect[side] / this.data.ctx.canvas[side]) * 10);
 		
 		return [ a('width'), a('height') ];
 	}
@@ -207,7 +207,7 @@ class Player {
 			- this.data.player.jump_bob_y
 			, target.z)
 			- this.data.player.land_bob_y * 0.1
-			- this.data.player.recoil_y * vars.consts.recoilMlt,
+			- this.data.player.recoil_y * gconsts.recoilMlt,
 			y_dire = utils.getDir(camera.z, camera.x, target.z, target.x);
 		
 		return {
@@ -268,7 +268,7 @@ class Player {
 		this.position.set(this.entity.x, this.entity.y, this.entity.z);
 		this.velocity.set(this.entity.xVel, this.entity.yVel, this.entity.zVel);
 		
-		this.parts.hitbox_head.copy(this.position).set_y(this.position.y + this.height - (this.crouch * vars.consts.crouchDst));
+		this.parts.hitbox_head.copy(this.position).set_y(this.position.y + this.height - (this.crouch * gconsts.crouchDst));
 		
 		if(this.is_you)return;
 		

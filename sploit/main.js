@@ -1,21 +1,51 @@
 'use strict';
 
 var UI = require('../libs/FloatUI'),
-	vars = require('../libs/Vars'),
 	Visual = require('../libs/Visual'),
 	Input = require('../libs/Input'),
 	Socket = require('../libs/Socket'),
 	Player = require('../libs/Player'),
-	{ utils, proxy_addons, supported_store, addon_url, meta, api, store } = require('../libs/consts');
+	{ utils, proxy_addons, supported_store, addon_url, meta, store, loader } = require('../libs/consts');
 
 class Main {
 	constructor(){
 		this.hooked = Symbol();
 		this.skins = [...Array(5000)].map((e, i) => ({ ind: i, cnt: 1 }));
 		
+		this.canvas = utils.add_ele('canvas', UI.frame),
+		this.ctx = this.canvas.getContext('2d');
+		
+		this.resize_canvas();
+		window.addEventListener('resize', () => this.resize_canvas());
+		
+		this.init_interface();
+		
+		this.visual = new Visual(this.interface);
+		this.input = new Input(this.interface);
+		
+		this.sorts = {
+			dist3d: (ent_1, ent_2) => {
+				return ent_1.distance_camera - ent_2.distance_camera;
+			},
+			dist2d: (ent_1, ent_2) => {
+				return utils.dist_center(ent_1.rect) - utils.dist_center(ent_2.rect);
+			},
+			hp: (ent_1, ent_2) => {
+				return ent_1.health - ent_2.health;
+			},
+		};
+	}
+	resize_canvas(){
+		this.canvas.width = window.innerWidth;
+		this.canvas.height = window.innerHeight;
+	}
+	init_interface(){
 		var self = this;
 		
 		this.interface = {
+			get ctx(){
+				return self.ctx;
+			},
 			get game(){
 				return self.game;
 			},
@@ -64,26 +94,9 @@ class Main {
 			pick_target(){
 				self.target = self.players.filter(player => player.can_target).sort((ent_1, ent_2) => self.sorts[ent_1.rect && ent_2.rect ? self.config.aim.target_sorting || 'dist2d' : 'dist3d'](ent_1, ent_2) * (ent_1.frustum ? 1 : 0.5))[0];
 			},
-		};
-		
-		this.sorts = {
-			dist3d: (ent_1, ent_2) => {
-				return ent_1.distance_camera - ent_2.distance_camera;
-			},
-			dist2d: (ent_1, ent_2) => {
-				return utils.dist_center(ent_1.rect) - utils.dist_center(ent_2.rect);
-			},
-			hp: (ent_1, ent_2) => {
-				return ent_1.health - ent_2.health;
-			},
-		};
+		};		
 	}
 	async load(){
-		var source = api.source(),
-			token = api.token();
-		
-		utils.canvas = UI.canvas;
-		
 		this.ui = require('./settings');
 		
 		await this.ui.load_config();
@@ -102,9 +115,9 @@ class Main {
 			token.then(() => loading.hide()).catch(() => loading.hide());
 		}*/
 		
-		api.on_instruct = () => {
+		loader.on('instruct', has => {
 			if(this.config.game.error_tips){
-				if(api.has_instruct('connection banned 0x2'))localStorage.removeItem('krunker_token'), UI.alert([
+				if(has('connection banned 0x2'))localStorage.removeItem('krunker_token'), UI.alert([
 					`<p>You were IP banned, Sploit has signed you out.\nSpoof your IP to bypass this ban with one of the following:</p>`,
 					`<ul>`,
 						`<li>Using your mobile hotspot</li>`,
@@ -112,67 +125,52 @@ class Main {
 						`<li>Use a <a target="_blank" href=${JSON.stringify(addon_url('Proxy VPN'))}>Search for a VPN</a></li>`,
 					`</ul>`,
 				].join(''));
-				else if(api.has_instruct('banned - '))UI.alert(
+				else if(has('banned - '))UI.alert(
 					`<p>You were banned from this match. Find a new game to bypass this.</p>`,
 				);
-				else if(api.has_instruct('banned'))localStorage.removeItem('krunker_token'), UI.alert(
+				else if(has('banned'))localStorage.removeItem('krunker_token'), UI.alert(
 					`<p>You were banned, Sploit has signed you out.\nCreate a new account to bypass this ban.</p>`,
 				);
 			}
 			
-			if(this.config.game.auto_lobby && api.has_instruct('connection error', 'game is full', 'kicked by vote', 'disconnected'))location.href = '/';
-			else if(this.config.game.auto_start && api.has_instruct('to play') && (!this.player || !this.player.active)){
+			if(this.config.game.auto_lobby && has('connection error', 'game is full', 'kicked by vote', 'disconnected'))location.href = '/';
+			else if(this.config.game.auto_start && has('to play') && (!this.player || !this.player.active)){
 				this.controls.locklessChange(true);
 				this.controls.locklessChange(false);
 			}
-		};
+		});
 		
-		this.visual = new Visual(this.interface);
-		
-		var self = this,
-			socket = Socket(this.interface),
-			input = new Input(this.interface),
-			args = {
-			[ vars.key ]: {
-				three(three){ utils.three = three },
-				game: game => Object.defineProperty(this.game = utils.game = game, 'controls', {
-					configurable: true,
-					set(controls){
-						// delete definition
-						delete game.controls;
-						
-						var timer = 0;
-						
-						Object.defineProperty(controls, 'idleTimer', {
-							get: _ => self.config.game.inactivity ? 0 : timer,
-							set: value => timer = value,
-						});
-						
-						return self.controls = game.controls = controls;
-					},
-				}),
-				world: world => this.world = utils.world = world,
-				can_see: inview => this.config.esp.status == 'full' ? false : (this.config.esp.nametags || inview),
-				skins: ent => this.config.player.skins && typeof ent == 'object' && ent != null && ent.stats ? this.skins : ent.skins,
-				input: input.push.bind(input),
-				timer: (object, property, timer) => Object.defineProperty(object, property, {
-					get: _ => this.config.game.inactivity ? 0 : timer,
-					set: value => this.config.game.inactivity ? Infinity : timer,
-				}),
-			},
-			WebSocket: socket,
-			WP_fetchMMToken: token,
-		};
-		
+		this.process = this.process.bind(this);
 		this.process();
 		
-		await api.load;
-		
-		new Function(...Object.keys(args), vars.patch(await source))(...Object.values(args));
+		await loader.load({
+			WebSocket: Socket(this.interface),
+		}, {
+			three: three => utils.three = three,
+			game: game => this.game = utils.game = game,
+			controls: controls => {
+				var timer = 0;
+				
+				Object.defineProperty(controls, 'idleTimer', {
+					get: _ => this.config.game.inactivity ? 0 : timer,
+					set: value => timer = value,
+				});
+				
+				this.controls = controls;
+			},
+			world: world => this.world = utils.world = world,
+			can_see: inview => this.config.esp.status == 'full' ? false : (this.config.esp.nametags || inview),
+			skins: ent => this.config.player.skins && typeof ent == 'object' && ent != null && ent.stats ? this.skins : ent.skins,
+			input: this.input,
+			timer: (object, property, timer) => Object.defineProperty(object, property, {
+				get: _ => this.config.game.inactivity ? 0 : timer,
+				set: value => this.config.game.inactivity ? Infinity : timer,
+			}),
+		});
 	}
 	process(){
 		try{
-			this.visual.tick(UI);
+			this.visual.tick();
 			
 			if(this.config.game.overlay)this.visual.overlay();
 			
@@ -203,10 +201,10 @@ class Main {
 				}
 			}
 		}catch(err){
-			api.report_error('frame', err);
+			loader.report_error('frame', err);
 		}
 		
-		utils.request_frame(() => this.process());
+		utils.request_frame(this.process);
 	}
 	get config(){
 		return this.ui.config;

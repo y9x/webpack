@@ -1,9 +1,7 @@
 'use strict';
 
 var DataStore = require('./DataStore'),
-	API = require('./API'),
-	KUtils = require('./KUtils'),
-	utils = new KUtils();
+	GameLoader = require('./GameLoader');
 
 exports.store = new DataStore();
 
@@ -15,6 +13,13 @@ exports.meta = {
 
 exports.api_url = 'https://api.sys32.dev/';
 exports.mm_url = 'https://matchmaker.krunker.io/';
+
+var loader = new GameLoader(exports.mm_url, exports.api_url);
+
+exports.loader = loader;
+
+var KUtils = require('./KUtils'),
+	utils = new KUtils();
 
 exports.is_frame = window != window.top;
 
@@ -49,16 +54,15 @@ exports.supported_store = exports.firefox ? 'firefox' : 'chrome';
 
 exports.addon_url = query => exports.firefox ? 'https://addons.mozilla.org/en-US/firefox/search/?q=' + encodeURIComponent(query) : 'https://chrome.google.com/webstore/search/' + encodeURI(query);
 
-var api = new API(exports.mm_url, exports.api_url);
+require('./vars');
 
-if(!exports.is_frame){
-	if(exports.krunker)api.observe();
+if(exports.krunker && !exports.is_frame){
+	loader.observe();
 	
-	api.license(exports.meta, typeof LICENSE_KEY == 'string' && LICENSE_KEY);
+	loader.license(exports.meta);
 }
 
 exports.utils = utils;
-exports.api = api;
 
 // old loader compatibility
 // !navigator.useragent.includes('Electron') &&

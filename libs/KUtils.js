@@ -1,6 +1,7 @@
 'use strict';
 
-var vars = require('./Vars'),
+var { loader } = require('./consts'),
+	{ vars } = loader,
 	Utils = require('./Utils');
 
 class FakeNode {
@@ -18,17 +19,8 @@ class FakeNode {
 
 class KUtils extends Utils {
 	FakeNode = FakeNode;
-	pi2 = Math.PI * 2;
-	halfpi = Math.PI / 2;
 	dist_center(pos){
 		return Math.hypot((window.innerWidth / 2) - pos.x, (window.innerHeight / 2) - pos.y);
-	}
-	normal_radian(radian){
-		radian = radian % this.pi2;
-		
-		if(radian < 0)radian += this.pi2;
-					
-		return radian;
 	}
 	distanceTo(vec1, vec2){
 		return Math.hypot(vec1.x - vec2.x, vec1.y - vec2.y, vec1.z - vec2.z);
@@ -56,8 +48,8 @@ class KUtils extends Utils {
 		this.project3d(pos, this.world.camera);
 		
 		return {
-			x: (pos.x + 1) / 2 * this.canvas.width,
-			y: (-pos.y + 1) / 2 * this.canvas.height,
+			x: (pos.x + 1) / 2 * this.ctx.canvas.width,
+			y: (-pos.y + 1) / 2 * this.ctx.canvas.height,
 		}
 	}
 	obstructing(player, target, wallbangs, offset = 0){

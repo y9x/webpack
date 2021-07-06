@@ -1,6 +1,6 @@
 'use strict';
 
-var { api, utils, meta } = require('../libs/consts.js'),
+var { api, utils, meta, loader } = require('../libs/consts.js'),
 	UI = require('../libs/FloatUI'),
 	File = require('../libs/File'),
 	Keybind = require('../libs/Keybind'),
@@ -222,7 +222,7 @@ info.add_control('Forum', {
 info.add_control('Download Game', {
 	type: 'link',
 	value: Request.resolve({
-		target: api.api_v2,
+		target: loader.api_v2,
 		endpoint: 'source',
 		query: { download: true },
 	}),
