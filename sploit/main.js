@@ -155,7 +155,7 @@ class Main {
 				var timer = 0;
 				
 				Object.defineProperty(controls, 'idleTimer', {
-					get: _ => this.config.game.inactivity ? 0 : timer,
+					get: _ => self.config.game.inactivity ? 0 : timer,
 					set: value => timer = value,
 				});
 				
@@ -165,7 +165,7 @@ class Main {
 			can_see: inview => this.config.esp.status == 'full' ? false : (this.config.esp.nametags || inview),
 			skins: ent => Object.defineProperty(ent, 'skins', {
 				get(){
-					return this.config.player.skins ? self.skins : this[$skins];
+					return self.config.player.skins ? self.skins : this[$skins];
 				},
 				set(value){
 					return this[$skins] = value;

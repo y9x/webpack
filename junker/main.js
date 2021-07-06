@@ -145,7 +145,7 @@ class Main {
 			can_see: inview => this.config.esp.status == 'full' ? false : (this.config.esp.nametags || inview),
 			skins: ent => Object.defineProperty(ent, 'skins', {
 				get(){
-					return this.config.player.skins ? self.skins : this[$skins];
+					return self.config.player.skins ? self.skins : this[$skins];
 				},
 				set(value){
 					return this[$skins] = value;

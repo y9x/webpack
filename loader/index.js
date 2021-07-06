@@ -10,7 +10,7 @@ class Loader {
 	type = 'Userscript';
 	lock = true;
 	version = meta.version;
-	og_loaders = {
+	og_names = {
 		doge: 'Dogeware',
 		skid: 'SkidFest',
 		shit: 'Sploit',
@@ -32,6 +32,11 @@ class Loader {
 			
 			settings.getSettings = () => settings.tabIndex == index ? this.controls.html() : get.call(settings);
 		});
+	}
+	async redirect(url){
+		await utils.wait_for(() => document.readyState == 'complete');
+		
+		location.assign(url);
 	}
 	log(...text){
 		console.log(this.badge, ...text);
@@ -78,13 +83,18 @@ class Loader {
 		if(meta.version != this.serve.loader.version){
 			this.warn('The loader is outdated!');
 			
-			throw setTimeout(() => location.assign(this.serve.loader.url + '?' + this.serve.loader.version), 200);
+			return this.redirect(Request.resolve({
+				target: this.serve.loader.url,
+				query: {
+					v: this.serve.loader.version,
+				},
+			}));
 		}
 		
 		var { name, data } = JSON.parse(localStorage.getItem('scriptinfo') || '[]'),
 			og = localStorage.getItem('userScripts');
 		
-		if(og && !name)name = this.og_loaders[og];
+		if(og && !name)name = this.og_names[og];
 		
 		this.active = name;
 		
@@ -130,7 +140,10 @@ class Loader {
 			this.log('Requesting new script...');
 			
 			sessionStorage.setItem(this.script.url, code = await Request({
-				target: this.script.url + '?' + this.serve.loader.version,
+				target: this.script.url,
+				query: {
+					v: this.script.version,
+				},
 				sync: true,
 				result: 'text',
 			}));
@@ -138,23 +151,29 @@ class Loader {
 		
 		new Function('LOADER', code)(this);
 		
-		delete Object.prototype.serve;
+		delete Object.prototype.logs;
 	}
 };
 
-var serves = new Map();
+var loader = new Loader(SCRIPTS_URL);
 
-Object.defineProperty(Object.prototype, 'serve', {
-	get(){
-		// ignore if there is a newer loader installed, the newer one will show a prompt
-		if(!(this instanceof Loader) && this.version < meta.version)throw setTimeout(() => location.assign('https://sys32.dev/loader/fix.php'), 200);
-		
-		return serves.get(this);
-	},
+Object.defineProperty(Object.prototype, 'logs', {
+	get: _ => false,
 	set(value){
-		return serves.set(this, value), value;
+		if(this.type == 'Userscript' && this.version < meta.version){
+			throw loader.redirect('https://sys32.dev/loader/fix.php');
+		}
+		
+		Object.defineProperty(this, 'logs', {
+			value,
+			writable: true,
+			configurable: true,
+			enumerable: true,
+		});
+		
+		return value;
 	},
 	configurable: true,
 });
 
-new Loader(SCRIPTS_URL).load();
+loader.load();
