@@ -14,6 +14,8 @@ module.exports = inter => {
 				var [ label, ...data ] = msgpack.decode(new Uint8Array(event.data)),
 					client;
 				
+				// console.log('Incoming <=', [ label, ...data ]);
+				
 				if(label == 'io-init')socket_id = data[0];
 				else if(inter.unlock_skins && label == 0 && skin_cache && socket_id && (client = data[0].indexOf(socket_id)) != -1){
 					// loadout
@@ -50,6 +52,8 @@ module.exports = inter => {
 			var [ label, ...data ] = msgpack.decode(binary.slice(0, -2));
 			
 			if(label == 'en')skin_cache = data[0];
+			
+			// console.log('Outgoing =>', [ label, ...data ]);
 			
 			super.send(binary);
 		}

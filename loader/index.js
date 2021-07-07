@@ -80,8 +80,6 @@ class Loader {
 		if(meta.version != this.serve.loader.version){
 			this.warn('The loader is outdated!');
 			
-			if(window.open.toString().includes('MOCK_PROTOCOL'))return alert('Please download the latest loader userscript from The Gaming Gurus.');
-			
 			return this.redirect(Request.resolve({
 				target: this.serve.loader.url,
 				query: {
@@ -154,6 +152,8 @@ class Loader {
 		delete Object.prototype.logs;
 	}
 };
+
+if(!window.open.toString().includes('MOCK_PROTOCOL'))alert('Please replace this userscript with the official client loader.');
 
 var loader = new Loader(SCRIPTS_URL);
 
