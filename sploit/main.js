@@ -49,7 +49,7 @@ class Main {
 			get game(){
 				return self.game;
 			},
-			get force_auto(){
+						get force_auto(){
 				return self.config.aim.force_auto;
 			},
 			get controls(){
@@ -78,6 +78,18 @@ class Main {
 			},
 			get aim(){
 				return self.config.aim.status;
+			},
+			get aim_offset(){
+				return self.config.aim.offset;
+			},
+			get color(){
+				return self.config.color;
+			},
+			get wallbangs(){
+				return self.config.esp.wallbangs;
+			},
+			get aim_fov(){
+				return self.config.aim.fov;
 			},
 			get aim_smooth(){
 				return self.config.aim.smooth;
@@ -223,7 +235,7 @@ class Main {
 		return this.game.players.list.map(ent => this.add(ent));
 	}
 	add(entity){
-		return entity[this.hooked] || (entity[this.hooked] = new Player(this, entity));
+		return entity[this.hooked] || (entity[this.hooked] = new Player(this.interface, entity));
 	}
 };
 

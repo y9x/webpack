@@ -18,6 +18,7 @@ class Player {
 		this.position = new Vector3();
 		this.esp_hex = new Hex();
 		this.hp_hex = new Hex();
+		
 		this.dont_calc = 0;
 		
 		this.parts = {
@@ -102,13 +103,13 @@ class Player {
 	}
 	calc_in_fov(){
 		if(!this.active)return false;
-		if(this.data.config.aim.fov == 110)return true;
+		if(this.data.aim_fov == 110)return true;
 		if(!this.frustum)return false;
 		
 		var fov_bak = utils.world.camera.fov;
 		
 		// config fov is percentage of current fov
-		utils.world.camera.fov = this.data.config.aim.fov / fov_bak * 100;
+		utils.world.camera.fov = this.data.aim_fov / fov_bak * 100;
 		utils.world.camera.updateProjectionMatrix();
 		
 		utils.update_frustum();
@@ -249,7 +250,7 @@ class Player {
 			z: 0,
 		}));
 		
-		var part = this.data.config.aim.offset == 'random' ? this.part_keys[~~(random_target * this.part_keys.length)] : this.data.config.aim.offset;
+		var part = this.data.aim_offset == 'random' ? this.part_keys[~~(random_target * this.part_keys.length)] : this.data.aim_offset;
 		
 		this.aim_point = part == 'head' ? this.parts.hitbox_head : (this.parts[part] || (console.error(part, 'not registered'), Vector3.Blank));
 		
@@ -259,7 +260,7 @@ class Player {
 		this.world_pos = this.active ? this.obj[vars.getWorldPosition]() : { x: 0, y: 0, z: 0 };
 		
 		this.can_see = this.data.player &&
-			utils.obstructing(utils.camera_world(), this.aim_point, (!this.data.player || this.data.player.weapon && this.data.player.weapon.pierce) && this.data.config.aim.wallbangs)
+			utils.obstructing(utils.camera_world(), this.aim_point, (!this.data.player || this.data.player.weapon && this.data.player.weapon.pierce) && this.data.wallbangs)
 		== null ? true : false;
 		
 		this.can_target = this.active && this.can_see && this.enemy && this.in_fov;
@@ -274,7 +275,7 @@ class Player {
 		
 		if(this.frustum)this.rect = this.calc_rect();
 		
-		this.esp_hex.set_style(this.data.config.esp.rainbow ? this.data.overlay.rainbow.col : this.data.config.color[this.enemy ? this.risk ? 'risk' : 'hostile' : 'friendly']);
+		this.esp_hex.set_style(this.data.rainbow ? this.data.visual.rainbow.col : this.data.color[this.enemy ? this.risk ? 'risk' : 'hostile' : 'friendly']);
 		
 		if(!this.can_see)this.esp_hex.sub_scalar(0x77);
 		
