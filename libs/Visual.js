@@ -9,25 +9,14 @@ class Visual {
 		this.rainbow = {
 			col: '#ffffff',
 			val: 0,
-			freq: 1000 / 60,
-			upd: 0,
 		};
 	}
-	rgbToHex(e, t, i){
-		for (var s = (e << 16 | t << 8 | i).toString(16); 6 > s.length;)s = "0" + s;
-		return "#" + s;
-	}
-	hexFromHue(t){
-		var i = t / 60;
-		var s = 255 * (1 - Math.abs(i % 2 - 1));
-		var n = Math.floor(i);
-		return this.rgbToHex(1 > n || 4 < n ? 255 : 1 == n || 4 == n ? s : 0, 0 == n || 3 == n ? s : 1 == n || 2 == n ? 255 : 0, 0 == n || 1 == n ? 0 : 3 == n || 4 == n ? 255 : s);
-	}
 	tick_rainbow(){
-		this.rainbow.val += 0.3;
+		var mlt = 0.5;
+		
+		this.rainbow.val += 0.3 * mlt;
 		if(360 <= this.rainbow.val)this.rainbow.val = 0;
-		this.rainbow.upd -= 1;
-		0 >= this.rainbow.upd && (this.rainbow.upd = this.rainbow.freq, this.rainbow.col = this.hexFromHue(Math.round(this.rainbow.val)));
+		this.rainbow.col = utils.hexFromHue(Math.round(this.rainbow.val));
 	}
 	esp_mat(color){
 		if(!this.materials.has(color))this.materials.set(color, new utils.three.MeshBasicMaterial({
@@ -40,8 +29,8 @@ class Visual {
 		return this.materials.get(color);
 	}
 	tick(){
-		this.tick_rainbow();
 		this.data.ctx.clearRect(0, 0, this.data.ctx.canvas.width, this.data.ctx.canvas.height);
+		this.tick_rainbow();
 	}
 	draw_text(text_x, text_y, font_size, lines){
 		for(var text_index = 0; text_index < lines.length; text_index++){

@@ -46,6 +46,9 @@ class Main {
 			get ctx(){
 				return self.ctx;
 			},
+			get visual(){
+				return self.visual;
+			},
 			get game(){
 				return self.game;
 			},
@@ -54,6 +57,12 @@ class Main {
 			},
 			get force_auto(){
 				return self.config.aim.force_auto;
+			},
+			get color(){
+				return self.config.color;
+			},
+			get rainbow(){
+				return self.config.esp.rainbow;
 			},
 			get controls(){
 				return self.controls;
@@ -84,9 +93,6 @@ class Main {
 			},
 			get aim_offset(){
 				return self.config.aim.offset;
-			},
-			get color(){
-				return self.config.color;
 			},
 			get wallbangs(){
 				return self.config.aim.wallbangs;

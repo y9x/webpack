@@ -61,17 +61,11 @@ class Main {
 		var self = this;
 		
 		this.interface = {
-			get rainbow(){
-				return self.config.esp.rainbow;
-			}
-			get color(){
-				return self.config.color;
-			}
-			get visual(){
-				return self.visual;
-			}
 			get ctx(){
 				return self.ctx;
+			},
+			get visual(){
+				return self.visual;
 			},
 			get game(){
 				return self.game;
@@ -81,6 +75,12 @@ class Main {
 			},
 			get force_auto(){
 				return self.config.aim.force_auto;
+			},
+			get color(){
+				return self.config.color;
+			},
+			get rainbow(){
+				return self.config.esp.rainbow;
 			},
 			get controls(){
 				return self.controls;
@@ -112,9 +112,6 @@ class Main {
 			get aim_offset(){
 				return self.config.aim.offset;
 			},
-			get color(){
-				return self.config.color;
-			},
 			get wallbangs(){
 				return self.config.aim.wallbangs;
 			},
@@ -136,7 +133,7 @@ class Main {
 			pick_target(){
 				self.target = self.players.filter(player => player.can_target && player.rect).sort((p1, p2) => self.dist2d(p1, p2) * (p1.frustum ? 1 : 0.5))[0];
 			},
-		};
+		};		
 	}
 	async load(){
 		utils.add_ele('style', () => document.documentElement, { textContent: require('./index.css') });

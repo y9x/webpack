@@ -19,6 +19,16 @@ class FakeNode {
 
 class KUtils extends Utils {
 	FakeNode = FakeNode;
+	rgbToHex(e, t, i){
+		for (var s = (e << 16 | t << 8 | i).toString(16); 6 > s.length;)s = "0" + s;
+		return "#" + s;
+	}
+	hexFromHue(t){
+		var i = t / 60;
+		var s = 255 * (1 - Math.abs(i % 2 - 1));
+		var n = Math.floor(i);
+		return this.rgbToHex(1 > n || 4 < n ? 255 : 1 == n || 4 == n ? s : 0, 0 == n || 3 == n ? s : 1 == n || 2 == n ? 255 : 0, 0 == n || 1 == n ? 0 : 3 == n || 4 == n ? 255 : s);
+	}
 	dist_center(pos){
 		return Math.hypot((window.innerWidth / 2) - pos.x, (window.innerHeight / 2) - pos.y);
 	}
