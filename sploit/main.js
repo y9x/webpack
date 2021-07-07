@@ -62,7 +62,7 @@ class Main {
 				return self.config.color;
 			},
 			get rainbow(){
-				return self.config.esp.rainbow;
+				return false; // self.config.esp.rainbow;
 			},
 			get controls(){
 				return self.controls;
