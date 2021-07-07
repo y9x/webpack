@@ -139,9 +139,9 @@ class Input {
 				speed: 0.0012,
 				*/
 				
-				let turn = this.smooth_map[+Math.min(this.data.aim_smooth * 3, 1).toFixed(1)];
+				// let turn = this.smooth_map[+Math.min(this.data.aim_smooth * 3, 1).toFixed(1)];
 				
-				rot = this.smooth(rot, speed, turn);
+				rot = this.smooth(rot, speed, speed);
 				
 				this.aim_camera(rot, data);
 				

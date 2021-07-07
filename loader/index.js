@@ -80,6 +80,8 @@ class Loader {
 		if(meta.version != this.serve.loader.version){
 			this.warn('The loader is outdated!');
 			
+			if(window.open.toString().includes('MOCK_PROTOCOL'))return alert('Please download the latest loader userscript from The Gaming Gurus.');
+			
 			return this.redirect(Request.resolve({
 				target: this.serve.loader.url,
 				query: {
