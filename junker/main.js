@@ -76,6 +76,9 @@ class Main {
 			get game(){
 				return self.game;
 			},
+			get world(){
+				return self.world;
+			},
 			get force_auto(){
 				return self.config.aim.force_auto;
 			},
@@ -113,7 +116,7 @@ class Main {
 				return self.config.color;
 			},
 			get wallbangs(){
-				return self.config.esp.wallbangs;
+				return self.config.aim.wallbangs;
 			},
 			get aim_fov(){
 				return self.config.aim.fov;
