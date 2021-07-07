@@ -12,10 +12,8 @@ class Visual {
 		};
 	}
 	tick_rainbow(){
-		var mlt = 0.5;
-		
-		this.rainbow.val += 0.3 * mlt;
-		if(360 <= this.rainbow.val)this.rainbow.val = 0;
+		this.rainbow.val += 0.6;
+		this.rainbow.val %= 360;
 		this.rainbow.col = utils.hexFromHue(Math.round(this.rainbow.val));
 	}
 	esp_mat(color){
