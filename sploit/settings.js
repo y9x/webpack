@@ -16,9 +16,9 @@ var { api, utils, meta, loader } = require('../libs/consts.js'),
 		})),
 	};
 
-var render = menu.add_tab('Render');
+var Render = menu.add_tab('Render');
 
-render.add_control('ESP Mode', {
+Render.add_control('ESP Mode', {
 	name: 'ESP Mode',
 	type: 'rotate',
 	walk: 'esp.status',
@@ -31,22 +31,22 @@ render.add_control('ESP Mode', {
 	},
 });
 
-render.add_control('Nametags', {
+Render.add_control('Nametags', {
 	type: 'boolean',
 	walk: 'esp.nametags',
 });
 
-render.add_control('Tracers', {
+Render.add_control('Tracers', {
 	type: 'boolean',
 	walk: 'esp.tracers',
 });
 
-render.add_control('Wireframe', {
+Render.add_control('Wireframe', {
 	type: 'boolean',
 	walk: 'esp.wireframe',
 });
 
-render.add_control('Wall Opacity', {
+Render.add_control('Wall Opacity', {
 	type: 'slider',
 	walk: 'esp.walls',
 	min: 0,
@@ -54,24 +54,24 @@ render.add_control('Wall Opacity', {
 	step: 10,
 });
 
-render.add_control('Overlay', {
+Render.add_control('Overlay', {
 	type: 'boolean',
 	walk: 'game.overlay',
 });
 
-render.add_control('Rainbow Colors', {
+Render.add_control('Rainbow Colors', {
 	type: 'boolean',
 	walk: 'esp.rainbow',
 });
 
-render.add_control('Custom CSS', {
+Render.add_control('Custom CSS', {
 	type: 'function',
 	value(){ menu.css_editor.show() },
 });
 
-var weapon = menu.add_tab('Weapon');
+var Weapon = menu.add_tab('Weapon');
 
-weapon.add_control('Aimbot Mode', {
+Weapon.add_control('Aimbot Mode', {
 	type: 'rotate',
 	walk: 'aim.status',
 	value: {
@@ -83,7 +83,7 @@ weapon.add_control('Aimbot Mode', {
 	},
 });
 
-weapon.add_control('Target', {
+Weapon.add_control('Target', {
 	type: 'rotate',
 	walk: 'aim.offset',
 	value: {
@@ -94,7 +94,7 @@ weapon.add_control('Target', {
 	},
 });
 
-weapon.add_control('Target Sorting', {
+Weapon.add_control('Target Sorting', {
 	type: 'rotate',
 	walk: 'aim.target_sorting',
 	value: {
@@ -104,12 +104,12 @@ weapon.add_control('Target Sorting', {
 	},
 });
 
-weapon.add_control('Draw Target FOV', {
+Weapon.add_control('Draw Target FOV', {
 	type: 'boolean',
 	walk: 'aim.fov_box',
 });
 
-weapon.add_control('Target FOV', {
+Weapon.add_control('Target FOV', {
 	type: 'slider',
 	walk: 'aim.fov',
 	min: 5,
@@ -120,7 +120,7 @@ weapon.add_control('Target FOV', {
 	},
 });
 
-weapon.add_control('Smoothness', {
+Weapon.add_control('Smoothness', {
 	type: 'slider',
 	walk: 'aim.smooth',
 	min: 0,
@@ -129,7 +129,7 @@ weapon.add_control('Smoothness', {
 	labels: { 0: 'Off' },
 });
 
-weapon.add_control('Hitchance', {
+Weapon.add_control('Hitchance', {
 	type: 'slider',
 	walk: 'aim.hitchance',
 	min: 10,
@@ -137,29 +137,29 @@ weapon.add_control('Hitchance', {
 	step: 10,
 });
 
-weapon.add_control('Wallbangs', {
+Weapon.add_control('Wallbangs', {
 	type: 'boolean',
 	walk: 'aim.wallbangs',
 });
 
-weapon.add_control('Spinbot', {
+Weapon.add_control('Spinbot', {
 	type: 'boolean',
 	walk: 'aim.spinbot',
 });
 
-weapon.add_control('Force auto-fire', {
+Weapon.add_control('Force auto-fire', {
 	type: 'boolean',
 	walk: 'aim.force_auto',
 });
 
-weapon.add_control('Auto reload', {
+Weapon.add_control('Auto reload', {
 	type: 'boolean',
 	walk: 'aim.auto_reload',
 });
 
-var player = menu.add_tab('Player');
+var Player = menu.add_tab('Player');
 
-player.add_control('Auto Bhop Mode', {
+Player.add_control('Auto Bhop Mode', {
 	type: 'rotate',
 	walk: 'player.bhop',
 	value: {
@@ -171,72 +171,77 @@ player.add_control('Auto Bhop Mode', {
 	},
 });
 
-player.add_control('Unlock Skins', {
+Player.add_control('Unlock Skins', {
 	type: 'boolean',
 	walk: 'player.skins',
 });
 
-var game = menu.add_tab('Game');
+var Game = menu.add_tab('Game');
 
-/*game.add_control('Custom Loading Screen', {
+/*Game.add_control('Custom Loading Screen', {
 	type: 'boolean',
 	walk: 'game.custom_loading',
 });*/
 
-game.add_control('Auto Activate Nuke', {
+Game.add_control('Auto Proxy Switcher', {
+	type: 'boolean',
+	walk: 'game.auto_proxy',
+});
+
+Game.add_control('Auto Activate Nuke', {
 	type: 'boolean',
 	walk: 'game.auto_nuke',
 });
 
-game.add_control('Auto Start Match', {
+Game.add_control('Auto Start Match', {
 	type: 'boolean',
 	walk: 'game.auto_start',
 });
 
-game.add_control('New Lobby Finder', {
+Game.add_control('New Lobby Finder', {
 	type: 'boolean',
 	walk: 'game.auto_lobby',
 });
 
-game.add_control('No Inactivity kick', {
+Game.add_control('No Inactivity kick', {
 	type: 'boolean',
 	walk: 'game.inactivity',
 });
 
-game.add_control('Error code tips', {
+Game.add_control('Error code tips', {
 	type: 'boolean',
 	walk: 'game.error_tips',
 });
 
-var info = menu.add_tab('Info');
+var Info = menu.add_tab('Info');
 
-info.add_control('GitHub', {
+Info.add_control('GitHub', {
 	type: 'link',
 	value: meta.github,
 });
 
-info.add_control('Discord', {
+Info.add_control('Discord', {
 	type: 'link',
 	value: meta.discord,
 });
 
-info.add_control('Forum', {
+Info.add_control('Forum', {
 	type: 'link',
 	value: meta.forum,
 });
 
-info.add_control('Download Game', {
+Info.add_control('Download Game', {
 	type: 'link',
 	value: Request.resolve({
-		target: loader.api_v2,
-		endpoint: 'source',
+		target: loader.api,
+		endpoint: '/v2/source',
 		query: { download: true },
 	}),
 });
 
-var interf = menu.add_tab('Interface');
+var Interface = menu.add_tab('Interface');
 
-interf.add_control({
+Interface.add_control({
 	type: 'functions',
 	value: {
 		Reset(){
@@ -264,20 +269,20 @@ interf.add_control({
 	},
 });
 
-var preset = interf.add_control('Preset', {
+var Preset = Interface.add_control('Preset', {
 	type: 'rotate',
 	value: {},
 }).select;
 
-preset.addEventListener('change', () => {
-	if(preset.value == 'Custom')return;
+Preset.addEventListener('change', () => {
+	if(Preset.value == 'Custom')return;
 	
-	menu.load_preset(preset.value, { section: menu.config.section });
+	menu.load_preset(Preset.value, { section: menu.config.section });
 });
 
-utils.add_ele('ez-option', preset, { value: 'Custom' });
+utils.add_ele('ez-option', Preset, { value: 'Custom' });
 
-menu.on('add-preset', label => utils.add_ele('ez-option', preset, { value: label }));
+menu.on('add-preset', label => utils.add_ele('ez-option', Preset, { value: label }));
 
 menu.on('config', () => {
 	var Default = menu.presets.get('Default'),
@@ -285,18 +290,18 @@ menu.on('config', () => {
 		string = JSON.stringify(utils.filter_deep(utils.clone_obj(menu.config), Default));
 	
 	for(let [ label, value ] of menu.presets){
-		if(JSON.stringify(utils.assign_deep(utils.clone_obj(Default), value)) == string)return preset.value = label;
+		if(JSON.stringify(utils.assign_deep(utils.clone_obj(Default), value)) == string)return Preset.value = label;
 	}
 	
-	preset.value = 'Custom';
+	Preset.value = 'Custom';
 });
 
-interf.add_control('Menu Toggle', {
+Interface.add_control('Menu Toggle', {
 	type: 'keybind',
 	walk: 'binds.toggle',
 }).on('change', value => binds.toggle.set_key('F1', value));
 
-interf.add_control('Reset settings', {
+Interface.add_control('Reset settings', {
 	type: 'keybind',
 	walk: 'binds.reset',
 }).on('change', value => binds.reset.set_key(value));

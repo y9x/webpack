@@ -88,11 +88,11 @@ class Main {
 			get bhop(){
 				return self.config.player.bhop;
 			},
-			get aim(){
-				return self.config.aim.status;
-			},
 			get spinbot(){
 				return self.config.aim.spinbot;
+			},
+			get aim(){
+				return self.config.aim.status;
 			},
 			get aim_offset(){
 				return self.config.aim.offset;
@@ -140,7 +140,8 @@ class Main {
 		}*/
 		
 		loader.on('instruct', has => {
-			if(this.config.game.error_tips){
+			if(has('connection banned 0x2') && this.config.game.auto_proxy)return location.assign('https://browserfps.com');
+			else if(this.config.game.error_tips){
 				if(has('connection banned 0x2'))localStorage.removeItem('krunker_token'), UI.alert([
 					`<p>You were IP banned, Sploit has signed you out.\nSpoof your IP to bypass this ban with one of the following:</p>`,
 					`<ul>`,

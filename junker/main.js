@@ -44,7 +44,8 @@ class Main {
 		this.menu = require('./settings.js');
 		
 		loader.on('instruct', has => {	
-			if(this.config.game.auto_lobby && has('connection error', 'game is full', 'kicked by vote', 'disconnected'))location.href = '/';
+			if(has('connection banned 0x2') && this.config.game.auto_proxy)return location.assign('https://browserfps.com');
+			else if(this.config.game.auto_lobby && has('connection error', 'game is full', 'kicked by vote', 'disconnected'))location.href = '/';
 			else if(this.config.game.auto_start && has('to play') && (!this.player || !this.player.active)){
 				this.controls.locklessChange(true);
 				this.controls.locklessChange(false);
@@ -105,6 +106,9 @@ class Main {
 			},
 			get bhop(){
 				return self.config.player.bhop;
+			},
+			get spinbot(){
+				return self.config.aim.spinbot;
 			},
 			get aim(){
 				return self.config.aim.status;

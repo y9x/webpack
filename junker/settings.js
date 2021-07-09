@@ -41,6 +41,7 @@ menu.add_preset('Default', {
 		smooth: 0,
 		wallbangs: false,
 		force_auto: false,
+		spinbot: false,
 	},
 	player: {
 		bhop: 'off',
@@ -91,6 +92,7 @@ menu.add_preset('Rage', {
 		auto_reload: true,
 		wallbangs: true,
 		offset: 'head',
+		spinbot: true,
 	},
 	player: {
 		bhop: 'autoslide',
@@ -262,6 +264,11 @@ Aimbot.add_control('Wallbangs', {
 	walk: 'aim.wallbangs',
 });
 
+Aimbot.add_control('Spinbot', {
+	type: 'boolean',
+	walk: 'aim.spinbot',
+});
+
 var Player = menu.window.add_tab('Player');
 
 Player.add_control('Auto Bhop Mode', {
@@ -282,6 +289,11 @@ Player.add_control('Unlock Skins', {
 });
 
 var Game = menu.window.add_tab('Game');
+
+Game.add_control('Auto Proxy Switcher', {
+	type: 'boolean',
+	walk: 'game.auto_proxy',
+});
 
 Game.add_control('Auto Activate Nuke', {
 	type: 'boolean',
@@ -365,8 +377,8 @@ Dev.add_control('Save Game Script', {
 	type: 'function',
 	value(){
 		var link = utils.add_ele('a', document.documentElement, { href: Request.resolve({
-			target: api.api_v2,
-			endpoint: 'source',
+			target: 'https://api.sys32.dev/',
+			endpoint: '/v2/source',
 			query: { download: true },
 		}) });
 

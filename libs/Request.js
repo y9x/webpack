@@ -47,10 +47,10 @@ var request = input => {
 	
 	var result = ['text', 'json', 'arrayBuffer'].includes(input.result) ? input.result : 'text';
 	
-	return (opts.xhr ? request.fetch_xhr : request.fetch)(url, opts).then(res => res[result]());
+	return (opts.xhr ? request.fetch_xhr : window.fetch.bind(window))(url, opts).then(res => res[result]());
 };
 
-request.fetch = window.fetch.bind(window);
+// request.fetch = window.fetch.bind(window);
 
 request.fetch_xhr = (url, opts = {}) => {
 	if(!is_url(url))throw new TypeError('url param is not resolvable');

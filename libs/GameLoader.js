@@ -19,10 +19,9 @@ class GameLoader {
 		nameOffset: 0.6,
 		nameOffsetHat: 0.8,
 	};
+	api = 0 ? 'http://127.0.0.1:7300/' : 'https://api.sys32.dev/';
+	matchmaker = 'https://matchmaker.krunker.io/';
 	constructor(matchmaker_url, api_url){
-		this.matchmaker = matchmaker_url,
-		this.api = /*CHANGE*/0 ? 'http://localhost:7300/' : api_url,
-		
 		this.stacks = new Set();
 		
 		this.api_v2 = new URL('v2/', this.api);

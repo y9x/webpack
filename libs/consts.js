@@ -11,10 +11,7 @@ exports.meta = {
 	forum: 'https://forum.sys32.dev/',
 };
 
-exports.api_url = 'https://api.sys32.dev/';
-exports.mm_url = 'https://matchmaker.krunker.io/';
-
-var loader = new GameLoader(exports.mm_url, exports.api_url);
+var loader = new GameLoader();
 
 exports.loader = loader;
 
@@ -24,7 +21,7 @@ var KUtils = require('./KUtils'),
 exports.is_frame = window != window.top;
 
 // .htaccess for ui testing
-exports.krunker = utils.is_host(location, 'krunker.io', 'browserfps.com') && ['/.htaccess', '/'].includes(location.pathname);
+exports.krunker = utils.is_host(location, 'krunker.io', 'browserfps.com') && location.host != 'browserfps.com' && ['/.htaccess', '/'].includes(location.pathname);
 
 exports.proxy_addons = [
 	{
@@ -57,9 +54,14 @@ exports.addon_url = query => exports.firefox ? 'https://addons.mozilla.org/en-US
 require('./vars');
 
 if(exports.krunker && !exports.is_frame){
+	if(utils.is_host(location, 'browserfps.com')){
+		require('./Proxy');
+	}
+		
 	loader.observe();
 	
 	loader.license(exports.meta);
+	
 }
 
 exports.utils = utils;
