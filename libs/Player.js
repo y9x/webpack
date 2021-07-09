@@ -28,6 +28,9 @@ class Player {
 			legs: new Vector3(),
 		};
 	}
+	get ground(){
+		return this.entity.onGround;
+	}
 	get distance_scale(){
 		var world_pos = utils.camera_world();
 		
@@ -202,6 +205,7 @@ class Player {
 		var camera = utils.camera_world(),
 			target = this.aim_point;
 		
+		// add velocity * scale / 10
 		// target.add(this.velocity);
 		
 		var x_dire = utils.getXDire(camera.x, camera.y, camera.z, target.x, target.y

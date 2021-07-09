@@ -62,7 +62,7 @@ class Main {
 				return self.config.color;
 			},
 			get rainbow(){
-				return false; // self.config.esp.rainbow;
+				return self.config.esp.rainbow;
 			},
 			get controls(){
 				return self.controls;
@@ -90,6 +90,9 @@ class Main {
 			},
 			get aim(){
 				return self.config.aim.status;
+			},
+			get spinbot(){
+				return self.config.aim.spinbot;
 			},
 			get aim_offset(){
 				return self.config.aim.offset;
@@ -156,8 +159,16 @@ class Main {
 			
 			if(this.config.game.auto_lobby && has('connection error', 'game is full', 'kicked by vote', 'disconnected'))location.href = '/';
 			else if(this.config.game.auto_start && has('to play') && (!this.player || !this.player.active)){
-				this.controls.locklessChange(true);
-				this.controls.locklessChange(false);
+				utils.wait_for(() => {
+					var active = this.player && this.player.active;
+					
+					if(!active){
+						this.controls.locklessChange(true);
+						this.controls.locklessChange(false);
+					}
+					
+					return active;
+				});
 			}
 		});
 		
@@ -231,6 +242,8 @@ class Main {
 					if(this.config.esp.tracers)this.visual.tracer(player);
 				}
 			}
+			
+			if(this.config.game.auto_nuke && this.player && this.player.streaks.length == 25)this.socket.send('k', 0);
 		}catch(err){
 			loader.report_error('frame', err);
 		}

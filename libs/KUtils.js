@@ -29,6 +29,9 @@ class KUtils extends Utils {
 		var n = Math.floor(i);
 		return this.rgbToHex(1 > n || 4 < n ? 255 : 1 == n || 4 == n ? s : 0, 0 == n || 3 == n ? s : 1 == n || 2 == n ? 255 : 0, 0 == n || 1 == n ? 0 : 3 == n || 4 == n ? 255 : s);
 	}
+	deg2rad(deg){
+		return deg * Math.PI / 180;
+	}
 	dist_center(pos){
 		return Math.hypot((window.innerWidth / 2) - pos.x, (window.innerHeight / 2) - pos.y);
 	}

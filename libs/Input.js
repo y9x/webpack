@@ -75,7 +75,7 @@ class Input {
 		};
 	}
 	bhop(data){
-		if(data.move_dir == -1)return
+		if(data.move_dir == -1)return;
 		
 		var status = this.data.bhop,
 			auto = status.startsWith('auto'),
@@ -92,7 +92,24 @@ class Input {
 		
 		if(slide && (auto || data.keys.has('Space')) && this.data.player.velocity.y < -0.02 && this.data.player.can_slide)setTimeout(() => this.data.controls.keys[this.data.controls.binds.crouch.val] = 0, 325), this.data.controls.keys[this.data.controls.binds.crouch.val] = 1;
 	}
+	spinbot(data){
+		this.spin_count = this.spin_count || 0;
+		
+		if(data.move_dir != -1)data.move_dir = (data.move_dir + this.spin_count - Math.round(7 * (data.ydir / (Math.PI * 2000)))) % 7;
+		
+		data.xdir = utils.deg2rad(-90 * 1e3);
+		data.ydir = this.spin_count / 7 * (Math.PI * 2000);
+		
+		if(data.frame % 1 == 0){
+			this.spin_count = (this.spin_count + 1) % 7;
+		}
+	}
 	modify(data){
+		if(this.data.spinbot){
+			data.crouch = data.move_dir == -1;
+			data.scope = data.scope || data.crouch;
+		}
+		
 		// bhop
 		this.bhop(data);
 		
@@ -121,7 +138,7 @@ class Input {
 			
 			if(hitchance)if(this.data.aim == 'correction' && nauto)this.correct_aim(rot, data);
 			else if(this.data.aim == 'auto'){
-				if(this.data.player.can_aim)data.scope = 1;
+				if(this.data.player.can_aim)data.scope = true;
 				
 				if(this.data.player.aimed)data.shoot = !this.data.player.shot;
 				
@@ -149,10 +166,13 @@ class Input {
 			}
 		}
 		
+		if(data.shoot && this.data.player.shot)data.shoot = !nauto;
+		
 		if(this.data.player.can_shoot && data.shoot && !this.data.player.shot){
 			this.data.player.shot = true;
 			setTimeout(() => this.data.player.shot = false, this.data.player.weapon.rate + 2);
-		}
+		}else if(this.data.spinbot)this.spinbot(data);
+		
 	}
 };
 

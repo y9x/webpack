@@ -22,7 +22,6 @@ render.add_control('ESP Mode', {
 	name: 'ESP Mode',
 	type: 'rotate',
 	walk: 'esp.status',
-	key: 'binds.esp',
 	value: {
 		off: 'Off',
 		box: 'Box',
@@ -58,7 +57,11 @@ render.add_control('Wall Opacity', {
 render.add_control('Overlay', {
 	type: 'boolean',
 	walk: 'game.overlay',
-	key: 'binds.overlay',
+});
+
+render.add_control('Rainbow Colors', {
+	type: 'boolean',
+	walk: 'esp.rainbow',
 });
 
 render.add_control('Custom CSS', {
@@ -78,7 +81,6 @@ weapon.add_control('Aimbot Mode', {
 		assist: 'Assist',
 		auto: 'Automatic',
 	},
-	key: 'binds.aim',
 });
 
 weapon.add_control('Target', {
@@ -140,6 +142,11 @@ weapon.add_control('Wallbangs', {
 	walk: 'aim.wallbangs',
 });
 
+weapon.add_control('Spinbot', {
+	type: 'boolean',
+	walk: 'aim.spinbot',
+});
+
 weapon.add_control('Force auto-fire', {
 	type: 'boolean',
 	walk: 'aim.force_auto',
@@ -162,7 +169,6 @@ player.add_control('Auto Bhop Mode', {
 		autoslide: 'Auto Slide',
 		autojump: 'Auto Jump',
 	},
-	key: 'binds.bhop',
 });
 
 player.add_control('Unlock Skins', {
@@ -338,6 +344,7 @@ menu.add_preset('Default', {
 		wallbangs: false,
 		auto_reload: false,
 		force_auto: false,
+		spinbot: false,
 	},
 	color: {
 		risk: '#FF7700',
@@ -345,6 +352,7 @@ menu.add_preset('Default', {
 		friendly: '#00FF00',
 	},
 	esp: {
+		rainbow: false,
 		wireframe: false,
 		status: 'off',
 		walls: 100,
@@ -391,6 +399,7 @@ menu.add_preset('Rage', {
 		auto_reload: true,
 		wallbangs: true,
 		offset: 'head',
+		spinbot: true,
 	},
 	player: {
 		bhop: 'autoslide',

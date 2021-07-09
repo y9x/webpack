@@ -216,7 +216,7 @@ class Main {
 				this.visual.cham(player);
 			}
 
-			if(this.config.auto_nuke && this.player && this.player.streaks.length == 25)this.socket.send('k', 0);
+			if(this.config.game.auto_nuke && this.player && this.player.streaks.length == 25)this.socket.send('k', 0);
 		}catch(err){
 			loader.report_error('frame', err);
 		}
