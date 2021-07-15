@@ -6,8 +6,20 @@ var msgpack = require('msgpack-lite'),
 module.exports = inter => {
 	var socket_id, skin_cache;
 	
+	var proxy_regions = {
+		sgp: 'sin',
+		'au-syd': 'syd',
+		'de-fra': 'fra',
+		'jb-hnd': 'tok',
+		'us-ca-sv': 'sv',
+		'us-fl': 'mia',
+		'us-nj': 'ny',
+	};
+	
 	class HWebSocket extends WebSocket {
 		constructor(url, proto){
+			if(inter.auto_proxy)url = 'wss://' + (proxy_regions[localStorage.kro_setngss_defaultRegion] || 'mia') + '.browserfps.com/ws?redirect=' + btoa(url);
+			
 			super(url, proto);
 			
 			this.addEventListener('message', event => {
