@@ -120,7 +120,7 @@ class Main {
 			},
 			get auto_proxy(){
 				return self.config.game.auto_proxy;
-			}
+			},
 		};		
 	}
 	async load(){
