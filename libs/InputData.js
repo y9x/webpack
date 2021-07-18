@@ -19,7 +19,7 @@ var keys = new Set(),
 		controls.keys[controls.binds.reset.val] ? 1 : 0,
 		controls.keys[controls.binds.interact.val] ? 1 : 0
 	] */
-	inputs = { frame: 0, delta: 1, xdir: 2, ydir: 3, move_dir: 4, shoot: 5, scope: 6, jump: 7, reload: 8, crouch: 9, weapon_scroll: 10, weapon_swap: 11, move_lock: 12, speed_limit: 13, reset: 14, interact: 15 };;
+	inputs = { frame: 0, delta: 1, xdir: 2, ydir: 3, move_dir: 4, shoot: 5, scope: 6, jump: 7, reload: 8, crouch: 9, weapon_scroll: 10, weapon_swap: 11, move_lock: 12, speed_limit: 13, reset: 14, interact: 15 };
 
 class InputData {
 	constructor(array){

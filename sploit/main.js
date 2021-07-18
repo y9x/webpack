@@ -7,10 +7,9 @@ var UI = require('../libs/FloatUI'),
 	Player = require('../libs/Player'),
 	{ utils, proxy_addons, supported_store, addon_url, meta, store, loader } = require('../libs/consts');
 
-// var pr = require('../../private');
-
 class Main {
 	constructor(){
+		this.utils = utils;
 		this.hooked = Symbol();
 		this.skins = [...Array(5000)].map((e, i) => ({ ind: i, cnt: 1 }));
 		
@@ -128,7 +127,7 @@ class Main {
 	async load(){
 		this.ui = require('./settings');
 		
-		// pr.init.call({ data: this.interface }, this);
+		// require('../../private').call(this);
 		
 		await this.ui.load_config();
 		
