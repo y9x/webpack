@@ -33,7 +33,7 @@ class Input {
 			
 			InputData.previous = data;
 		}catch(err){
-			api.report_error('input', err);
+			loader.report_error('input', err);
 		}
 		
 		return array;

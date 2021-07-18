@@ -113,8 +113,14 @@ class RotateControl extends Control {
 
 class LinkControl extends Control {
 	static id = 'link';
-	interact(){
-		window.open(this.value, '_blank');
+	create(){
+		this.link = utils.add_ele('a', this.content, {
+			className: 'settingsBtn',
+			textContent: 'Run',
+		});
+	}
+	update(init){
+		this.link.textContent = this.value;
 	}
 };
 
@@ -261,6 +267,7 @@ Control.Types = [
 	TextBoxControl,
 	SliderControl,
 	ColorControl,
+	LinkControl,
 ];
 
 module.exports = Control;

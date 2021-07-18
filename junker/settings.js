@@ -291,7 +291,7 @@ Player.add_control('Unlock Skins', {
 
 var Game = menu.window.add_tab('Game');
 
-Game.add_control('Auto Proxy Switcher', {
+Game.add_control('Proxy', {
 	type: 'boolean',
 	walk: 'game.auto_proxy',
 });

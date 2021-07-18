@@ -9,6 +9,9 @@ class Vector3 {
 	clone(){
 		return new Vector3(this.x, this.y, this.z);
 	}
+	sum(){
+		return Math.sqrt(this.x, this.y, this.z);
+	}
 	set(x, y, z){
 		this.x = x;
 		this.y = y;

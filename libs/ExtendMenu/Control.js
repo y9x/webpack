@@ -3,10 +3,7 @@
 var Utils = require('../Utils'),
 	utils = new Utils();
 
-class Control {};
-
-class RotateControl {
-	static id = 'rotate';
+class Control {
 	constructor(name, data){
 		this.name = name;
 		this.data = data;
@@ -17,6 +14,37 @@ class RotateControl {
 		
 		this.label = utils.add_ele('text', this.sub, { nodeValue: this.name });
 		
+		this.create();
+		
+		this.init = true;
+		this.value = this.data.value;
+		this.init = false;
+	}
+	create(){}
+};
+
+class LinkControl extends Control {
+	static id = 'link';
+	create(){
+		this.link = utils.add_ele('a', this.sub);
+		this.link.append(this.label);
+	}
+	change(){
+		this.link.href = this.data.value;
+	}
+	get value(){
+		return this._value;
+	}
+	set value(value){
+		this._value = value;
+		this.change();
+		return value;
+	}
+};
+
+class RotateControl extends Control {
+	static id = 'rotate';
+	create(){
 		this.select = utils.add_ele('select', this.sub, {
 			className: 'inputGrey2',
 			events: { change: () => this.change() },
@@ -26,10 +54,6 @@ class RotateControl {
 			value: key,
 			textContent: key,
 		});
-		
-		this.init = true;
-		this.value = this.data.value;
-		this.init = false;
 	}
 	get value(){
 		return this.data.value[this.select.value];
@@ -47,6 +71,7 @@ class RotateControl {
 
 Control.Types = [
 	RotateControl,
+	LinkControl,
 ];
 
 module.exports = Control;

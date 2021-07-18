@@ -2,8 +2,6 @@
 
 var production = true;
 
-var targets = ['loader', 'junker', 'sploit'];
-
 var SCRIPTS_URL = 'https://y9x.github.io/userscripts/serve.json';
 
 var path = require('path'),
@@ -82,3 +80,4 @@ var create_script = (basename, served) => {
 create_script('sploit', true);
 create_script('junker', true);
 create_script('loader', false);
+// create_script('loaderMAD', false);

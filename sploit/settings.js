@@ -183,7 +183,7 @@ var Game = menu.add_tab('Game');
 	walk: 'game.custom_loading',
 });*/
 
-Game.add_control('Auto Proxy Switcher', {
+Game.add_control('Proxy', {
 	type: 'boolean',
 	walk: 'game.auto_proxy',
 });
