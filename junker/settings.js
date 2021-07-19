@@ -57,7 +57,7 @@ menu.add_preset('Default', {
 		css: '',
 	},
 	game: {
-		auto_proxy: true,
+		proxy: false,
 		auto_nuke: false,
 		auto_lobby: false,
 		auto_start: false,

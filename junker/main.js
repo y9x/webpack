@@ -44,8 +44,8 @@ class Main {
 		this.menu = require('./settings.js');
 		
 		loader.on('instruct', has => {	
-			/*if(has('connection banned 0x2') && this.config.game.auto_proxy)return location.assign('https://browserfps.com');
-			else */if(this.config.game.auto_lobby && has('connection error', 'game is full', 'kicked by vote', 'disconnected'))location.href = '/';
+			if(has('connection banned 0x2') && this.config.game.proxy)return location.assign('/');
+			else if(this.config.game.auto_lobby && has('connection error', 'game is full', 'kicked by vote', 'disconnected'))location.href = '/';
 			else if(this.config.game.auto_start && has('to play') && (!this.player || !this.player.active)){
 				this.controls.locklessChange(true);
 				this.controls.locklessChange(false);
@@ -137,8 +137,8 @@ class Main {
 			pick_target(){
 				self.target = self.players.filter(player => player.can_target && player.rect).sort((p1, p2) => self.dist2d(p1, p2) * (p1.frustum ? 1 : 0.5))[0];
 			},
-			get auto_proxy(){
-				return self.config.game.auto_proxy;
+			get proxy(){
+				return self.config.game.proxy;
 			},
 		};		
 	}

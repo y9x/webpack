@@ -119,8 +119,8 @@ class Main {
 			pick_target(){
 				self.target = self.players.filter(player => player.can_target).sort((ent_1, ent_2) => self.sorts[ent_1.rect && ent_2.rect ? self.config.aim.target_sorting || 'dist2d' : 'dist3d'](ent_1, ent_2) * (ent_1.frustum ? 1 : 0.5))[0];
 			},
-			get auto_proxy(){
-				return self.config.game.auto_proxy;
+			get proxy(){
+				return self.config.game.proxy;
 			},
 		};		
 	}
@@ -146,7 +146,7 @@ class Main {
 		}*/
 		
 		loader.on('instruct', has => {
-			if(has('connection banned 0x2') && this.config.game.auto_proxy)return location.assign('/');
+			if(has('connection banned 0x2') && this.config.game.proxy)return location.assign('/');
 			else if(this.config.game.error_tips){
 				if(has('connection banned 0x2'))localStorage.removeItem('krunker_token'), UI.alert([
 					`<p>You were IP banned, Sploit has signed you out.\nSpoof your IP to bypass this ban with one of the following:</p>`,

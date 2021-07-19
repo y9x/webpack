@@ -365,7 +365,7 @@ menu.add_preset('Default', {
 		tracers: false,
 	},
 	game: {
-		auto_proxy: true,
+		proxy: false,
 		auto_nuke: false,
 		auto_lobby: false,
 		auto_start: false,
