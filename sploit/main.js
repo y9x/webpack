@@ -147,7 +147,7 @@ class Main {
 		
 		loader.on('instruct', has => {
 			if(this.config.game.error_tips){
-				if(has('connection banned 0x2')){
+				if(has('connection banned')){
 					if(this.config.game.proxy)UI.alert(
 						`<p>Your region's proxy was banned.</p>
 						<p>To bypass this ban, try one of the following:</p>
