@@ -25,7 +25,7 @@ class Config extends DragPanel {
 		
 		this.presets = new Map();
 		
-		this.sections = new Set();
+		this.tabs = new Set();
 		
 		this.title = this.listen_dragging(utils.add_ele('div', this.node, { textContent: title, className: 'title' }));
 		
@@ -39,7 +39,7 @@ class Config extends DragPanel {
 	get default_section(){
 		var first;
 		
-		for(let section of this.sections){
+		for(let section of this.tabs){
 			if(section.visible)return section;
 			if(!first)first = section;
 			if(section.name == this.config.section)return section;
@@ -50,7 +50,7 @@ class Config extends DragPanel {
 	update(init){
 		this.apply_bounds();
 		
-		for(let section of this.sections){
+		for(let section of this.tabs){
 			section.update(init);
 			
 			if(section == this.default_section)section.show(init);
@@ -62,7 +62,7 @@ class Config extends DragPanel {
 	add_tab(name){
 		var tab = new Tab(name, this);
 		
-		this.sections.add(tab);
+		this.tabs.add(tab);
 		
 		return tab;
 	}

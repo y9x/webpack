@@ -22,7 +22,7 @@ class Tab {
 	interact(){
 		this.show();
 		
-		for(let section of this.panel.sections)if(section != this)section.hide();
+		for(let section of this.panel.tabs)if(section != this)section.hide();
 	}
 	get visible(){
 		return !this.node.classList.contains('hidden');
