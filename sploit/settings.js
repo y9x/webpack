@@ -185,7 +185,7 @@ var Game = menu.add_tab('Game');
 
 Game.add_control('Proxy', {
 	type: 'boolean',
-	walk: 'game.auto_proxy',
+	walk: 'game.proxy',
 });
 
 Game.add_control('Auto Activate Nuke', {
