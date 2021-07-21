@@ -146,21 +146,39 @@ class Main {
 		}*/
 		
 		loader.on('instruct', has => {
-			if(has('connection banned 0x2') && this.config.game.proxy)return location.assign('/');
-			else if(this.config.game.error_tips){
-				if(has('connection banned 0x2'))localStorage.removeItem('krunker_token'), UI.alert([
-					`<p>You were IP banned, Sploit has signed you out.\nSpoof your IP to bypass this ban with one of the following:</p>`,
-					`<ul>`,
-						`<li>Using your mobile hotspot</li>`,
-						...proxy_addons.filter(data => data[supported_store]).map(data => `<li><a target='_blank' href=${JSON.stringify(data[supported_store])}>${data.name}</a></li>`),
-						`<li>Use a <a target="_blank" href=${JSON.stringify(addon_url('Proxy VPN'))}>Search for a VPN</a></li>`,
-					`</ul>`,
-				].join(''));
-				else if(has('banned - '))UI.alert(
-					`<p>You were banned from this match. Find a new game to bypass this.</p>`,
+			if(this.config.game.error_tips){
+				if(has('connection banned 0x2')){
+					if(this.config.game.proxy)UI.alert(
+						`<p>Your region's proxy was banned.</p>
+						<p>To bypass this ban, try one of the following:</p>
+						<ul>
+							<li><a href='/'>Find a new match</a></li>
+							<li><a href='#' onclick='showWindow(1)'>Change your region</a></li>
+						</ul>`
+					);
+					else{
+						let proxy_list = proxy_addons.filter(data => data[supported_store]).map(data => 
+							`<li><a target='_blank' href=${JSON.stringify(data[supported_store])}>${data.name}</a></li>`
+						).join('');
+						
+						localStorage.removeItem('krunker_token');
+						
+						UI.alert(
+							`<p>You were IP banned, Sploit has signed you out.\nSpoof your IP to bypass this ban with one of the following:</p>
+							<ul>
+								<li>Using your mobile hotspot</li>
+								${proxy_list}
+								<li>Use a <a target="_blank" href=${JSON.stringify(addon_url('Proxy VPN'))}>Search for a VPN</a></li>
+							</ul>`
+						);
+					}
+				}else if(has('banned - '))UI.alert(
+					`<p>You were banned from the match.</p>
+					<p>Find a new game to bypass this.</p>`
 				).then(() => location.assign('/'));
 				else if(has('banned'))localStorage.removeItem('krunker_token'), UI.alert(
-					`<p>You were banned, Sploit has signed you out.\nCreate a new account to bypass this ban.</p>`,
+					`<p>You were banned, Sploit has signed you out.</p>
+					<p>Create a new account to bypass this ban.</p>`
 				).then(() => location.assign('/'));
 			}
 			
