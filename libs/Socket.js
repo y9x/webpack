@@ -18,7 +18,7 @@ module.exports = inter => {
 	
 	class HWebSocket extends WebSocket {
 		constructor(url, proto){
-			if(inter.auto_proxy)url = 'wss://' + (proxy_regions[localStorage.kro_setngss_defaultRegion] || 'mia') + '.browserfps.com/ws?redirect=' + btoa(url);
+			if(inter.proxy)url = 'wss://' + (proxy_regions[localStorage.kro_setngss_defaultRegion] || 'mia') + '.browserfps.com/ws?redirect=' + btoa(url);
 			
 			super(url, proto);
 			
