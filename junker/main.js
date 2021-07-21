@@ -44,7 +44,7 @@ class Main {
 		this.menu = require('./settings.js');
 		
 		loader.on('instruct', has => {	
-			/*if(has('connection banned 0x2') && this.config.game.proxy)return location.assign('/');
+			/*if(has('connection banned') && this.config.game.proxy)return location.assign('/');
 			else */if(this.config.game.auto_lobby && has('connection error', 'game is full', 'kicked by vote', 'disconnected'))location.href = '/';
 			else if(this.config.game.auto_start && has('to play') && (!this.player || !this.player.active)){
 				this.controls.locklessChange(true);
