@@ -345,7 +345,7 @@ menu.add_preset('Default', {
 		hitchance: 100,
 		// percentage of screen
 		fov_box: false,
-		fov: 60,
+		fov: 50,
 		wallbangs: false,
 		auto_reload: false,
 		force_auto: false,
