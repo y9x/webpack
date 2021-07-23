@@ -10,7 +10,7 @@ var path = require('path'),
 	dist = path.join(__dirname, 'dist'),
 	serve = path.join(dist, 'serve'),
 	wp_mode = production ? 'production' : 'development',
-	{ errors, ModifyPlugin } = require('./webpack/utils'),
+	{ ModifyPlugin, errors } = require('./webpack/ModifyPlugin'),
 	terser = {
 		optimization: {
 			minimize: production,
@@ -45,7 +45,8 @@ var create_script = (basename, served) => {
 		plugins: [
 			new ModifyPlugin({
 				file: basename + '.user.js',
-				get prefix(){
+				stage: 'result',
+				prefix(){
 					var addon = served ? {
 						description: 'This script is served by the auto updater, do not use it outside of development.',
 						extracted: new Date().toGMTString(),	
@@ -58,9 +59,9 @@ var create_script = (basename, served) => {
 						noframes: null,
 					}) + '\n\n';
 				},
-				replace: {
-					SCRIPTS_URL: JSON.stringify(SCRIPTS_URL),
-				},
+				replace: [
+					[ /SCRIPTS_URL/g, JSON.stringify(SCRIPTS_URL) ],
+				],
 			}),
 		],
 		...terser,
