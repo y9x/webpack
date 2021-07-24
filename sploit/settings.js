@@ -7,11 +7,11 @@ var { api, utils, meta, loader } = require('../libs/consts.js'),
 	Request = require('../libs/Request'),
 	menu = new UI.Config('Sploit', 'config'),
 	binds = {
-		toggle: new Keybind().add_callback(() => {
+		toggle: new Keybind().callback(() => {
 			if(menu.visible)menu.hide();
 			else document.exitPointerLock(), menu.show();
 		}),
-		reset: new Keybind().add_callback(() => menu.load_preset('Default', {
+		reset: new Keybind().callback(() => menu.load_preset('Default', {
 			binds: menu.menu.binds,
 		})),
 	};

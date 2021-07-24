@@ -5,7 +5,10 @@ var UI = require('../libs/FloatUI'),
 	Input = require('../libs/Input'),
 	Socket = require('../libs/Socket'),
 	Player = require('../libs/Player'),
+	Keybind = require('../libs/Keybind'),
 	{ utils, proxy_addons, supported_store, addon_url, meta, store, loader } = require('../libs/consts');
+
+new Keybind('F4', () => location.assign('/'));
 
 class Main {
 	constructor(){
