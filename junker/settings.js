@@ -33,6 +33,7 @@ menu.add_preset('Default', {
 		friendly: '#00FF00',
 	},
 	aim: {
+		precise_calc: false,
 		status: 'off',
 		auto_reload: false,
 		fov: 60,
@@ -87,6 +88,7 @@ menu.add_preset('Rage', {
 		tracers: true,
 	},
 	aim: {
+		precise_calc: true,
 		status: 'auto',
 		fov: 110,
 		smooth: 0,
@@ -268,6 +270,11 @@ Aimbot.add_control('Wallbangs', {
 Aimbot.add_control('Spinbot', {
 	type: 'boolean',
 	walk: 'aim.spinbot',
+});
+
+Aimbot.add_control('Precise Math', {
+	type: 'boolean',
+	walk: 'aim.precise_calc',
 });
 
 var Player = menu.window.add_tab('Player');

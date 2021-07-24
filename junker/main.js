@@ -140,6 +140,9 @@ class Main {
 			get proxy(){
 				return self.config.game.proxy;
 			},
+			get precise_calc(){
+				return self.config.aim.precise_calc;
+			},
 		};		
 	}
 	async load(){

@@ -157,6 +157,11 @@ Weapon.add_control('Auto reload', {
 	walk: 'aim.auto_reload',
 });
 
+Weapon.add_control('Precise Math', {
+	type: 'boolean',
+	walk: 'aim.precise_calc',
+});
+
 var Player = menu.add_tab('Player');
 
 Player.add_control('Auto Bhop Mode', {
@@ -338,6 +343,7 @@ menu.add_preset('Default', {
 		reset: null,
 	},
 	aim: {
+		precise_calc: false,
 		status: 'off',
 		offset: 'random',
 		target_sorting: 'dist2d',
@@ -398,6 +404,7 @@ menu.add_preset('Rage', {
 		tracers: true,
 	},
 	aim: {
+		precise_calc: true,
 		status: 'auto',
 		fov: 110,
 		smooth: 0,

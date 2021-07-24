@@ -223,7 +223,7 @@ class Player {
 	calc_parts(){
 		if(!this.active || this.is_you)return this.can_target = false;
 		
-		if(this.aim_point && (this.dont_calc++) % (this.calc_ticks + 1) != 0)return;
+		if(!this.data.precise_calc && this.aim_point && (this.dont_calc++) % (this.calc_ticks + 1) != 0)return;
 		
 		var head_size = 1.5,
 			chest_box = new utils.three.Box3().setFromObject(this.chest),
