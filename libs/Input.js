@@ -67,14 +67,10 @@ class Input {
 		var x_ang = utils.getAngleDst(data.xdir_n, target.x),
 			y_ang = utils.getAngleDst(data.ydir_n, target.y);
 		
-		var rot = {
+		return {
 			y: data.ydir_n + y_ang * speed,
 			x: data.xdir_n + x_ang * turn,
 		};
-		
-		console.log(target.y, rot.y);
-		
-		return rot;
 	}
 	bhop(data){
 		if(data.move_dir == -1)return;
