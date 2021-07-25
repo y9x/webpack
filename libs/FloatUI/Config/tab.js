@@ -13,9 +13,15 @@ class Tab {
 		
 		this.controls = new Set();
 		
-		this.button = utils.add_ele('div', this.panel.sidebar_con, { className: 'open', textContent: this.name });
-		
-		this.button.addEventListener('click', () => this.interact());
+		this.button = utils.add_ele('div', this.panel.sidebar_con, {
+			className: 'open',
+			textContent: this.name,
+			events: {
+				click(){
+					this.interact();
+				},
+			},
+		});
 		
 		this.hide();
 	}
@@ -28,6 +34,11 @@ class Tab {
 		return !this.node.classList.contains('hidden');
 	}
 	update(init){
+		if(init){
+			console.trace(init);
+			debugger;
+		}
+		
 		for(let control of this.controls)try{
 			control.emit('change', control.value, init);
 			
