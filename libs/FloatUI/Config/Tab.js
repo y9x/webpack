@@ -17,7 +17,7 @@ class Tab {
 			className: 'open',
 			textContent: this.name,
 			events: {
-				click(){
+				click: () => {
 					this.interact();
 				},
 			},
@@ -34,11 +34,6 @@ class Tab {
 		return !this.node.classList.contains('hidden');
 	}
 	update(init){
-		if(init){
-			console.trace(init);
-			debugger;
-		}
-		
 		for(let control of this.controls)try{
 			control.emit('change', control.value, init);
 			

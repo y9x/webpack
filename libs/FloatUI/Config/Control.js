@@ -68,8 +68,11 @@ EventLite.mixin(Control.prototype);
 class BooleanControl extends Control {
 	static id = 'boolean';
 	create(){
-		this.input = utils.add_ele('ez-checkbox', this.content);
-		this.input.addEventListener('change', () => this.value = this.input.checked);
+		this.input = utils.add_ele('ez-checkbox', this.content, {
+			events: {
+				change: () => this.value = this.input.checked,
+			},
+		});
 	}
 	interact(){
 		this.value = !this.value;
@@ -82,9 +85,11 @@ class BooleanControl extends Control {
 class RotateControl extends Control {
 	static id = 'rotate';
 	create(){
-		this.select = utils.add_ele('ez-select', this.content);
-		
-		this.select.addEventListener('change', () => this.value = this.select.value);
+		this.select = utils.add_ele('ez-select', this.content, {
+			events: {
+				change: () => this.value = this.select.value,
+			},
+		});
 		
 		for(let value in this.data.value)utils.add_ele('ez-option', this.select, {
 			textContent: this.data.value[value],
