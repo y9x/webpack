@@ -110,7 +110,7 @@ render.control('Draw FOV box', {
 	walk: 'aim.fov_box',
 });
 
-var ESP = render.add_category('ESP');
+var ESP = render.category('ESP');
 
 ESP.control('Mode', {
 	type: 'select',
@@ -154,7 +154,7 @@ ESP.control('Rainbow Color', {
 	walk: 'colors.rainbow',
 });
 
-var UI = render.add_category('UI');
+var UI = render.category('UI');
 
 var css = utils.add_ele('link', () => document.documentElement, { rel: 'stylesheet' }); 
 
@@ -201,7 +201,7 @@ UI.control('Show Security Button', {
 
 var Weapon = menu.window.tab('Weapon');
 
-var Patches = Weapon.add_category('Patches');
+var Patches = Weapon.category('Patches');
 
 Patches.control('Auto Reload', {
 	type: 'boolean',
@@ -213,7 +213,7 @@ Patches.control('Force auto-fire', {
 	walk: 'aim.force_auto',
 });
 
-var Aimbot = Weapon.add_category('Aimbot');
+var Aimbot = Weapon.category('Aimbot');
 
 Aimbot.control('Mode', {
 	type: 'select',

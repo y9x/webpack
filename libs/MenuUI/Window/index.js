@@ -90,7 +90,7 @@ class Window {
 	hide(){
 		this.content.style.display = 'none';
 	}
-	get tab(){
+	get main_tab(){
 		var first;
 		
 		for(let tab of this.tabs){
@@ -103,10 +103,10 @@ class Window {
 	update(init){
 		for(let tab of this.tabs){
 			tab.update(init);
-			if(tab != this.tab)tab.hide();
+			if(tab != this.main_tab)tab.hide();
 		}
 		
-		this.tab.show();
+		this.main_tab.show();
 	}
 };
 

@@ -24,7 +24,7 @@ class Tab {
 		
 		this.hide();
 	}
-	add_category(label){
+	category(label){
 		var category = this.last_category = new Category(this, label);
 		
 		this.categories.add(category);
@@ -35,7 +35,7 @@ class Tab {
 		var category = this.last_category;
 		
 		if(!category || !category.is_default){
-			category = this.add_category();
+			category = this.category();
 			category.is_default = true;
 		}
 		
