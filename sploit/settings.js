@@ -132,7 +132,7 @@ Weapon.add_control('Smoothness', {
 Weapon.add_control('Hitchance', {
 	type: 'slider',
 	walk: 'aim.hitchance',
-	min: 0,
+	min: 10,
 	max: 100,
 	step: 10,
 });
