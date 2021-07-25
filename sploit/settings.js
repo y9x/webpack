@@ -391,7 +391,7 @@ menu.add_preset('Assist', {
 		status: 'assist',
 		fov: 25,
 		offset: 'random',
-		smooth: 0.6,
+		smooth: 0.5,
 	},
 	player: {
 		bhop: 'keyslide',
