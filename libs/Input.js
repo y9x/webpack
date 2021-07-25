@@ -49,11 +49,13 @@ class Input {
 		// make amount of radians the aimbot sets relative to the amount of radians the camera is at
 		// means nothing when shooting but visually twists the player
 		
-		var ret = ~~((data.ydir / 1000) / Math.PI);
+		/*var ret = ~~((data.ydir / 1000) / Math.PI);
 		
 		// if((this.testtick++ % 8) == 0)console.log(ret, data.ydir / 1000)
 		
-		rot.y += (ret * Math.PI) * 1000;
+		rot.y += (ret * Math.PI) * 1000;*/
+		
+		data.ydir %= Math.PI * 2000;
 	}
 	aim_camera(rot, data){
 		this.rel_radians(rot, data);
@@ -189,7 +191,6 @@ class Input {
 			this.data.player.shot = true;
 			setTimeout(() => this.data.player.shot = false, this.data.player.weapon.rate + 2);
 		}else if(this.data.spinbot)this.spinbot(data);
-		
 	}
 };
 

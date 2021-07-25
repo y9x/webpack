@@ -8,8 +8,8 @@ var { Vector3, Hex } = require('../libs/Space'),
 setInterval(() => random_target = Math.random(), 2000);
 
 class Player {
-	// every x ticks calculate heavy pos data
 	part_keys = [ 'head', 'torso', 'legs' ];
+	// every x ticks calculate heavy pos data
 	calc_ticks = 2;
 	constructor(data, entity){
 		this.data = data;
