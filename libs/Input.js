@@ -39,10 +39,25 @@ class Input {
 		return array;
 	}
 	aim_input(rot, data){
+		this.rel_radians(rot, data);
+		
 		data.xdir = rot.x * 1000;
 		data.ydir = rot.y * 1000;
 	}
+	testtick = 0;
+	rel_radians(rot, data){
+		// make amount of radians the aimbot sets relative to the amount of radians the camera is at
+		// means nothing when shooting but visually twists the player
+		
+		var ret = ~~((data.ydir / 1000) / Math.PI);
+		
+		// if((this.testtick++ % 8) == 0)console.log(ret, data.ydir / 1000)
+		
+		rot.y += (ret * Math.PI) * 1000;
+	}
 	aim_camera(rot, data){
+		this.rel_radians(rot, data);
+		
 		// updating camera will make a difference next tick, update current tick with aim_input
 		this.data.controls[vars.pchObjc].rotation.x = rot.x;
 		this.data.controls.object.rotation.y = rot.y;
@@ -105,6 +120,8 @@ class Input {
 		}
 	}
 	modify(data){
+		// this.rel_radians({}, data);
+		
 		if(this.data.spinbot){
 			data.crouch = data.move_dir == -1;
 			data.scope = data.scope || data.crouch;
