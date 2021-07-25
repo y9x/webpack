@@ -10,7 +10,7 @@ setInterval(() => random_target = Math.random(), 2000);
 class Player {
 	// every x ticks calculate heavy pos data
 	part_keys = [ 'head', 'torso', 'legs' ];
-	calc_ticks = 4;
+	calc_ticks = 2;
 	constructor(data, entity){
 		this.data = data;
 		this.entity = typeof entity == 'object' && entity != null ? entity : {};
