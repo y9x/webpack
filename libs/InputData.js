@@ -31,6 +31,20 @@ class InputData {
 	get focused(){
 		return document.pointerLockElement != null;
 	}
+	get xdir_n(){
+		return this.xdir / 1000;
+	}
+	set xdir_n(value){
+		this.xdir = value * 1000;
+		return value;
+	}
+	get ydir_n(){
+		return this.ydir / 1000;
+	}
+	set ydir_n(value){
+		this.ydir = value * 1000;
+		return value;
+	}
 };
 
 document.addEventListener('keydown', event => keys.add(event.code));

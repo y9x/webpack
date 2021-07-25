@@ -39,27 +39,10 @@ class Input {
 		return array;
 	}
 	aim_input(rot, data){
-		this.rel_radians(rot, data);
-		
-		data.xdir = rot.x * 1000;
-		data.ydir = rot.y * 1000;
-	}
-	testtick = 0;
-	rel_radians(rot, data){
-		// make amount of radians the aimbot sets relative to the amount of radians the camera is at
-		// means nothing when shooting but visually twists the player
-		
-		/*var ret = ~~((data.ydir / 1000) / Math.PI);
-		
-		// if((this.testtick++ % 8) == 0)console.log(ret, data.ydir / 1000)
-		
-		rot.y += (ret * Math.PI) * 1000;*/
-		
-		data.ydir %= Math.PI * 2000;
+		data.xdir_n = rot.x;
+		data.ydir_n = rot.y;
 	}
 	aim_camera(rot, data){
-		this.rel_radians(rot, data);
-		
 		// updating camera will make a difference next tick, update current tick with aim_input
 		this.data.controls[vars.pchObjc].rotation.x = rot.x;
 		this.data.controls.object.rotation.y = rot.y;
@@ -80,16 +63,18 @@ class Input {
 		
 		if(this.data.player.aimed && raycaster.intersectObjects(this.data.players.filter(ent => ent.can_target).map(ent => ent.obj), true).length)return true;
 	}
-	smooth(target, speed, turn){
-		var x_ang = utils.getAngleDst(this.data.controls[vars.pchObjc].rotation.x, target.x),
-			y_ang = utils.getAngleDst(this.data.controls.object.rotation.y, target.y);
+	smooth(data, target, speed, turn){
+		var x_ang = utils.getAngleDst(data.xdir_n, target.x),
+			y_ang = utils.getAngleDst(data.ydir_n, target.y);
 		
-		// camChaseSpd used on .object
-		
-		return {
-			y: this.data.controls.object.rotation.y + y_ang * speed,
-			x: this.data.controls[vars.pchObjc].rotation.x + x_ang * turn,
+		var rot = {
+			y: data.ydir_n + y_ang * speed,
+			x: data.xdir_n + x_ang * turn,
 		};
+		
+		console.log(target.y, rot.y);
+		
+		return rot;
 	}
 	bhop(data){
 		if(data.move_dir == -1)return;
@@ -122,8 +107,6 @@ class Input {
 		}
 	}
 	modify(data){
-		// this.rel_radians({}, data);
-		
 		if(this.data.spinbot){
 			data.crouch = data.move_dir == -1;
 			data.scope = data.scope || data.crouch;
@@ -177,7 +160,7 @@ class Input {
 				
 				let turn = this.smooth_map[+Math.min(this.data.aim_smooth * 3, 1).toFixed(1)];
 				
-				rot = this.smooth(rot, speed, turn);
+				rot = this.smooth(data, rot, speed, turn);
 				
 				this.aim_camera(rot, data);
 				
