@@ -92,8 +92,8 @@ class BooleanControl extends Control {
 	}
 }
 
-class RotateControl extends Control {
-	static id = 'rotate';
+class SelectControl extends Control {
+	static id = 'select';
 	create(){
 		this.select = utils.add_ele('select', this.content, { className: 'inputGrey2' });
 		
@@ -260,7 +260,7 @@ class ColorControl extends Control {
 
 Control.Types = [
 	KeybindControl,
-	RotateControl,
+	SelectControl,
 	BooleanControl,
 	FunctionControl,
 	LinkControl,

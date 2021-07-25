@@ -167,3 +167,12 @@ ez-button {
 	width: 100%;
 	height: 30px;
 }
+
+input[type='color'] {
+	margin-left: auto;
+	width: 40px;
+	height: 25px;
+	padding: 0px;
+	border: 0px;
+	background: transparent;
+}

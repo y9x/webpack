@@ -27,7 +27,8 @@ menu.add_preset('Default', {
 		wireframe: false,
 		rainbow: false,
 	},
-	color: {
+	colors: {
+		rainbow: false,
 		risk: '#FF7700',
 		hostile: '#FF0000',
 		friendly: '#00FF00',
@@ -102,17 +103,17 @@ menu.add_preset('Rage', {
 	},
 });
 
-var render = menu.window.add_tab('Render');
+var render = menu.window.tab('Render');
 
-render.add_control('Draw FOV box', {
+render.control('Draw FOV box', {
 	type: 'boolean',
 	walk: 'aim.fov_box',
 });
 
 var ESP = render.add_category('ESP');
 
-ESP.add_control('Mode', {
-	type: 'rotate',
+ESP.control('Mode', {
+	type: 'select',
 	walk: 'esp.status',
 	value: {
 		off: 'Off',
@@ -123,41 +124,41 @@ ESP.add_control('Mode', {
 	},
 });
 
-ESP.add_control('Hostile Color', {
-	type: 'color',
-	walk: 'color.hostile',
-});
-
-ESP.add_control('Risk Color', {
-	type: 'color',
-	walk: 'color.risk',
-});
-
-ESP.add_control('Friendly Color', {
-	type: 'color',
-	walk: 'color.friendly',
-});
-
-ESP.add_control('Tracers', {
+ESP.control('Tracers', {
 	type: 'boolean',
 	walk: 'esp.tracers',
 });
 
-ESP.add_control('Wireframe', {
+ESP.control('Wireframe', {
 	type: 'boolean',
 	walk: 'esp.wireframe',
 });
 
-ESP.add_control('Rainbow Color', {
+ESP.control('Hostile Color', {
+	type: 'color',
+	walk: 'colors.hostile',
+});
+
+ESP.control('Risk Color', {
+	type: 'color',
+	walk: 'colors.risk',
+});
+
+ESP.control('Friendly Color', {
+	type: 'color',
+	walk: 'colors.friendly',
+});
+
+ESP.control('Rainbow Color', {
 	type: 'boolean',
-	walk: 'esp.rainbow',
+	walk: 'colors.rainbow',
 });
 
 var UI = render.add_category('UI');
 
 var css = utils.add_ele('link', () => document.documentElement, { rel: 'stylesheet' }); 
 
-UI.add_control('Custom CSS', {
+UI.control('Custom CSS', {
 	type: 'textbox',
 	walk: 'ui.css',
 	placeholder: 'CSS Url',
@@ -165,7 +166,7 @@ UI.add_control('Custom CSS', {
 	if(value != '')css.href = value;
 });
 
-UI.add_control('Show Menu Button ( [F1] to show )', {
+UI.control('Show Menu Button ( [F1] to show )', {
 	type: 'boolean',
 	walk: 'ui.show_button',
 }).on('change', value => {
@@ -173,49 +174,49 @@ UI.add_control('Show Menu Button ( [F1] to show )', {
 	else menu.button.hide();
 });
 
-UI.add_control('Show Advertisments', {
+UI.control('Show Advertisments', {
 	type: 'boolean',
 	walk: 'ui.show_adverts',
 }).on('change', async value => (await doc_body).classList[value ? 'remove' : 'add']('hide-adverts'));
 
-UI.add_control('Show Streams', {
+UI.control('Show Streams', {
 	type: 'boolean',
 	walk: 'ui.show_streams',
 }).on('change', async value => (await doc_body).classList[value ? 'remove' : 'add']('hide-streams'));
 
-UI.add_control('Show Merch', {
+UI.control('Show Merch', {
 	type: 'boolean',
 	walk: 'ui.show_merch',
 }).on('change', async value => (await doc_body).classList[value ? 'remove' : 'add']('hide-merch'));
 
-UI.add_control('Show News Console', {
+UI.control('Show News Console', {
 	type: 'boolean',
 	walk: 'ui.show_news',
 }).on('change', async value => (await doc_body).classList[value ? 'remove' : 'add']('hide-news'));
 
-UI.add_control('Show Security Button', {
+UI.control('Show Security Button', {
 	type: 'boolean',
 	walk: 'ui.show_cookie',
 }).on('change', async value => (await doc_body).classList[value ? 'remove' : 'add']('hide-security'));
 
-var Weapon = menu.window.add_tab('Weapon');
+var Weapon = menu.window.tab('Weapon');
 
 var Patches = Weapon.add_category('Patches');
 
-Patches.add_control('Auto Reload', {
+Patches.control('Auto Reload', {
 	type: 'boolean',
 	walk: 'aim.auto_reload',
 });
 
-Patches.add_control('Force auto-fire', {
+Patches.control('Force auto-fire', {
 	type: 'boolean',
 	walk: 'aim.force_auto',
 });
 
 var Aimbot = Weapon.add_category('Aimbot');
 
-Aimbot.add_control('Mode', {
-	type: 'rotate',
+Aimbot.control('Mode', {
+	type: 'select',
 	walk: 'aim.status',
 	value: {
 		off: 'Off',
@@ -226,8 +227,8 @@ Aimbot.add_control('Mode', {
 	},
 });
 
-Aimbot.add_control('Offset', {
-	type: 'rotate',
+Aimbot.control('Offset', {
+	type: 'select',
 	walk: 'aim.offset',
 	value: {
 		head: 'Head',
@@ -237,7 +238,7 @@ Aimbot.add_control('Offset', {
 	},
 });
 
-Aimbot.add_control('Smoothness', {
+Aimbot.control('Smoothness', {
 	type: 'slider',
 	walk: 'aim.smooth',
 	min: 0,
@@ -245,7 +246,7 @@ Aimbot.add_control('Smoothness', {
 	step: 0.1,
 });
 
-Aimbot.add_control('Hitchance', {
+Aimbot.control('Hitchance', {
 	type: 'slider',
 	walk: 'aim.hitchance',
 	min: 10,
@@ -253,7 +254,7 @@ Aimbot.add_control('Hitchance', {
 	step: 10,
 });
 
-Aimbot.add_control('FOV', {
+Aimbot.control('FOV', {
 	type: 'slider',
 	walk: 'aim.fov',
 	min: 10,
@@ -262,25 +263,25 @@ Aimbot.add_control('FOV', {
 	labels: { 110: 'Inf' },
 });
 
-Aimbot.add_control('Wallbangs', {
+Aimbot.control('Wallbangs', {
 	type: 'boolean',
 	walk: 'aim.wallbangs',
 });
 
-Aimbot.add_control('Spinbot', {
+Aimbot.control('Spinbot', {
 	type: 'boolean',
 	walk: 'aim.spinbot',
 });
 
-Aimbot.add_control('Precise Math', {
+Aimbot.control('Precise Math', {
 	type: 'boolean',
 	walk: 'aim.precise_calc',
 });
 
-var Player = menu.window.add_tab('Player');
+var Player = menu.window.tab('Player');
 
-Player.add_control('Auto Bhop Mode', {
-	type: 'rotate',
+Player.control('Auto Bhop Mode', {
+	type: 'select',
 	walk: 'player.bhop',
 	value: {
 		off: 'Off',
@@ -291,42 +292,42 @@ Player.add_control('Auto Bhop Mode', {
 	},
 });
 
-Player.add_control('Unlock Skins', {
+Player.control('Unlock Skins', {
 	type: 'boolean',
 	walk: 'player.skins',
 });
 
-var Game = menu.window.add_tab('Game');
+var Game = menu.window.tab('Game');
 
-Game.add_control('Proxy', {
+Game.control('Proxy', {
 	type: 'boolean',
 	walk: 'game.proxy',
 }).on('change', (value, init) => !init && location.assign('/'));
 
-Game.add_control('Auto Activate Nuke', {
+Game.control('Auto Activate Nuke', {
 	type: 'boolean',
 	walk: 'game.auto_nuke',
 });
 
-Game.add_control('Auto Start Match', {
+Game.control('Auto Start Match', {
 	type: 'boolean',
 	walk: 'game.auto_start',
 });
 
-Game.add_control('New Lobby Finder', {
+Game.control('New Lobby Finder', {
 	type: 'boolean',
 	walk: 'game.auto_lobby',
 });
 
-Game.add_control('No Inactivity kick', {
+Game.control('No Inactivity kick', {
 	type: 'boolean',
 	walk: 'game.inactivity',
 });
 
-var Radio = menu.window.add_tab('Radio');
+var Radio = menu.window.tab('Radio');
 
-Radio.add_control('Stream', {
-	type: 'rotate',
+Radio.control('Stream', {
+	type: 'select',
 	walk: 'radio.stream',
 	value: {
 		'off': 'Off',
@@ -371,7 +372,7 @@ Radio.add_control('Stream', {
 	this.audio.play();
 });
 
-Radio.add_control('Radio Volume', {
+Radio.control('Radio Volume', {
 	type: 'slider',
 	walk: 'radio.volume',
 	min: 0,
@@ -379,9 +380,9 @@ Radio.add_control('Radio Volume', {
 	step: 0.05,
 });
 
-var Dev = menu.window.add_tab('Dev');
+var Dev = menu.window.tab('Dev');
 
-Dev.add_control('Save Game Script', {
+Dev.control('Save Game Script', {
 	type: 'function',
 	value(){
 		var link = utils.add_ele('a', document.documentElement, { href: Request.resolve({

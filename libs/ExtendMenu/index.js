@@ -21,7 +21,7 @@ class Controls {
 		
 		return html;
 	}
-	add_control(name, data){
+	control(name, data){
 		for(let type of Control.Types)if(type.id == data.type){
 			let control = new type(name, data);
 			

@@ -63,10 +63,7 @@ class Main {
 				return self.config.aim.force_auto;
 			},
 			get color(){
-				return self.config.color;
-			},
-			get rainbow(){
-				return self.config.esp.rainbow;
+				return self.config.colors;
 			},
 			get controls(){
 				return self.controls;

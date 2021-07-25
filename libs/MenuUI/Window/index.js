@@ -74,7 +74,7 @@ class Window {
 			}
 		}
 	}
-	add_tab(label){
+	tab(label){
 		var tab = new Tab(this, label);
 		
 		this.tabs.add(tab);

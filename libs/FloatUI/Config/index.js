@@ -59,7 +59,7 @@ class Config extends DragPanel {
 		
 		this.title_right.textContent = [ 'F1', this.config.binds.toggle ].map(utils.string_key).join(' / ');
 	}
-	add_tab(name){
+	tab(name){
 		var tab = new Tab(name, this);
 		
 		this.tabs.add(tab);

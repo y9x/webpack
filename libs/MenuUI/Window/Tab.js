@@ -31,7 +31,7 @@ class Tab {
 		
 		return category;
 	}
-	add_control(...args){
+	control(...args){
 		var category = this.last_category;
 		
 		if(!category || !category.is_default){
@@ -39,7 +39,7 @@ class Tab {
 			category.is_default = true;
 		}
 		
-		return category.add_control(...args);
+		return category.control(...args);
 	}
 	update(init){
 		for(let category of this.categories)category.update(init);

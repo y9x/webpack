@@ -57,7 +57,7 @@ class Tab {
 		
 		this.node.classList.add('hidden');
 	}
-	add_control(name, data){
+	control(name, data){
 		if(typeof data == 'undefined' && typeof name == 'object')data = name, name = '';
 		
 		for(let type of Control.Types)if(type.id == data.type){

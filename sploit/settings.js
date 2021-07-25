@@ -16,11 +16,11 @@ var { api, utils, meta, loader } = require('../libs/consts.js'),
 		})),
 	};
 
-var Render = menu.add_tab('Render');
+var Render = menu.tab('Render');
 
-Render.add_control('ESP Mode', {
+Render.control('ESP Mode', {
 	name: 'ESP Mode',
-	type: 'rotate',
+	type: 'select',
 	walk: 'esp.status',
 	value: {
 		off: 'Off',
@@ -31,22 +31,22 @@ Render.add_control('ESP Mode', {
 	},
 });
 
-Render.add_control('Nametags', {
+Render.control('Nametags', {
 	type: 'boolean',
 	walk: 'esp.nametags',
 });
 
-Render.add_control('Tracers', {
+Render.control('Tracers', {
 	type: 'boolean',
 	walk: 'esp.tracers',
 });
 
-Render.add_control('Wireframe', {
+Render.control('Wireframe', {
 	type: 'boolean',
 	walk: 'esp.wireframe',
 });
 
-Render.add_control('Wall Opacity', {
+Render.control('Wall Opacity', {
 	type: 'slider',
 	walk: 'esp.walls',
 	min: 0,
@@ -54,25 +54,45 @@ Render.add_control('Wall Opacity', {
 	step: 10,
 });
 
-Render.add_control('Overlay', {
+Render.control('Overlay', {
 	type: 'boolean',
 	walk: 'game.overlay',
 });
 
-Render.add_control('Rainbow Colors', {
+Render.control('Rainbow Colors', {
 	type: 'boolean',
 	walk: 'esp.rainbow',
 });
 
-Render.add_control('Custom CSS', {
+Render.control('Custom CSS', {
 	type: 'function',
 	value(){ menu.css_editor.show() },
 });
 
-var Weapon = menu.add_tab('Weapon');
+Render.control('Hostile Color', {
+	type: 'color',
+	walk: 'colors.hostile',
+});
 
-Weapon.add_control('Aimbot Mode', {
-	type: 'rotate',
+Render.control('Risk Color', {
+	type: 'color',
+	walk: 'colors.risk',
+});
+
+Render.control('Friendly Color', {
+	type: 'color',
+	walk: 'colors.friendly',
+});
+
+Render.control('Rainbow Color', {
+	type: 'boolean',
+	walk: 'colors.rainbow',
+});
+
+var Weapon = menu.tab('Weapon');
+
+Weapon.control('Aimbot Mode', {
+	type: 'select',
 	walk: 'aim.status',
 	value: {
 		off: 'Off',
@@ -83,8 +103,8 @@ Weapon.add_control('Aimbot Mode', {
 	},
 });
 
-Weapon.add_control('Target', {
-	type: 'rotate',
+Weapon.control('Target', {
+	type: 'select',
 	walk: 'aim.offset',
 	value: {
 		head: 'Head',
@@ -94,8 +114,8 @@ Weapon.add_control('Target', {
 	},
 });
 
-Weapon.add_control('Target Sorting', {
-	type: 'rotate',
+Weapon.control('Target Sorting', {
+	type: 'select',
 	walk: 'aim.target_sorting',
 	value: {
 		dist2d: 'Crosshair',
@@ -104,12 +124,12 @@ Weapon.add_control('Target Sorting', {
 	},
 });
 
-Weapon.add_control('Draw Target FOV', {
+Weapon.control('Draw Target FOV', {
 	type: 'boolean',
 	walk: 'aim.fov_box',
 });
 
-Weapon.add_control('Target FOV', {
+Weapon.control('Target FOV', {
 	type: 'slider',
 	walk: 'aim.fov',
 	min: 5,
@@ -120,7 +140,7 @@ Weapon.add_control('Target FOV', {
 	},
 });
 
-Weapon.add_control('Smoothness', {
+Weapon.control('Smoothness', {
 	type: 'slider',
 	walk: 'aim.smooth',
 	min: 0,
@@ -129,7 +149,7 @@ Weapon.add_control('Smoothness', {
 	labels: { 0: 'Off' },
 });
 
-Weapon.add_control('Hitchance', {
+Weapon.control('Hitchance', {
 	type: 'slider',
 	walk: 'aim.hitchance',
 	min: 10,
@@ -137,35 +157,35 @@ Weapon.add_control('Hitchance', {
 	step: 10,
 });
 
-Weapon.add_control('Wallbangs', {
+Weapon.control('Wallbangs', {
 	type: 'boolean',
 	walk: 'aim.wallbangs',
 });
 
-Weapon.add_control('Spinbot', {
+Weapon.control('Spinbot', {
 	type: 'boolean',
 	walk: 'aim.spinbot',
 });
 
-Weapon.add_control('Force auto-fire', {
+Weapon.control('Force auto-fire', {
 	type: 'boolean',
 	walk: 'aim.force_auto',
 });
 
-Weapon.add_control('Auto reload', {
+Weapon.control('Auto reload', {
 	type: 'boolean',
 	walk: 'aim.auto_reload',
 });
 
-Weapon.add_control('Precise Math', {
+Weapon.control('Precise Math', {
 	type: 'boolean',
 	walk: 'aim.precise_calc',
 });
 
-var Player = menu.add_tab('Player');
+var Player = menu.tab('Player');
 
-Player.add_control('Auto Bhop Mode', {
-	type: 'rotate',
+Player.control('Auto Bhop Mode', {
+	type: 'select',
 	walk: 'player.bhop',
 	value: {
 		off: 'Off',
@@ -176,66 +196,66 @@ Player.add_control('Auto Bhop Mode', {
 	},
 });
 
-Player.add_control('Unlock Skins', {
+Player.control('Unlock Skins', {
 	type: 'boolean',
 	walk: 'player.skins',
 });
 
-var Game = menu.add_tab('Game');
+var Game = menu.tab('Game');
 
-/*Game.add_control('Custom Loading Screen', {
+/*Game.control('Custom Loading Screen', {
 	type: 'boolean',
 	walk: 'game.custom_loading',
 });*/
 
-Game.add_control('Proxy', {
+Game.control('Proxy', {
 	type: 'boolean',
 	walk: 'game.proxy',
 }); // .on('change', (value, init) => !init && location.assign('/'));
 
-Game.add_control('Auto Activate Nuke', {
+Game.control('Auto Activate Nuke', {
 	type: 'boolean',
 	walk: 'game.auto_nuke',
 });
 
-Game.add_control('Auto Start Match', {
+Game.control('Auto Start Match', {
 	type: 'boolean',
 	walk: 'game.auto_start',
 });
 
-Game.add_control('New Lobby Finder', {
+Game.control('New Lobby Finder', {
 	type: 'boolean',
 	walk: 'game.auto_lobby',
 });
 
-Game.add_control('No Inactivity kick', {
+Game.control('No Inactivity kick', {
 	type: 'boolean',
 	walk: 'game.inactivity',
 });
 
-Game.add_control('Error code tips', {
+Game.control('Error code tips', {
 	type: 'boolean',
 	walk: 'game.error_tips',
 });
 
-var Info = menu.add_tab('Info');
+var Info = menu.tab('Info');
 
-Info.add_control('GitHub', {
+Info.control('GitHub', {
 	type: 'link',
 	value: meta.github,
 });
 
-Info.add_control('Discord', {
+Info.control('Discord', {
 	type: 'link',
 	value: meta.discord,
 });
 
-Info.add_control('Forum', {
+Info.control('Forum', {
 	type: 'link',
 	value: meta.forum,
 });
 
-Info.add_control('Download Game', {
+Info.control('Download Game', {
 	type: 'link',
 	value: Request.resolve({
 		target: loader.api,
@@ -244,9 +264,9 @@ Info.add_control('Download Game', {
 	}),
 });
 
-var Interface = menu.add_tab('Interface');
+var Interface = menu.tab('Interface');
 
-Interface.add_control({
+Interface.control({
 	type: 'functions',
 	value: {
 		Reset(){
@@ -274,8 +294,8 @@ Interface.add_control({
 	},
 });
 
-var Preset = Interface.add_control('Preset', {
-	type: 'rotate',
+var Preset = Interface.control('Preset', {
+	type: 'select',
 	value: {},
 }).select;
 
@@ -301,12 +321,12 @@ menu.on('config', () => {
 	Preset.value = 'Custom';
 });
 
-Interface.add_control('Menu Toggle', {
+Interface.control('Menu Toggle', {
 	type: 'keybind',
 	walk: 'binds.toggle',
 }).on('change', value => binds.toggle.set_key('F1', value));
 
-Interface.add_control('Reset settings', {
+Interface.control('Reset settings', {
 	type: 'keybind',
 	walk: 'binds.reset',
 }).on('change', value => binds.reset.set_key(value));
@@ -357,7 +377,8 @@ menu.add_preset('Default', {
 		force_auto: false,
 		spinbot: false,
 	},
-	color: {
+	colors: {
+		rainbow: false,
 		risk: '#FF7700',
 		hostile: '#FF0000',
 		friendly: '#00FF00',

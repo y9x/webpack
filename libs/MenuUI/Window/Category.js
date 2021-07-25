@@ -61,7 +61,7 @@ class Category {
 		this.update();
 		for(let control of this.controls)control.show_content();
 	}
-	add_control(name, data){
+	control(name, data){
 		for(let type of Control.Types)if(type.id == data.type){
 			let control = new type(name, data, this);
 			

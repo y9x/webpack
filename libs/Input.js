@@ -168,7 +168,7 @@ class Input {
 		
 		if(this.data.player.can_shoot && data.shoot && !this.data.player.shot){
 			this.data.player.shot = true;
-			setTimeout(() => this.data.player.shot = false, this.data.player.weapon.rate + 2);
+			setTimeout(() => this.data.player.shot = false, this.data.player.weapon.rate + 1);
 		}else if(this.data.spinbot)this.spinbot(data);
 	}
 };

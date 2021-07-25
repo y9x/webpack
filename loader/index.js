@@ -101,7 +101,7 @@ class Loader {
 		
 		for(let name in this.serve.scripts)vals[name] = name;
 		
-		var select = this.controls.add_control('Script', {
+		var select = this.controls.control('Script', {
 			type: 'rotate',
 			value: vals,
 			change: (init, value, set_val) => {

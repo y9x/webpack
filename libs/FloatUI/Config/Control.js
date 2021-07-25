@@ -82,8 +82,8 @@ class BooleanControl extends Control {
 	}
 };
 
-class RotateControl extends Control {
-	static id = 'rotate';
+class SelectControl extends Control {
+	static id = 'select';
 	create(){
 		this.select = utils.add_ele('ez-select', this.content, {
 			events: {
@@ -187,15 +187,33 @@ class SliderControl extends Control {
 	}
 };
 
+class ColorControl extends Control {
+	static id = 'color';
+	create(){
+		this.input = utils.add_ele('input', this.content, {
+			type: 'color',
+			events: {
+				change: () => this.value = this.input.value,
+			},
+		});
+	}
+	update(init){
+		super.update(init);
+		
+		if(init)this.input.value = this.value;
+	}
+};
+
 Control.Types = [
 	KeybindControl,
-	RotateControl,
+	SelectControl,
 	BooleanControl,
 	FunctionControl,
 	ManyFunctionsControl,
 	LinkControl,
 	TextBoxControl,
 	SliderControl,
+	ColorControl,
 ];
 
 module.exports = Control;
