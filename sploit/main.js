@@ -133,8 +133,6 @@ class Main {
 	async load(){
 		this.ui = require('./settings');
 		
-		require('../../private').call(this);
-		
 		await this.ui.load_config();
 		
 		// migrate
