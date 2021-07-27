@@ -62,6 +62,8 @@ loader.patch('World', /(\w+)\.backgroundScene=/, (match, world) => `${loader.con
 
 loader.patch('Input', /((\w+\.\w+)\[\2\._push\?'_push':'push']\()(\w+)(\),)/, (match, func, array, input, end) => `${func}${loader.context.key}.input.push(${input})${end}`);
 
-loader.patch('Timer', /(\w+\.exports)\.(kickTimer)=([\dex]+)/, (match, object, property, value) => `${loader.context.key}.timer(${object},"${property}",${value})`);
-
 loader.patch('ThreeJS', /\(\w+,(\w+),\w+\){(?=[a-z ';\.\(\),]+ACESFilmic)/, (match, three) => `${match}${loader.context.key}.three(${three});`);
+
+loader.patch('Inactivity', />=(\w+\.kickTimer)/g, (match, time) => `>=${loader.context.key}.kick_timer(${time})`);
+
+loader.patch('Socket', /(\w+\.exports={ahNum:)/, (match, set) => `${loader.context.key}.socket=${set}`);

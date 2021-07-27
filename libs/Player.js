@@ -1,7 +1,7 @@
 'use strict';
 
-var { Vector3, Hex } = require('../libs/Space'),
-	{ loader, utils } = require('../libs/consts'),
+var { Vector3, Hex3, Box3 } = require('../libs/Space'),
+	{ loader } = require('../libs/consts'),
 	{ vars, gconsts } = loader,
 	random_target = 0;
 
@@ -16,10 +16,13 @@ class Player {
 		this.entity = typeof entity == 'object' && entity != null ? entity : {};
 		this.velocity = new Vector3();
 		this.position = new Vector3();
-		this.esp_hex = new Hex();
-		this.hp_hex = new Hex();
+		this.esp_hex = new Hex3();
+		this.hp_hex = new Hex3();
 		
 		this.dont_calc = 0;
+		
+		this.hitbox = new Box3();
+		this.hitbox.head = new Box3();
 		
 		this.parts = {
 			hitbox_head: new Vector3(),
@@ -31,11 +34,6 @@ class Player {
 	get ground(){
 		return this.entity.onGround;
 	}
-	get distance_scale(){
-		var world_pos = utils.camera_world();
-		
-		return Math.max(.3, 1 - utils.getD3D(world_pos.x, world_pos.y, world_pos.z, this.position.x, this.position.y, this.position.z) / 600);
-	}
 	calc_rect(){
 		let playerScale = (2 * gconsts.armScale + gconsts.chestWidth + gconsts.armInset) / 2;
 		let xmin = Infinity;
@@ -45,15 +43,17 @@ class Player {
 		let position = null;
 		let broken = false;
 		
+		this.frustum = true;
 		for(let var1 = -1; !broken && var1 < 2; var1+=2){
 			for(let var2 = -1; !broken && var2 < 2; var2+=2){
 				for(let var3 = 0; !broken && var3 < 2; var3++){
 					if (position = this.obj.position.clone()) {
 						position.x += var1 * playerScale;
 						position.z += var2 * playerScale;
-						position.y += var3 * (this.height - this.crouch * gconsts.crouchDst);
-						if(!utils.contains_point(position)){
+						position.y += var3 * this.height;
+						if(!this.data.utils.contains_point(position)){
 							broken = true;
+							this.frustum = false;
 							break;
 						}
 						position.project(this.data.world.camera);
@@ -109,18 +109,18 @@ class Player {
 		if(this.data.aim_fov == 110)return true;
 		if(!this.frustum)return false;
 		
-		var fov_bak = utils.world.camera.fov;
+		var fov_bak = this.data.world.camera.fov;
 		
 		// config fov is percentage of current fov
-		utils.world.camera.fov = this.data.aim_fov / fov_bak * 100;
-		utils.world.camera.updateProjectionMatrix();
+		this.data.world.camera.fov = this.data.aim_fov / fov_bak * 100;
+		this.data.world.camera.updateProjectionMatrix();
 		
-		utils.update_frustum();
-		var ret = utils.contains_point(this.aim_point);
+		this.data.utils.update_frustum();
+		var ret = this.data.utils.contains_point(this.aim_point);
 		
-		utils.world.camera.fov = fov_bak;
-		utils.world.camera.updateProjectionMatrix();
-		utils.update_frustum();
+		this.data.world.camera.fov = fov_bak;
+		this.data.world.camera.updateProjectionMatrix();
+		this.data.utils.update_frustum();
 		
 		return ret;
 	}
@@ -159,22 +159,28 @@ class Player {
 	get can_shoot(){
 		return !this.reloading && this.has_ammo && (this.can_throw || !this.weapon.melee || this.can_melee);
 	}
+	get hitbox_pad(){
+		return this.data.game.config.hitBoxPad;
+	}
+	get hitbox_scale(){
+		return this.entity.scale + this.hitbox_pad - 0.3;
+	}
 	get aim_press(){ return this.data.controls[vars.mouseDownR] || this.data.controls.keys[this.data.controls.binds.aim.val] }
 	get crouch(){ return this.entity[vars.crouchVal] || 0 }
 	get box_scale(){
-		var view = utils.camera_world(),	
+		var view = this.data.utils.camera_world(),	
 			a = side => Math.min(1, (this.rect[side] / this.data.ctx.canvas[side]) * 10);
 		
 		return [ a('width'), a('height') ];
 	}
 	get dist_scale(){
-		var view = utils.camera_world(),	
-			scale = Math.max(0.65, 1 - utils.getD3D(view.x, view.y, view.z, this.position.x, this.position.y, this.position.z) / 600);
+		var view = this.data.utils.camera_world(),	
+			scale = Math.max(0.65, 1 - this.data.utils.getD3D(view.x, view.y, view.z, this.position.x, this.position.y, this.position.z) / 600);
 		
 		return [ scale, scale ];
 	}
 	get distance_camera(){
-		return utils.camera_world().distanceTo(this.position);
+		return this.data.utils.camera_world().distanceTo(this.position);
 	}
 	get obj(){ return this.is_ai ? this.enity.dat : this.entity[vars.objInstances] }
 	get land_bob_y(){ return this.entity.landBobY || 0 }
@@ -182,11 +188,10 @@ class Player {
 	get has_ammo(){ return this.ammo || this.ammo == this.max_ammo }
 	get ammo(){ return this.entity[vars.ammos][this.entity[vars.weaponIndex]] || 0 }
 	get max_ammo(){ return this.weapon.ammo || 0 }
-	get height(){ return this.entity.height || 0 } // (this.entity.height || 0) - this.crouch * 3 }
+	get height(){ return this.entity.height - this.crouch * gconsts.crouchDst }
 	get health(){ return this.entity.health || 0 }
 	get scale(){ return this.entity.scale }
 	get max_health(){ return this.entity[vars.maxHealth] || 100 }
-	//  && (this.is_you ? true : this.chest && this.leg)
 	get active(){ return this.entity.active && this.entity.x != null && this.health > 0 && (this.is_you ? true : this.chest && this.leg) && true }
 	get teammate(){ return this.is_you || this.data.player && this.team && this.team == this.data.player.team }
 	get enemy(){ return !this.teammate }
@@ -202,18 +207,16 @@ class Player {
 	}
 	// Rotation to look at aim_point
 	calc_rot(){
-		var camera = utils.camera_world(),
+		var camera = this.data.utils.camera_world(),
 			target = this.aim_point;
 		
 		// add velocity * scale / 10
 		// target.add(this.velocity);
 		
-		var x_dire = utils.getXDire(camera.x, camera.y, camera.z, target.x, target.y
+		var x_dire = this.data.utils.getXDire(camera.x, camera.y, camera.z, target.x, target.y
 			- this.data.player.jump_bob_y
-			, target.z)
-			- this.data.player.land_bob_y * 0.1
-			- this.data.player.recoil_y * gconsts.recoilMlt,
-			y_dire = utils.getDir(camera.z, camera.x, target.z, target.x);
+			, target.z),
+			y_dire = this.data.utils.getDir(camera.z, camera.x, target.z, target.x);
 		
 		return {
 			x: x_dire || 0,
@@ -226,7 +229,7 @@ class Player {
 		if(!this.data.precise_calc && this.aim_point && (this.dont_calc++) % (this.calc_ticks + 1) != 0)return;
 		
 		var head_size = 1.5,
-			chest_box = new utils.three.Box3().setFromObject(this.chest),
+			chest_box = new this.data.three.Box3().setFromObject(this.chest),
 			chest_size = chest_box.getSize(),
 			chest_pos = chest_box.getCenter();
 		
@@ -248,7 +251,7 @@ class Player {
 		var leg_pos = this.leg[vars.getWorldPosition](),
 			leg_scale = this.leg.getWorldScale();
 		
-		this.parts.legs = new Vector3().copy(leg_pos).translate_quaternion(this.leg.getWorldQuaternion(), new Vector3().copy({
+		this.parts.legs.copy(leg_pos).translate_quaternion(this.leg.getWorldQuaternion(), new Vector3().copy({
 			x: -leg_scale.x / 2,
 			y: -leg_scale.y / 2,
 			z: 0,
@@ -256,28 +259,139 @@ class Player {
 		
 		var part = this.data.aim_offset == 'random' ? this.part_keys[~~(random_target * this.part_keys.length)] : this.data.aim_offset;
 		
-		this.aim_point = part == 'head' ? this.parts.hitbox_head : (this.parts[part] || (console.error(part, 'not registered'), Vector3.Blank));
+		switch(part){
+			case'head':
+				
+				this.set_aim_point(this.parts./*hitbox_*/head);
+				
+				break;
+			case'multi':
+				
+				if(!this.set_aim_point(this.parts.hitbox_head)){
+					let view = this.data.utils.camera_world();
+					
+					// pick closest point to gurantee hit
+					// prefer highest point for headshots
+					let points = this.visible_points(this.hitbox.head.points())
+					.sort((p1, p2) => (p1.distance_to(view) - p2.distance_to(view)) + (p2.y - p1.y));
+					
+					/* use Set to remove duplicates
+					 [...new Set(points.concat(this.visible_points(this.hitbox.points())
+					.sort((p1, p2) => p1.distance_to(this.data.utils.camera_world()) - p2.distance_to(this.data.utils.camera_world()))
+					))];*/
+					
+					for(let point of points)if(this.set_aim_point(point))break;
+				}
+				
+				break;
+			default:
+				
+				this.set_aim_point(this.parts[part]);
+				
+				break;
+		}
 		
-		this.frustum = utils.contains_point(this.aim_point);
+		// calcuated in box math
+		// this.frustum = this.data.utils.contains_point(this.aim_point);
 		this.in_fov = this.calc_in_fov();
 		
 		this.world_pos = this.active ? this.obj[vars.getWorldPosition]() : { x: 0, y: 0, z: 0 };
 		
-		this.can_see = this.data.player &&
-			utils.obstructing(utils.camera_world(), this.aim_point, (!this.data.player || this.data.player.weapon && this.data.player.weapon.pierce) && this.data.wallbangs)
-		== null ? true : false;
-		
 		this.can_target = this.active && this.can_see && this.enemy && this.in_fov;
+	}
+	visible_points(points){
+		var face_points = [
+			[ 0, 3 ],
+			[ 3, 5 ],
+			[ 5, 6 ],
+			[ 6, 0 ],
+		];
+		
+		var faces = [];
+		
+		for(let fp of face_points){
+			let box = new this.data.three.Box3();
+			
+			for(let index of fp)box.expandByPoint(points[index]);
+			
+			let size = box.getSize(),
+				center = box.getCenter();
+			
+			faces.push({
+				width: size.x,
+				length: size.z,
+				height: size.y,
+				x: center.x,
+				y: center.y - (size.y / 2), // bottom
+				z: center.z,
+			});
+		}
+		
+		return points.filter(point => {
+			// remove ! to unbreak
+			if(!this.point_obstructing(point, faces)){
+				// console.log('not using obstructed face');
+				return false;
+			}
+			
+			return true;
+		});
+	}
+	point_obstructing(point, faces){
+		var view = this.data.utils.camera_world(),
+			d3d = this.data.utils.getD3D(view.x, view.y, view.z, point.x, point.y, point.z),
+			dir = this.data.utils.getDir(view.z, view.x, point.z, point.x),
+			dist_dir = this.data.utils.getDir(this.data.utils.getDistance(view.x, view.z, point.x, point.z), point.y, 0, view.y),
+			ad = 1 / (d3d * Math.sin(dir - Math.PI) * Math.cos(dist_dir)),
+			ae = 1 / (d3d * Math.cos(dir - Math.PI) * Math.cos(dist_dir)),
+			af = 1 / (d3d * Math.sin(dist_dir));
+		
+		for(let obj of faces){
+			var in_rect = this.data.utils.lineInRect(view.x, view.z, view.y, ad, ae, af,
+				obj.x - Math.max(0, obj.width),
+				obj.z - Math.max(0, obj.length),
+				obj.y - Math.max(0, obj.height),
+				obj.x + Math.max(0, obj.width),
+				obj.z + Math.max(0, obj.length),
+				obj.y + Math.max(0, obj.height)
+			);
+			
+			if(in_rect && 1 > in_rect)return in_rect;
+		}
+	}
+	set_aim_point(aim_point){
+		this.aim_point = aim_point;
+		
+		return this.can_see = this.data.utils.obstructing(aim_point) == null ? true : false;
 	}
 	tick(){
 		this.position.set(this.entity.x, this.entity.y, this.entity.z);
 		this.velocity.set(this.entity.xVel, this.entity.yVel, this.entity.zVel);
 		
-		this.parts.hitbox_head.copy(this.position).set_y(this.position.y + this.height - (this.crouch * gconsts.crouchDst));
+		this.hitbox.min.set(
+			this.position.x - this.hitbox_scale,
+			this.position.y,
+			this.position.z - this.hitbox_scale,
+		);
+		
+		this.hitbox.max.set(
+			this.position.x + this.hitbox_scale,
+			this.position.y + this.height + this.hitbox_pad,
+			this.position.z + this.hitbox_scale,
+		);
+		
+		this.hitbox.head.max.copy(this.hitbox.max);
+		this.hitbox.head.min.copy(this.hitbox.min);
+		
+		// precise offset is 1.5
+		// offset of 1 makes multi aim more accurate
+		this.hitbox.head.min.y = this.hitbox.max.y - this.entity.headScale - 0.5;
+		
+		this.parts.hitbox_head.copy(this.position).y = this.position.y + this.height;
 		
 		if(this.is_you)return;
 		
-		if(this.frustum)this.rect = this.calc_rect();
+		this.rect = this.calc_rect();
 		
 		this.esp_hex.set_style(this.data.rainbow ? this.data.visual.rainbow.col : this.data.color[this.enemy ? this.risk ? 'risk' : 'hostile' : 'friendly']);
 		

@@ -16,110 +16,84 @@ class Vector3 {
 		this.x = x;
 		this.y = y;
 		this.z = z;
-		
-		return this;
-	}
-	set_x(x){
-		this.x = x;
-		return this;
-	}
-	set_y(y){
-		this.y = y;
-		return this;
-	}
-	set_z(z){
-		this.z = z;
 		return this;
 	}
 	copy(vector){
 		this.x = vector.x;
 		this.y = vector.y;
 		this.z = vector.z;
-		
 		return this;
 	}
 	add(vector){
 		this.x += vector.x;
 		this.y += vector.y;
 		this.z += vector.z;
-		
 		return this;
 	}
 	add_vectors(x = 0, y = 0, z = 0){
 		this.x += x;
 		this.y += y;
 		this.z += z;
-		
 		return this;
 	}
 	add_scalar(scalar){
 		this.x += scalar;
 		this.y += scalar;
 		this.z += scalar;
-		
 		return this;
 	}
 	sub(vector){
 		this.x += vector.x;
 		this.y += vector.y;
 		this.z += vector.z;
-		
 		return this;
 	}
 	sub_vectors(x = 0, y = 0, z = 0){
 		this.x -= x;
 		this.y -= y;
 		this.z -= z;
-		
 		return this;
 	}
 	sub_scalar(scalar){
 		this.x -= scalar;
 		this.y -= scalar;
 		this.z -= scalar;
-		
 		return this;
 	}
 	multiply(vector){
 		this.x *= vector.x;
 		this.y *= vector.y;
 		this.z *= vector.z;
-		
 		return this;
 	}
 	multiply_vectors(x = 0, y = 0, z = 0){
 		this.x *= x;
 		this.y *= y;
 		this.z *= z;
-		
 		return this;
 	}
 	multiply_scalar(scalar){
 		this.x *= scalar;
 		this.y *= scalar;
 		this.z *= scalar;
-		
 		return this;
 	}
 	divide(vector){
 		this.x /= vector.x;
 		this.y /= vector.y;
 		this.z /= vector.z;
-		
 		return this;
 	}
 	divide_vectors(x = 0, y = 0, z = 0){
 		this.x /= x;
 		this.y /= y;
 		this.z /= z;
-		
 		return this;
 	}
 	divide_scalar(scalar){
 		this.x /= scalar;
 		this.y /= scalar;
 		this.z /= scalar;
-		
 		return this;
 	}
 	apply_quaternion(q) {
@@ -154,9 +128,26 @@ class Vector3 {
 
 Vector3.Blank = new Vector3();
 
-class Hex {
+class Box3 {
+	min = new Vector3();
+	max = new Vector3();
+	points(){
+		return [
+			new Vector3(this.min.x, this.min.y, this.min.z), // 000
+			new Vector3(this.min.x, this.min.y, this.max.z), // 001
+			new Vector3(this.min.x, this.max.y, this.min.z), // 010
+			new Vector3(this.min.x, this.max.y, this.max.z), // 011
+			new Vector3(this.max.x, this.min.y, this.min.z), // 100
+			new Vector3(this.max.x, this.min.y, this.max.z), // 101
+			new Vector3(this.max.x, this.max.y, this.min.z), // 110
+			new Vector3(this.max.x, this.max.y, this.max.z), // 111
+		];
+	}
+}
+
+class Hex3 {
+	hex = [ 0, 0, 0 ];
 	constructor(string = '#000'){
-		this.hex = [ 0, 0, 0 ];
 		this.set_style(string);
 	}
 	add_scalar(scalar){
@@ -202,5 +193,6 @@ class Hex {
 	}
 };
 
-exports.Hex = Hex;
+exports.Box3 = Box3;
+exports.Hex3 = Hex3;
 exports.Vector3 = Vector3;

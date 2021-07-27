@@ -60,6 +60,17 @@ module.exports = inter => {
 				}
 			});
 		}
+		set onmessage(callback){
+			this.addEventListener('message', event => {
+				try{
+					return callback.call(this, event);
+				}catch(err){
+					console.error('Socket error:', err);
+				}
+			});
+			
+			return callback;
+		}
 		send(binary){
 			var [ label, ...data ] = msgpack.decode(binary.slice(0, -2));
 			

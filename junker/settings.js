@@ -63,7 +63,7 @@ menu.add_preset('Default', {
 		auto_nuke: false,
 		auto_lobby: false,
 		auto_start: false,
-		inactivity: true,
+		inactivity: false,
 	},
 	radio: {
 		stream: 'off',

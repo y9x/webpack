@@ -5,9 +5,8 @@ var { api, meta, utils, loader } = require('../libs/consts'),
 	Input = require('../libs/Input'),
 	Player = require('../libs/Player'),
 	Visual = require('../libs/visual'),
-	Socket = require('../libs/Socket');
-
-loader.patch('Socket', /(\w+\.exports={ahNum:)/, (match, set) => `${loader.context.key}.socket=${set}`);
+	Socket = require('../libs/Socket'),
+	KUtils = require('../libs/KUtils');
 
 class Main {
 	constructor(){
@@ -33,6 +32,7 @@ class Main {
 		
 		this.init_interface();
 		
+		this.utils = new KUtils(this.interface);
 		this.input = new Input(this.interface);
 		this.visual = new Visual(this.interface);
 		
@@ -65,11 +65,20 @@ class Main {
 			get ctx(){
 				return self.ctx;
 			},
+			get utils(){
+				return self.utils;
+			},
 			get visual(){
 				return self.visual;
 			},
 			get game(){
 				return self.game;
+			},
+			get socket(){
+				return self.socket;
+			},
+			get three(){
+				return self.three;
 			},
 			get world(){
 				return self.world;
@@ -78,7 +87,7 @@ class Main {
 				return self.config.aim.force_auto;
 			},
 			get color(){
-				return self.config.color;
+				return self.config.colors;
 			},
 			get rainbow(){
 				return self.config.esp.rainbow;
@@ -94,6 +103,9 @@ class Main {
 			},
 			get players(){
 				return self.players;
+			},
+			get inactivity(){
+				return self.config.game.inactivity;
 			},
 			get esp(){
 				return self.config.esp.status;
@@ -146,11 +158,7 @@ class Main {
 		};		
 	}
 	async load(){
-		utils.add_ele('style', () => document.documentElement, { textContent: require('./index.css') });
-		
-		var ls = localStorage.getItem('ssjunkconfig');
-		
-		if(typeof GM_setValue == 'function' && typeof GM == 'object' && !GM_getValue('config') && ls)await GM.setValue('config', ls);
+		this.utils.add_ele('style', () => document.documentElement, { textContent: require('./index.css') });
 		
 		await this.menu.load_config();
 		
@@ -160,19 +168,11 @@ class Main {
 		await loader.load({
 			WebSocket: Socket(this.interface),
 		}, {
-			three: three => utils.three = three,
-			game: game => this.game = utils.game = game,
-			controls: controls => {
-				var timer = 0;
-				
-				Object.defineProperty(controls, 'idleTimer', {
-					get: _ => this.config.game.inactivity ? 0 : timer,
-					set: value => timer = value,
-				});
-				
-				this.controls = controls;
-			},
-			world: world => utils.world = this.world = world,
+			three: three => this.three = three,
+			game: game => this.game = game,
+			controls: controls => this.controls = controls,
+			time: time => this.config.game.inactivity ? Infinity : time,
+			world: world => this.world = world,
 			can_see: inview => this.config.esp.status == 'full' ? false : (this.config.esp.nametags || inview),
 			skins: ent => Object.defineProperty(ent, 'skins', {
 				get(){
@@ -183,10 +183,6 @@ class Main {
 				},
 			}),
 			input: this.input,
-			timer: (object, property, timer) => Object.defineProperty(object, property, {
-				get: _ => this.config.game.inactivity ? 0 : timer,
-				set: value => this.config.game.inactivity ? Infinity : timer,
-			}),
 			socket: socket => this.socket = socket,
 		});
 		
@@ -231,13 +227,13 @@ class Main {
 			loader.report_error('frame', err);
 		}
 		
-		utils.request_frame(this.process);
+		this.utils.request_frame(this.process);
 	}
 	get config(){
 		return this.menu.config;
 	}
 	dist2d(p1, p2){
-		return utils.dist_center(p1.rect) - utils.dist_center(p2.rect);
+		return this.utils.dist_center(p1.rect) - this.utils.dist_center(p2.rect);
 	}
 };
 

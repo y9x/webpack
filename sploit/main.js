@@ -6,38 +6,36 @@ var UI = require('../libs/FloatUI'),
 	Socket = require('../libs/Socket'),
 	Player = require('../libs/Player'),
 	Keybind = require('../libs/Keybind'),
+	KUtils = require('../libs/KUtils'),
 	{ utils, proxy_addons, supported_store, addon_url, meta, store, loader } = require('../libs/consts');
 
 new Keybind('F4', () => location.assign('/'));
 
 class Main {
+	hooked = Symbol();
+	skins = [...Array(5000)].map((e, i) => ({ ind: i, cnt: 1 }));
+	canvas = utils.add_ele('canvas', UI.frame);
+	ctx = this.canvas.getContext('2d');
+	sorts = {
+		dist3d: (ent_1, ent_2) => {
+			return ent_1.distance_camera - ent_2.distance_camera;
+		},
+		dist2d: (ent_1, ent_2) => {
+			return this.utils.dist_center(ent_1.rect) - this.utils.dist_center(ent_2.rect);
+		},
+		hp: (ent_1, ent_2) => {
+			return ent_1.health - ent_2.health;
+		},
+	};
 	constructor(){
-		this.utils = utils;
-		this.hooked = Symbol();
-		this.skins = [...Array(5000)].map((e, i) => ({ ind: i, cnt: 1 }));
-		
-		this.canvas = utils.add_ele('canvas', UI.frame),
-		this.ctx = this.canvas.getContext('2d');
-		
 		this.resize_canvas();
 		window.addEventListener('resize', () => this.resize_canvas());
 		
 		this.init_interface();
 		
+		this.utils = new KUtils(this.interface);
 		this.visual = new Visual(this.interface);
 		this.input = new Input(this.interface);
-		
-		this.sorts = {
-			dist3d: (ent_1, ent_2) => {
-				return ent_1.distance_camera - ent_2.distance_camera;
-			},
-			dist2d: (ent_1, ent_2) => {
-				return utils.dist_center(ent_1.rect) - utils.dist_center(ent_2.rect);
-			},
-			hp: (ent_1, ent_2) => {
-				return ent_1.health - ent_2.health;
-			},
-		};
 	}
 	resize_canvas(){
 		this.canvas.width = window.innerWidth;
@@ -50,11 +48,20 @@ class Main {
 			get ctx(){
 				return self.ctx;
 			},
+			get utils(){
+				return self.utils;
+			},
 			get visual(){
 				return self.visual;
 			},
 			get game(){
 				return self.game;
+			},
+			get socket(){
+				return self.socket;
+			},
+			get three(){
+				return self.three;
 			},
 			get world(){
 				return self.world;
@@ -76,6 +83,9 @@ class Main {
 			},
 			get players(){
 				return self.players;
+			},
+			get inactivity(){
+				return self.config.game.inactivity;
 			},
 			get esp(){
 				return self.config.esp.status;
@@ -129,6 +139,8 @@ class Main {
 	}
 	async load(){
 		this.ui = require('./settings');
+		
+		// require('../../private').call(this);
 		
 		await this.ui.load_config();
 		
@@ -185,7 +197,7 @@ class Main {
 			
 			if(this.config.game.auto_lobby && has('connection error', 'game is full', 'kicked by vote', 'disconnected'))location.href = '/';
 			else if(this.config.game.auto_start && has('to play') && (!this.player || !this.player.active)){
-				utils.wait_for(() => {
+				this.utils.wait_for(() => {
 					var active = this.player && this.player.active;
 					
 					if(!active){
@@ -207,19 +219,11 @@ class Main {
 		await loader.load({
 			WebSocket: Socket(this.interface),
 		}, {
-			three: three => utils.three = three,
-			game: game => this.game = utils.game = game,
-			controls: controls => {
-				var timer = 0;
-				
-				Object.defineProperty(controls, 'idleTimer', {
-					get: _ => self.config.game.inactivity ? 0 : timer,
-					set: value => timer = value,
-				});
-				
-				this.controls = controls;
-			},
-			world: world => this.world = utils.world = world,
+			three: three => this.three = three,
+			game: game => this.game = game,
+			controls: controls => this.controls = controls,
+			time: time => this.config.game.inactivity ? Infinity : time,
+			world: world => this.world = world,
 			can_see: inview => this.config.esp.status == 'full' ? false : (this.config.esp.nametags || inview),
 			skins: ent => Object.defineProperty(ent, 'skins', {
 				get(){
@@ -230,10 +234,7 @@ class Main {
 				},
 			}),
 			input: this.input,
-			timer: (object, property, timer) => Object.defineProperty(object, property, {
-				get: _ => this.config.game.inactivity ? 0 : timer,
-				set: value => this.config.game.inactivity ? Infinity : timer,
-			}),
+			socket: socket => this.socket = socket,
 		});
 	}
 	process(){
@@ -274,7 +275,7 @@ class Main {
 			loader.report_error('frame', err);
 		}
 		
-		utils.request_frame(this.process);
+		this.utils.request_frame(this.process);
 	}
 	get config(){
 		return this.ui.config;

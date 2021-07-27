@@ -4,21 +4,11 @@ var { loader } = require('./consts'),
 	{ vars } = loader,
 	Utils = require('./Utils');
 
-class FakeNode {
-	constructor(){
-		this.children = [];
-	}
-	appendChild(node){
-		this.children.push(node);
-	}
-	append(){}
-	append_into(target){
-		for(let node of this.children)target.append(node);
-	}
-};
-
 class KUtils extends Utils {
-	FakeNode = FakeNode;
+	constructor(data){
+		super();
+		this.data = data;
+	}
 	rgbToHex(e, t, i){
 		for (var s = (e << 16 | t << 8 | i).toString(16); 6 > s.length;)s = "0" + s;
 		return "#" + s;
@@ -43,11 +33,11 @@ class KUtils extends Utils {
 		return this.applyMatrix4(this.applyMatrix4(pos, camera.matrixWorldInverse), camera.projectionMatrix);
 	}
 	update_frustum(){
-		this.world.frustum.setFromProjectionMatrix(new this.three.Matrix4().multiplyMatrices(this.world.camera.projectionMatrix, this.world.camera.matrixWorldInverse));
+		this.data.world.frustum.setFromProjectionMatrix(new this.data.three.Matrix4().multiplyMatrices(this.data.world.camera.projectionMatrix, this.data.world.camera.matrixWorldInverse));
 	}
 	update_camera(){
-		this.world.camera.updateMatrix();
-		this.world.camera.updateMatrixWorld();
+		this.data.world.camera.updateMatrix();
+		this.data.world.camera.updateMatrixWorld();
 	}
 	pos2d(pos, offset_y = 0){
 		if(isNaN(pos.x) || isNaN(pos.y) || isNaN(pos.z))return { x: 0, y: 0 };
@@ -58,40 +48,43 @@ class KUtils extends Utils {
 		
 		this.update_camera();
 		
-		this.project3d(pos, this.world.camera);
+		this.project3d(pos, this.data.world.camera);
 		
 		return {
-			x: (pos.x + 1) / 2 * this.ctx.canvas.width,
-			y: (-pos.y + 1) / 2 * this.ctx.canvas.height,
+			x: (pos.x + 1) / 2 * this.data.ctx.canvas.width,
+			y: (-pos.y + 1) / 2 * this.data.ctx.canvas.height,
 		}
 	}
-	obstructing(player, target, wallbangs, offset = 0){
-		var d3d = this.getD3D(player.x, player.y, player.z, target.x, target.y, target.z),
-			dir = this.getDir(player.z, player.x, target.z, target.x),
-			dist_dir = this.getDir(this.getDistance(player.x, player.z, target.x, target.z), target.y, 0, player.y),
+	obstructing(target){
+		var wallbang = this.data.wallbangs && (!this.data.player || this.data.player.weapon && this.data.player.weapon.pierce),
+			view = this.camera_world(),
+			d3d = this.getD3D(view.x, view.y, view.z, target.x, target.y, target.z),
+			dir = this.getDir(view.z, view.x, target.z, target.x),
+			dist_dir = this.getDir(this.getDistance(view.x, view.z, target.x, target.z), target.y, 0, view.y),
 			ad = 1 / (d3d * Math.sin(dir - Math.PI) * Math.cos(dist_dir)),
 			ae = 1 / (d3d * Math.cos(dir - Math.PI) * Math.cos(dist_dir)),
-			af = 1 / (d3d * Math.sin(dist_dir)),
-			view_y = player.y + (player.height || 0) - 1.15; // 1.15 = config.cameraHeight
+			af = 1 / (d3d * Math.sin(dist_dir));
+			// comments were for if the player object wasnt a camera
+			// view_y = player.y + (player.height || 0) - 1.15; // 1.15 = config.cameraHeight
 		
 		// iterate through game objects
-		for(let obj of this.game.map.manager.objects)if(!obj.noShoot && obj.active && (wallbangs ? !obj.penetrable : true)){
-			var in_rect = this.lineInRect(player.x, player.z, view_y, ad, ae, af,
-				obj.x - Math.max(0, obj.width - offset),
-				obj.z - Math.max(0, obj.length - offset),
-				obj.y - Math.max(0, obj.height - offset),
-				obj.x + Math.max(0, obj.width - offset),
-				obj.z + Math.max(0, obj.length - offset),
-				obj.y + Math.max(0, obj.height - offset)
+		for(let obj of this.data.game.map.manager.objects)if(!obj.noShoot && obj.active && (wallbang ? !obj.penetrable : true)){
+			var in_rect = this.lineInRect(view.x, view.z, view.y, ad, ae, af,
+				obj.x - Math.max(0, obj.width),
+				obj.z - Math.max(0, obj.length),
+				obj.y - Math.max(0, obj.height),
+				obj.x + Math.max(0, obj.width),
+				obj.z + Math.max(0, obj.length),
+				obj.y + Math.max(0, obj.height)
 			);
 			
 			if(in_rect && 1 > in_rect)return in_rect;
 		}
 		
 		// iterate through game terrain
-		if(this.game.map.terrain){
-			var al = this.game.map.terrain.raycast(player.x, -player.z, view_y, 1 / ad, -1 / ae, 1 / af);
-			if(al)return this.getD3D(player.x, player.y, player.z, al.x, al.z, -al.y);
+		if(this.data.game.map.terrain){
+			var al = this.data.game.map.terrain.raycast(view.x, -view.z, view_y, 1 / ad, -1 / ae, 1 / af);
+			if(al)return this.getD3D(view.x, view.y, view.z, al.x, al.z, -al.y);
 		}
 	}
 	getDistance(x1, y1, x2, y2){
@@ -126,15 +119,15 @@ class KUtils extends Utils {
 		return Math.atan2(Math.sin(a2 - a1), Math.cos(a1 - a2));
 	}
 	contains_point(point){
-		for(var ind = 0; ind < 6; ind++)if(this.world.frustum.planes[ind].distanceToPoint(point) < 0)return false;
+		for(let plane of this.data.world.frustum.planes)if(plane.distanceToPoint(point) < 0)return false;
 		return true;
 	}
 	camera_world(){
-		var matrix_copy = this.world.camera.matrixWorld.clone(),
-			pos = this.world.camera[vars.getWorldPosition]();
+		var matrix_copy = this.data.world.camera.matrixWorld.clone(),
+			pos = this.data.world.camera[vars.getWorldPosition]();
 		
-		this.world.camera.matrixWorld.copy(matrix_copy);
-		this.world.camera.matrixWorldInverse.copy(matrix_copy).invert();
+		this.data.world.camera.matrixWorld.copy(matrix_copy);
+		this.data.world.camera.matrixWorldInverse.copy(matrix_copy).invert();
 		
 		return pos.clone();
 	}

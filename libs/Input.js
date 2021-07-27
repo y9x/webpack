@@ -2,8 +2,9 @@
 
 var InputData = require('./InputData'),
 	{ Vector3 } = require('./Space'),
-	{ loader, api, utils } = require('./consts'),
-	{ vars } = loader;
+	{ loader, api } = require('./consts'),
+	{ vars, gconsts } = loader,
+	full_360 = Math.PI * 2;
 
 class Input {
 	smooth_map = {
@@ -30,8 +31,9 @@ class Input {
 			var data = new InputData(array);
 			
 			this.modify(data);
+			this.timers(data);
 			
-			InputData.previous = data;
+			data.done();
 		}catch(err){
 			loader.report_error('input', err);
 		}
@@ -39,11 +41,10 @@ class Input {
 		return array;
 	}
 	aim_input(rot, data){
-		data.xdir_n = rot.x;
-		data.ydir_n = rot.y;
+		data.xdir = rot.x;
+		data.ydir = rot.y;
 	}
 	aim_camera(rot, data){
-		// updating camera will make a difference next tick, update current tick with aim_input
 		this.data.controls[vars.pchObjc].rotation.x = rot.x;
 		this.data.controls.object.rotation.y = rot.y;
 		
@@ -57,23 +58,23 @@ class Input {
 	enemy_sight(){
 		if(this.data.player.shot)return;
 		
-		var raycaster = new utils.three.Raycaster();
+		var raycaster = new this.data.three.Raycaster();
 		
-		raycaster.setFromCamera({ x: 0, y: 0 }, utils.world.camera);
+		raycaster.setFromCamera({ x: 0, y: 0 }, this.data.world.camera);
 		
 		if(this.data.player.aimed && raycaster.intersectObjects(this.data.players.filter(ent => ent.can_target).map(ent => ent.obj), true).length)return true;
 	}
 	smooth(data, target, speed, turn){
-		var x_ang = utils.getAngleDst(data.xdir_n, target.x),
-			y_ang = utils.getAngleDst(data.ydir_n, target.y);
+		var x_ang = this.data.utils.getAngleDst(data.xdir, target.x),
+			y_ang = this.data.utils.getAngleDst(data.ydir, target.y);
 		
 		return {
-			y: data.ydir_n + y_ang * speed,
-			x: data.xdir_n + x_ang * turn,
+			y: data.ydir + y_ang * speed,
+			x: data.xdir + x_ang * turn,
 		};
 	}
 	bhop(data){
-		if(data.move_dir == -1)return;
+		if(data.move == -1)return;
 		
 		var status = this.data.bhop,
 			auto = status.startsWith('auto'),
@@ -90,23 +91,55 @@ class Input {
 		
 		if(slide && (auto || data.keys.has('Space')) && this.data.player.velocity.y < -0.02 && this.data.player.can_slide)setTimeout(() => this.data.controls.keys[this.data.controls.binds.crouch.val] = 0, 325), this.data.controls.keys[this.data.controls.binds.crouch.val] = 1;
 	}
+	spin_count = 0;
 	spinbot(data){
+		data.xdir = this.data.utils.deg2rad(-90);
+		
+		return; // until radian fuckery is patched
+		
 		this.spin_count = this.spin_count || 0;
 		
-		if(data.move_dir != -1)data.move_dir = (data.move_dir + this.spin_count - Math.round(7 * (data.ydir / (Math.PI * 2000)))) % 7;
+		if(data.move != -1)data.move = (data.move + this.spin_count - Math.round(7 * (data.ydir / (Math.PI * 2)))) % 7;
 		
-		data.xdir = utils.deg2rad(-90 * 1e3);
-		data.ydir = this.spin_count / 7 * (Math.PI * 2000);
+		data.ydir = this.spin_count / 7 * (Math.PI * 2);
 		
 		if(data.frame % 1 == 0){
 			this.spin_count = (this.spin_count + 1) % 7;
 		}
 	}
+	spinbot_pre(data){
+		data.crouch = data.move == -1;
+		data.scope = data.scope || data.crouch;
+		
+		data.ydir += full_360 * ((this.spin_count ^= 1 ? 1 : -1) * 1e9);
+	}
+	anti_offset(rot){
+		if(typeof window.anti_offset == 'function')return window.anti_offset.call(this, rot);
+		rot.x -= this.data.world.shakeY;
+		rot.x -= this.data.player.entity.recoilAnimY * gconsts.recoilMlt;
+		rot.x -= this.data.player.entity.landBobY * 0.1;
+	}
+	move = 0;
+	timers(data){
+		if(this.data.player.can_shoot && data.shoot && !this.data.player.shot){
+			this.data.player.shot = true;
+			
+			setTimeout(() => this.data.player.shot = false, this.data.player.weapon.rate + 1);
+		}else if(this.data.spinbot)this.spinbot(data);
+	}
 	modify(data){
-		if(this.data.spinbot){
-			data.crouch = data.move_dir == -1;
-			data.scope = data.scope || data.crouch;
+		if(this.data.inactivity && data.move == -1){
+			if(this.move++ % 200 == 0){
+				let add = (amount, move) => {
+					while(amount--)data.next(data => (data.move = move, data.xdir += 0.002));
+				};
+				
+				add(4, 1);
+				add(4, 5);
+			}
 		}
+		
+		if(this.data.spinbot)this.spinbot_pre(data);
 		
 		// bhop
 		this.bhop(data);
@@ -114,13 +147,11 @@ class Input {
 		// auto reload
 		if(!this.data.player.has_ammo && (this.data.aim == 'auto' || this.data.auto_reload))data.reload = true;
 		
-		// TODO: target once on aim
-		
 		data.could_shoot = this.data.player.can_shoot;
 		
 		if(this.data.force_auto && this.data.player.did_shoot)data.shoot = false;
 		
-		var nauto = this.data.player.weapon_auto || this.data.player.weapon.burst || !data.shoot || !InputData.previous.could_shoot || !InputData.previous.shoot,
+		var nauto = this.data.player.weapon_auto || this.data.player.weapon.burst || !data.shoot || !data.previous.could_shoot || !data.previous.shoot,
 			hitchance = (Math.random() * 100) < this.data.hitchance,
 			can_target = this.data.aim == 'auto' || data.scope || data.shoot;
 		
@@ -133,6 +164,8 @@ class Input {
 		if(this.data.player.can_shoot)if(this.data.aim == 'trigger')data.shoot = this.enemy_sight() || data.shoot;
 		else if(this.data.aim != 'off' && this.data.target && this.data.player.health){
 			var rot = this.data.target.calc_rot();
+			
+			this.anti_offset(rot);
 			
 			if(hitchance)if(this.data.aim == 'correction' && nauto)this.correct_aim(rot, data);
 			else if(this.data.aim == 'auto'){
@@ -165,11 +198,6 @@ class Input {
 		}
 		
 		if(data.shoot && this.data.player.shot)data.shoot = !nauto;
-		
-		if(this.data.player.can_shoot && data.shoot && !this.data.player.shot){
-			this.data.player.shot = true;
-			setTimeout(() => this.data.player.shot = false, this.data.player.weapon.rate + 1);
-		}else if(this.data.spinbot)this.spinbot(data);
 	}
 };
 

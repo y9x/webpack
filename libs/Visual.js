@@ -1,6 +1,6 @@
 'use strict';
 
-var { utils } = require('../libs/consts');
+var { Vector3 } = require('./space');
 
 class Visual {
 	constructor(data){
@@ -14,10 +14,10 @@ class Visual {
 	tick_rainbow(){
 		this.rainbow.val += 0.6;
 		this.rainbow.val %= 360;
-		this.rainbow.col = utils.hexFromHue(Math.round(this.rainbow.val));
+		this.rainbow.col = this.data.utils.hexFromHue(Math.round(this.rainbow.val));
 	}
 	esp_mat(color){
-		if(!this.materials.has(color))this.materials.set(color, new utils.three.MeshBasicMaterial({
+		if(!this.materials.has(color))this.materials.set(color, new this.data.three.MeshBasicMaterial({
 			transparent: true,
 			fog: false,
 			depthTest: false,
@@ -56,7 +56,7 @@ class Visual {
 		this.data.ctx.strokeRect((this.data.ctx.canvas.width - width) / 2, (this.data.ctx.canvas.height - height) / 2, width, height);
 	}
 	walls(){
-		utils.world.scene.children.forEach(obj => {
+		this.data.world.scene.children.forEach(obj => {
 			if(obj.type != 'Mesh' || !obj.dSrc || obj.material[Visual.hooked])return;
 			
 			obj.material[Visual.hooked] = true;
@@ -127,7 +127,41 @@ class Visual {
 		
 		this.draw_text(15, ((this.data.ctx.canvas.height / 2) - (lines.length * 14)  / 2), 14, lines);
 	}
+	p2a(point){
+		var pos = this.data.utils.pos2d(point);
+		
+		return [ pos.x, pos.y ];
+	}
+	hitbox(box){
+		var points = box.points();
+		
+		this.data.ctx.fillStyle = 'red';
+		this.data.ctx.lineWidth = 1.5;
+		
+		this.data.ctx.moveTo(...this.p2a(points[0]));
+		this.data.ctx.lineTo(...this.p2a(points[2]));
+		this.data.ctx.lineTo(...this.p2a(points[4]));
+		this.data.ctx.lineTo(...this.p2a(points[6]));
+		this.data.ctx.lineTo(...this.p2a(points[5]));
+		this.data.ctx.lineTo(...this.p2a(points[7]));
+		this.data.ctx.lineTo(...this.p2a(points[1]));
+		this.data.ctx.lineTo(...this.p2a(points[3]));
+		this.data.ctx.lineTo(...this.p2a(points[0]));
+		this.data.ctx.lineTo(...this.p2a(points[1]));
+		this.data.ctx.lineTo(...this.p2a(points[5]));
+		this.data.ctx.lineTo(...this.p2a(points[4]));
+		this.data.ctx.lineTo(...this.p2a(points[0]));
+		this.data.ctx.lineTo(...this.p2a(points[2]));
+		this.data.ctx.lineTo(...this.p2a(points[3]));
+		this.data.ctx.lineTo(...this.p2a(points[7]));
+		this.data.ctx.lineTo(...this.p2a(points[6]));
+		this.data.ctx.lineTo(...this.p2a(points[2]));
+		
+		this.data.ctx.stroke();
+	}
 	box(player){
+		// return this.hitbox(player.hitbox.head);
+		
 		this.data.ctx.strokeStyle = player.esp_color;
 		this.data.ctx.lineWidth = 1.5;
 		this.data.ctx.strokeRect(player.rect.left, player.rect.top, player.rect.width, player.rect.height);
@@ -180,7 +214,7 @@ class Visual {
 	}
 	label(player){
 		for(var part in player.parts){
-			var srcp = utils.pos2d(player.parts[part]);
+			var srcp = this.data.utils.pos2d(player.parts[part]);
 			this.data.ctx.fillStyle = '#FFF';
 			this.data.ctx.font = '13px monospace thin';
 			this.data.ctx.fillRect(srcp.x - 2, srcp.y - 2, 4, 4);

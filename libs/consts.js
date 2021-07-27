@@ -1,7 +1,7 @@
 'use strict';
 
 var DataStore = require('./DataStore'),
-	GameLoader = require('./GameLoader');
+	Loader = require('./Loader');
 
 exports.store = new DataStore();
 
@@ -11,12 +11,12 @@ exports.meta = {
 	forum: 'https://forum.sys32.dev/',
 };
 
-var loader = new GameLoader();
+var loader = new Loader();
 
 exports.loader = loader;
 
-var KUtils = require('./KUtils'),
-	utils = new KUtils();
+var Utils = require('./Utils'),
+	utils = new Utils();
 
 exports.is_frame = window != window.top;
 

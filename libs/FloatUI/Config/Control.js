@@ -16,6 +16,11 @@ class Control {
 			nodeValue: this.name,
 		});
 		
+		this.content.addEventListener('click', event => {
+			// wait for stack to clear (changes set on event)
+			if(!([ this.content, this.label ].includes(event.target)))setTimeout(() => this.emit('click'));
+		});
+		
 		this.create();
 	}
 	create(){}

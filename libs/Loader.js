@@ -5,7 +5,7 @@ var Utils = require('./Utils'),
 	EventLite = require('event-lite'),
 	utils = new Utils();
 
-class GameLoader {
+class Loader {
 	gconsts = {
 		playerHeight: 11,
 		cameraHeight: 1.5,
@@ -22,6 +22,8 @@ class GameLoader {
 	api = 0 ? 'http://127.0.0.1:7300/' : 'https://api.sys32.dev/';
 	matchmaker = 'https://matchmaker.krunker.io/';
 	constructor(matchmaker_url, api_url){
+		this.has_instruct = this.has_instruct.bind(this);
+		
 		this.stacks = new Set();
 		
 		this.api_v2 = new URL('v2/', this.api);
@@ -54,7 +56,7 @@ class GameLoader {
 			if(node.tagName == 'DIV' && node.id == 'instructionHolder'){
 				this.instruction_holder = node;
 				
-				new MutationObserver(() => setTimeout(() => this.emit('instruct', this.has_instruct.bind(this)), 200)).observe(this.instruction_holder, {
+				new MutationObserver(() => setTimeout(() => this.emit('instruct', this.has_instruct), 200)).observe(this.instruction_holder, {
 					attributes: true,
 					attributeFilter: [ 'style' ],
 				});
@@ -197,6 +199,6 @@ class GameLoader {
 	}
 };
 
-EventLite.mixin(GameLoader.prototype);
+EventLite.mixin(Loader.prototype);
 
-module.exports = GameLoader;
+module.exports = Loader;
