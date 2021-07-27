@@ -126,15 +126,14 @@ class Input {
 			setTimeout(() => this.data.player.shot = false, this.data.player.weapon.rate + 1);
 		}else if(this.data.spinbot)this.spinbot(data);
 	}
+	move_ticks(data, amount, move){
+		while(amount--)data.next(data => (data.move = move, data.xdir += 0.002));
+	}
 	modify(data){
 		if(this.data.inactivity && data.move == -1){
 			if(this.move++ % 200 == 0){
-				let add = (amount, move) => {
-					while(amount--)data.next(data => (data.move = move, data.xdir += 0.002));
-				};
-				
-				add(4, 1);
-				add(4, 5);
+				this.move_ticks(data, 4, 1);
+				this.move_ticks(data, 4, 5);
 			}
 		}
 		

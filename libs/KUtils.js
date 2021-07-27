@@ -83,8 +83,8 @@ class KUtils extends Utils {
 		
 		// iterate through game terrain
 		if(this.data.game.map.terrain){
-			var al = this.data.game.map.terrain.raycast(view.x, -view.z, view_y, 1 / ad, -1 / ae, 1 / af);
-			if(al)return this.getD3D(view.x, view.y, view.z, al.x, al.z, -al.y);
+			var ray = this.data.game.map.terrain.raycast(view.x, -view.z, view_y, 1 / ad, -1 / ae, 1 / af);
+			if(ray)return this.getD3D(view.x, view.y, view.z, ray.x, ray.z, -ray.y);
 		}
 	}
 	getDistance(x1, y1, x2, y2){

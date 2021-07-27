@@ -212,15 +212,6 @@ class Visual {
 			});
 		});
 	}
-	label(player){
-		for(var part in player.parts){
-			var srcp = this.data.utils.pos2d(player.parts[part]);
-			this.data.ctx.fillStyle = '#FFF';
-			this.data.ctx.font = '13px monospace thin';
-			this.data.ctx.fillRect(srcp.x - 2, srcp.y - 2, 4, 4);
-			this.data.ctx.fillText(part, srcp.x, srcp.y - 6);
-		}
-	}
 	health(player){
 		this.data.ctx.save();
 		this.data.ctx.scale(...player.box_scale);

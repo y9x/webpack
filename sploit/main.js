@@ -78,11 +78,11 @@ class Main {
 			get player(){
 				return self.player;
 			},
-			get target(){
-				return self.target;
-			},
 			get players(){
 				return self.players;
+			},
+			get target(){
+				return self.target;
 			},
 			get inactivity(){
 				return self.config.game.inactivity;
@@ -131,9 +131,6 @@ class Main {
 			},
 			get proxy(){
 				return self.config.game.proxy;
-			},
-			get precise_calc(){
-				return self.config.aim.precise_calc;
 			},
 		};		
 	}

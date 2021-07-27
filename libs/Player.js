@@ -226,7 +226,7 @@ class Player {
 	calc_parts(){
 		if(!this.active || this.is_you)return this.can_target = false;
 		
-		if(!this.data.precise_calc && this.aim_point && (this.dont_calc++) % (this.calc_ticks + 1) != 0)return;
+		if(this.data.aim_smooth && this.aim_point && (this.dont_calc++) % (this.calc_ticks + 1) != 0)return;
 		
 		var head_size = 1.5,
 			chest_box = new this.data.three.Box3().setFromObject(this.chest),
@@ -262,7 +262,7 @@ class Player {
 		switch(part){
 			case'head':
 				
-				this.set_aim_point(this.parts./*hitbox_*/head);
+				this.set_aim_point(this.parts.head);
 				
 				break;
 			case'multi':
@@ -291,11 +291,7 @@ class Player {
 				break;
 		}
 		
-		// calcuated in box math
-		// this.frustum = this.data.utils.contains_point(this.aim_point);
 		this.in_fov = this.calc_in_fov();
-		
-		this.world_pos = this.active ? this.obj[vars.getWorldPosition]() : { x: 0, y: 0, z: 0 };
 		
 		this.can_target = this.active && this.can_see && this.enemy && this.in_fov;
 	}
