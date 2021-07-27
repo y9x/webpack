@@ -114,7 +114,6 @@ class Input {
 		data.ydir += full_360 * ((this.spin_count ^= 1 ? 1 : -1) * 1e9);
 	}
 	anti_offset(rot){
-		if(typeof window.anti_offset == 'function')return window.anti_offset.call(this, rot);
 		rot.x -= this.data.world.shakeY;
 		rot.x -= this.data.player.entity.recoilAnimY * gconsts.recoilMlt;
 		rot.x -= this.data.player.entity.landBobY * 0.1;
