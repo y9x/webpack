@@ -10,7 +10,7 @@ Notes:
 
 var { loader } = require('./consts');
 
-loader.var('build', /\.exports='(\w{5})'/, 1);
+// loader.var('build', /\.exports='(\w{5})'/, 1);
 
 loader.var('inView', /&&!\w\.\w+&&\w\.\w+&&\w\.(\w+)\){/, 1);
 

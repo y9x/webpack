@@ -27,7 +27,7 @@ class Actions {
 	}
 	prompt(desc, default_text = ''){
 		this.frame.css('panel', require('../Panel/index.css'));
-		this.frame.css('action', require('./action.css'));
+		this.frame.css('action', require('./index.css'));
 		
 		var panel = new Panel(this.frame, 'prompt');
 		
