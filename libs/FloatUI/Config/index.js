@@ -4,20 +4,11 @@ var { utils, store } = require('../consts'),
 	DataStore = require('../../DataStore'),
 	DragPanel = require('../Panel/Drag'),
 	Control = require('./Control'),
-	Tab = require('./Tab'),
-	clone_obj = obj => JSON.parse(JSON.stringify(obj)),
-	assign_deep = (target, ...objects) => {
-		for(let ind in objects)for(let key in objects[ind]){
-			if(typeof objects[ind][key] == 'object' && objects[ind][key] != null && key in target)assign_deep(target[key], objects[ind][key]);
-			else if(typeof target == 'object' && target != null)Object.defineProperty(target, key, Object.getOwnPropertyDescriptor(objects[ind], key))
-		}
-		
-		return target;
-	};
+	Tab = require('./Tab');
 
 class Config extends DragPanel {
-	constructor(title, key, store = new DataStore()){
-		super('config');	
+	constructor(frame, title, key, store = new DataStore()){
+		super(frame, 'config');	
 		
 		this.store = store;
 		

@@ -1,17 +1,19 @@
 'use strict';
 
-var { utils, store, frame } = require('../consts'),
+var { utils, store } = require('../consts'),
 	DragPanel = require('../Panel/Drag'),
 	Tab = require('./Tab'),
 	svg = require('./svg'),
 	Write = require('../Write'),
-	{ alert, prompt } = require('../Actions');
-
-utils.add_ele('style', frame, { textContent: require('./index.css') });
+	Actions = require('../Actions');
 
 class Editor extends DragPanel {
-	constructor(data){
-		super('editor');
+	constructor(frame, data){
+		super(frame, 'editor');
+		
+		this.frame.css('editor', require('./index.css'));
+		
+		this.actions = new Actions(this.frame);
 		
 		this.data = data;
 		
@@ -47,11 +49,11 @@ class Editor extends DragPanel {
 			},
 		});
 		
-		this.actions = this.listen_dragging(utils.add_ele('div', this.title, { className: 'actions' }));
+		this.controls = this.listen_dragging(utils.add_ele('div', this.title, { className: 'actions' }));
 		
-		utils.add_ele('button', this.actions, { className: 'new' }).addEventListener('click', async () => this.new_tab());
+		utils.add_ele('button', this.controls, { className: 'new' }).addEventListener('click', async () => this.new_tab());
 		
-		this.saven = utils.add_ele('button', this.actions, {
+		this.saven = utils.add_ele('button', this.controls, {
 			innerHTML: svg.save,
 			className: 'save',
 			events: {
@@ -59,11 +61,11 @@ class Editor extends DragPanel {
 			},
 		});
 		
-		utils.add_ele('button', this.actions, {
+		utils.add_ele('button', this.controls, {
 			innerHTML: svg.web,
 			className: 'web',
 			events: {
-				click: () => prompt('Enter a CSS link', 'https://').then(async input => {
+				click: () => this.actions.prompt('Enter a CSS link', 'https://').then(async input => {
 					try{
 						var style = await(await fetch(new URL(input, location))).text(),
 							name = input.split('/').slice(-1)[0],
@@ -76,8 +78,8 @@ class Editor extends DragPanel {
 						
 						await this.load();
 					}catch(err){
-						if(err.message == "Failed to construct 'URL': Invalid URL")alert('Invalid URL');
-						else alert('Loading failed: ' + err.message);
+						if(err.message == "Failed to construct 'URL': Invalid URL")this.actions.alert('Invalid URL');
+						else this.actions.alert('Loading failed: ' + err.message);
 					}
 				}).catch(() => {}),
 			},
@@ -85,14 +87,14 @@ class Editor extends DragPanel {
 		
 		this.data.help = this.data.help.replace(/svg\.(\w+)/g, (match, prop) => svg[prop]);
 		
-		utils.add_ele('button', this.actions, {
+		utils.add_ele('button', this.controls, {
 			textContent: '?',
 			events: {
-				click: event => alert(this.data.help),
+				click: event => this.actions.alert(this.data.help),
 			},
 		});
 		
-		utils.add_ele('button', this.actions, {
+		utils.add_ele('button', this.controls, {
 			innerHTML: svg.close,
 			className: 'hide',
 			events: {

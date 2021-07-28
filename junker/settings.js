@@ -1,11 +1,13 @@
 'use strict';
 
+if(localStorage.ssconfig && !localStorage.ssjunkerconfig)localStorage.ssjunkerconfig = localStorage.ssconfig;
+
 var meta = require('./meta'),
 	request = require('../libs/Request'),
 	MenuUI = require('../libs/MenuUI'),
 	DiscordAddon = require('../libs/MenuUI/addons/discord'),
 	SettingsAddon = require('../libs/MenuUI/addons/settings'),
-	menu = new MenuUI('Junk', meta.icon, 'config'),
+	menu = new MenuUI('Junk', meta.icon, 'junkerconfig'),
 	{ api, utils, meta } = require('../libs/consts'),
 	doc_body = utils.wait_for(() => document.body);
 

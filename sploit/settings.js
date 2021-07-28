@@ -1,11 +1,11 @@
 'use strict';
 
-var { api, utils, meta, loader } = require('../libs/consts.js'),
+var { api, utils, meta, loader, frame } = require('../libs/consts.js'),
 	UI = require('../libs/FloatUI'),
 	File = require('../libs/File'),
 	Keybind = require('../libs/Keybind'),
 	Request = require('../libs/Request'),
-	menu = new UI.Config('Sploit', 'config'),
+	menu = new UI.Config(frame, 'Sploit', 'config'),
 	binds = {
 		toggle: new Keybind().callback(() => {
 			if(menu.visible)menu.hide();
@@ -327,7 +327,7 @@ Interface.control('Reset settings', {
 	walk: 'binds.reset',
 }).on('change', value => binds.reset.set_key(value));
 
-menu.css_editor = new UI.Editor({
+menu.css_editor = new UI.Editor(frame, {
 	help: [
 		`<h3>Glossary:</h3><ul>`,
 			`<li>Menu bar - set of buttons found in the top left of the menu.</li>`,

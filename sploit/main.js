@@ -7,14 +7,15 @@ var UI = require('../libs/FloatUI'),
 	Player = require('../libs/Player'),
 	Keybind = require('../libs/Keybind'),
 	KUtils = require('../libs/KUtils'),
-	{ utils, proxy_addons, supported_store, addon_url, meta, store, loader } = require('../libs/consts');
+	{ frame, utils, proxy_addons, supported_store, addon_url, meta, store, loader } = require('../libs/consts'),
+	actions = new UI.Actions(frame);
 
 new Keybind('F4', () => location.assign('/'));
 
 class Main {
 	hooked = Symbol();
 	skins = [...Array(5000)].map((e, i) => ({ ind: i, cnt: 1 }));
-	canvas = utils.add_ele('canvas', UI.frame);
+	canvas = utils.add_ele('canvas', frame);
 	ctx = this.canvas.getContext('2d');
 	sorts = {
 		dist3d: (ent_1, ent_2) => {
@@ -158,7 +159,7 @@ class Main {
 		loader.on('instruct', has => {
 			if(this.config.game.error_tips){
 				if(has('connection banned')){
-					if(this.config.game.proxy)UI.alert(
+					if(this.config.game.proxy)actions.alert(
 						`<p>Your region's proxy was banned.</p>
 						<p>To bypass this ban, try one of the following:</p>
 						<ul>
@@ -173,7 +174,7 @@ class Main {
 						
 						localStorage.removeItem('krunker_token');
 						
-						UI.alert(
+						actions.alert(
 							`<p>You were IP banned, Sploit has signed you out.\nSpoof your IP to bypass this ban with one of the following:</p>
 							<ul>
 								<li>Using your mobile hotspot</li>
@@ -182,11 +183,11 @@ class Main {
 							</ul>`
 						);
 					}
-				}else if(has('banned - '))UI.alert(
+				}else if(has('banned - '))actions.alert(
 					`<p>You were banned from the match.</p>
 					<p>Find a new game to bypass this.</p>`
 				).then(() => location.assign('/'));
-				else if(has('banned'))localStorage.removeItem('krunker_token'), UI.alert(
+				else if(has('banned'))localStorage.removeItem('krunker_token'), actions.alert(
 					`<p>You were banned, Sploit has signed you out.</p>
 					<p>Create a new account to bypass this ban.</p>`
 				).then(() => location.assign('/'));

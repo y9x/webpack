@@ -1,24 +1,25 @@
 'use strict';
 
-var { frame, utils, store } = require('../consts'),
+var { utils, store } = require('../consts'),
 	EventLite  = require('event-lite');
 
-utils.add_ele('style', frame, { textContent: require('./index.css') });
-
 class Panel {
-	static panels = new Set();
-	constructor(type = ''){
+	constructor(frame, type = ''){
+		this.frame = frame;
+		
+		this.frame.css('panel', require('./index.css'));
+		
 		this.type = type;
 		this.visible = true;
 		this.hover = true;
-		this.node = utils.add_ele('main', frame, { className: this.type });
+		this.node = utils.add_ele('main', this.frame, { className: this.type });
 		
-		Panel.panels.add(this);
+		this.frame.panels.add(this);
 		
 		this.node.addEventListener('mousedown', () => this.focus());
 	}
 	focus(){
-		for(let panel of Panel.panels)if(panel != this)panel.blur();
+		for(let panel of this.frame.panels)if(panel != this)panel.blur();
 		this.node.classList.add('focus');
 		this.node.style['z-index'] = 3;
 	}
@@ -36,7 +37,7 @@ class Panel {
 		this.node.classList.remove('visible');
 	}
 	remove(){
-		Panel.panels.delete(this);
+		this.frame.panels.delete(this);
 		this.hide();
 		this.node.remove();
 	}

@@ -1,7 +1,8 @@
 'use strict';
 
 var DataStore = require('./DataStore'),
-	Loader = require('./Loader');
+	Loader = require('./Loader'),
+	Frame = require('./FloatUI/Frame');
 
 exports.store = new DataStore();
 
@@ -54,6 +55,8 @@ exports.addon_url = query => exports.firefox ? 'https://addons.mozilla.org/en-US
 require('./vars');
 
 if(exports.krunker && !exports.is_frame){
+	exports.frame = new Frame();
+	
 	if(utils.is_host(location, 'browserfps.com')){
 		require('./Proxy');
 	}
@@ -61,7 +64,7 @@ if(exports.krunker && !exports.is_frame){
 	loader.observe();
 	
 	loader.license(exports.meta);
-	
+
 }
 
 exports.utils = utils;

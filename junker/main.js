@@ -1,6 +1,6 @@
  'use strict';
 
-var { api, meta, utils, loader } = require('../libs/consts'),
+var { api, meta, utils, loader, frame } = require('../libs/consts'),
 	{ vars } = loader,
 	Input = require('../libs/Input'),
 	Player = require('../libs/Player'),
@@ -12,22 +12,7 @@ class Main {
 	constructor(){
 		this.hooked = Symbol();
 		
-		this.overlay = utils.add_ele('div', () => document.documentElement, {
-			style: {
-				top: 0,
-				left: 0,
-				'z-index': 9999999999,
-				border: 'none',
-				position: 'absolute',
-				background: '#0000',
-				width: '100vw',
-				height: '100vh',
-				overflow: 'hidden',
-				'pointer-events': 'none',
-			},
-		}).attachShadow({ mode: 'closed' });
-		
-		this.canvas = utils.add_ele('canvas', this.overlay);
+		this.canvas = utils.add_ele('canvas', frame);
 		this.ctx = this.canvas.getContext('2d');
 		
 		this.init_interface();

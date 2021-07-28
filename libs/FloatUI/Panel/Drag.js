@@ -4,8 +4,8 @@ var { frame, panels, utils, store } = require('../consts'),
 	Panel = require('./index');
 
 class DragPanel extends Panel {
-	constructor(type){
-		super(type);
+	constructor(frame, type){
+		super(frame, type);
 		
 		this.pos = { x: 0, y: 0 };
 		

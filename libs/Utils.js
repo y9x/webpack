@@ -10,8 +10,8 @@ class Utils {
 	add_ele(node_name, parent, attributes = {}){
 		var crt = this.crt_ele(node_name, attributes);
 		
-		if(typeof parent == 'function')this.wait_for(parent).then(data => data.appendChild(crt));
-		else if(typeof parent == 'object' && parent != null && parent.appendChild)parent.appendChild(crt);
+		if(typeof parent == 'function')this.wait_for(parent).then(data => data.append(crt));
+		else if(typeof parent == 'object' && parent != null && parent.append)parent.append(crt);
 		else throw new Error('Parent is not resolvable to a DOM element');
 		
 		return crt;
