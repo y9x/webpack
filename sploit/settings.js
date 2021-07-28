@@ -425,7 +425,7 @@ menu.add_preset('Rage', {
 		force_auto: true,
 		auto_reload: true,
 		wallbangs: true,
-		offset: 'head',
+		offset: 'multi',
 		spinbot: true,
 	},
 	player: {
