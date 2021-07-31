@@ -162,6 +162,7 @@ class Loader {
 		});
 		
 		if(meta.error){
+			document.querySelector('#initLoader').style.display = 'none';
 			this.show_error(meta.error.title, meta.error.message);
 			this.meta.reject();
 		}else this.meta.resolve(this.meta = meta);

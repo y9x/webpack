@@ -35,27 +35,23 @@ class Player {
 		return this.entity.onGround;
 	}
 	calc_rect(){
-		let playerScale = (2 * gconsts.armScale + gconsts.chestWidth + gconsts.armInset) / 2;
-		let xmin = Infinity;
-		let xmax = -Infinity;
-		let ymin = Infinity;
-		let ymax = -Infinity;
-		let position = null;
-		let broken = false;
+		var playerScale = (2 * gconsts.armScale + gconsts.chestWidth + gconsts.armInset) / 2,
+			xmin = Infinity,
+			xmax = -Infinity,
+			ymin = Infinity,
+			ymax = -Infinity,
+			position = null;
 		
 		this.frustum = true;
-		for(let var1 = -1; !broken && var1 < 2; var1+=2){
-			for(let var2 = -1; !broken && var2 < 2; var2+=2){
-				for(let var3 = 0; !broken && var3 < 2; var3++){
+		
+		for(let var1 = -1; this.frustum && var1 < 2; var1+=2){
+			for(let var2 = -1; this.frustum && var2 < 2; var2+=2){
+				for(let var3 = 0; this.frustum && var3 < 2; var3++){
 					if (position = this.obj.position.clone()) {
 						position.x += var1 * playerScale;
 						position.z += var2 * playerScale;
 						position.y += var3 * this.height;
-						if(!this.data.utils.contains_point(position)){
-							broken = true;
-							this.frustum = false;
-							break;
-						}
+						if(!this.data.utils.contains_point(position))return this.frustum = false;
 						position.project(this.data.world.camera);
 						xmin = Math.min(xmin, position.x);
 						xmax = Math.max(xmax, position.x);
@@ -66,7 +62,7 @@ class Player {
 			}
 		}
 
-		// if(broken)continue;
+		// if(!this.frustum)continue;
 		
 		xmin = (xmin + 1) / 2;
 		xmax = (xmax + 1) / 2;
@@ -160,10 +156,10 @@ class Player {
 		return !this.reloading && this.has_ammo && (this.can_throw || !this.weapon.melee || this.can_melee);
 	}
 	get hitbox_pad(){
-		return this.data.game.config.hitBoxPad;
+		return this.data.game.config.hitBoxPad - 0.2;
 	}
 	get hitbox_scale(){
-		return this.entity.scale + this.hitbox_pad - 0.3;
+		return this.entity.scale + this.hitbox_pad - 0.2;
 	}
 	get aim_press(){ return this.data.controls[vars.mouseDownR] || this.data.controls.keys[this.data.controls.binds.aim.val] }
 	get crouch(){ return this.entity[vars.crouchVal] || 0 }
