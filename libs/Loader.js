@@ -162,7 +162,10 @@ class Loader {
 		});
 		
 		if(meta.error){
-			document.querySelector('#initLoader').style.display = 'none';
+			utils.add_ele('style', document.documentElement, {
+				textContent: '#initLoader,#instructionsUpdate{display:none!IMPORTANT}',
+			});
+			
 			this.show_error(meta.error.title, meta.error.message);
 			this.meta.reject();
 		}else this.meta.resolve(this.meta = meta);
