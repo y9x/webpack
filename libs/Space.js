@@ -122,7 +122,7 @@ class Vector3 {
 		return this;
 	}
 	distance_to(point){
-		return Math.hypot(this.x - point.x, this.y - point.y, this.z - point.z)
+		return Math.hypot(this.x - point.x, this.y - point.y, this.z - point.z);
 	}
 };
 
