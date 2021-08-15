@@ -158,6 +158,7 @@ class Loader {
 				...input_meta,
 				needs_key: true,
 			},
+			method: 'POST',
 			result: 'json',
 		});
 		
