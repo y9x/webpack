@@ -25,7 +25,7 @@ class Utils {
 		
 		if(node_name == 'raw')node = this.crt_ele('div', { innerHTML: attributes.html }).firstChild;
 		else if(node_name == 'text')node = document.createTextNode('');
-		else node = document.createElement(node_name)
+		else node = document.createElement(node_name);
 		
 		var cls = attributes.className;
 		
@@ -163,6 +163,6 @@ class Utils {
 	rtn(number, unit){
 		return (number / unit).toFixed() * unit;
 	}
-}
+};
 
 module.exports = Utils;
