@@ -358,7 +358,7 @@ class Player {
 	}
 	tick(){
 		this.position.set(this.entity.x, this.entity.y, this.entity.z);
-		this.velocity.set(this.entity.xVel, this.entity.yVel, this.entity.zVel);
+		this.velocity.set(this.entity.velocity.x, this.entity.velocity.y, this.entity.velocity.z);
 		
 		this.hitbox.min.set(
 			this.position.x - this.hitbox_scale,

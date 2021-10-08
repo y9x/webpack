@@ -40,7 +40,7 @@ loader.var('weaponIndex', /\.weaponConfig\[\w+]\.secondary&&\(\w+\.(\w+)==\w+/, 
 
 loader.var('maxHealth', /\.regenDelay,this\.(\w+)=\w+\.mode&&\w+\.mode\.\1/, 1),
 
-loader.var('yVel', /\w+\.(\w+)&&\(\w+\.y\+=\w+\.\1\*/, 1);
+// loader.var('yVel', /\w+\.(\w+)&&\(\w+\.y\+=\w+\.\1\*/, 1);
 
 loader.var('mouseDownR', /this\.(\w+)=0,this\.keys=/, 1);
 
