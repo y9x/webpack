@@ -161,7 +161,7 @@ class Player {
 	get hitbox_scale(){
 		return this.entity.scale + this.hitbox_pad - 0.2;
 	}
-	get aim_press(){ return this.data.controls[vars.mouseDownR] || this.data.controls.keys[this.data.controls.binds.aim.val] }
+	get aim_press(){ return this.data.controls[vars.adsToggled] || this.data.controls.keys[this.data.controls.binds.aim.val] }
 	get crouch(){ return this.entity[vars.crouchVal] || 0 }
 	get box_scale(){
 		var view = this.data.utils.camera_world(),	
