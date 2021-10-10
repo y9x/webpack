@@ -10,8 +10,6 @@ var UI = require('../libs/FloatUI'),
 	{ frame, utils, proxy_addons, supported_store, addon_url, meta, store, loader } = require('../libs/consts'),
 	actions = new UI.Actions(frame);
 
-new Keybind('F4', () => location.assign('/'));
-
 class Main {
 	hooked = Symbol();
 	skins = [...Array(5000)].map((e, i) => ({ ind: i, cnt: 1 }));
