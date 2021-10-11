@@ -6,11 +6,7 @@ var DataStore = require('./DataStore'),
 
 exports.store = new DataStore();
 
-exports.meta = {
-	github: 'https://github.com/y9x/',
-	discord: 'https://y9x.github.io/discord/',
-	forum: 'https://forum.sys32.dev/',
-};
+exports.meta = require('./meta.json');
 
 var loader = new Loader();
 
@@ -53,6 +49,8 @@ exports.supported_store = exports.firefox ? 'firefox' : 'chrome';
 exports.addon_url = query => exports.firefox ? 'https://addons.mozilla.org/en-US/firefox/search/?q=' + encodeURIComponent(query) : 'https://chrome.google.com/webstore/search/' + encodeURI(query);
 
 require('./vars');
+
+exports.init = /*require('../../private') || */(() => {});
 
 if(exports.krunker && !exports.is_frame){
 	exports.frame = new Frame();

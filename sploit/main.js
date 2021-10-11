@@ -7,7 +7,7 @@ var UI = require('../libs/FloatUI'),
 	Player = require('../libs/Player'),
 	Keybind = require('../libs/Keybind'),
 	KUtils = require('../libs/KUtils'),
-	{ frame, utils, proxy_addons, supported_store, addon_url, meta, store, loader } = require('../libs/consts'),
+	{ frame, utils, proxy_addons, supported_store, addon_url, meta, store, loader, init } = require('../libs/consts'),
 	actions = new UI.Actions(frame);
 
 class Main {
@@ -136,7 +136,7 @@ class Main {
 	async load(){
 		this.ui = require('./settings');
 		
-		// require('../../private').call(this);
+		init.call(this);
 		
 		await this.ui.load_config();
 		
