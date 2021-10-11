@@ -186,7 +186,7 @@ class Main {
 					<p>Find a new game to bypass this.</p>`
 				).then(() => location.assign('/'));
 				else if(has('banned'))localStorage.removeItem('krunker_token'), actions.alert(
-					`<p>You were banned, Sploit has signed you out.</p>
+					`<p>You were banned. Sploit has signed you out.</p>
 					<p>Create a new account to bypass this ban.</p>`
 				).then(() => location.assign('/'));
 			}
