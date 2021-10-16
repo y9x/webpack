@@ -1,7 +1,7 @@
 'use strict';
 
 var Request = require('../libs/Request'),
-	Controls = require('../libs/ExtendMenu'),
+	Controls = require('../libs/ExtendMenuLegacy'),
 	utils = require('../libs/Utils'),
 	meta = require('./meta');
 
