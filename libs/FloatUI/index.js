@@ -1,7 +1,5 @@
 'use strict';
 
-var { utils } = require('./consts.js');
-
 require('../Segoe');
 
 exports.Frame = require('./Frame');

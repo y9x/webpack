@@ -1,6 +1,6 @@
 'use strict';
 
-var { utils } = require('../consts');
+var utils = require('../../Utils');
 
 class Switch extends HTMLElement {
 	constructor(){

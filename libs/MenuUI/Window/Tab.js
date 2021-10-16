@@ -1,6 +1,7 @@
 'use strict';
 
-var { utils, tick, select } = require('../consts'),
+var { tick, select } = require('../consts'),
+	utils = require('../../Utils'),
 	Category = require('./Category');
 
 class Tab {

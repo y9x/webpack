@@ -1,10 +1,13 @@
 'use strict';
 
-var { utils, store } = require('../consts'),
-	EventLite  = require('event-lite');
+var { store } = require('../consts'),
+	utils = require('../../Utils'),
+	Events = require('../../Events');
 
-class Panel {
+class Panel extends Events {
 	constructor(frame, type = ''){
+		super();
+		
 		this.frame = frame;
 		
 		this.frame.css('panel', require('./index.css'));
@@ -42,7 +45,5 @@ class Panel {
 		this.node.remove();
 	}
 };
-
-EventLite.mixin(Panel.prototype);
 
 module.exports = Panel;

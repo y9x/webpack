@@ -2,11 +2,14 @@
 
 require('../../EZ');
 
-var { keybinds, utils } = require('../consts'),
-	EventLite  = require('event-lite');
+var { keybinds } = require('../consts'),
+	utils = require('../../Utils'),
+	Events  = require('../../Events');
 
-class Control {
+class Control extends Events {
 	constructor(name, data, section){
+		super();
+		
 		this.name = name;
 		this.data = data;
 		this.panel = section.panel;
@@ -67,8 +70,6 @@ class Control {
 	}
 	update(){}
 };
-
-EventLite.mixin(Control.prototype);
 
 class BooleanControl extends Control {
 	static id = 'boolean';

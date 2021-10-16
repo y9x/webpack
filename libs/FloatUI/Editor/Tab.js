@@ -1,6 +1,7 @@
 'use strict';
 
-var { utils, store } = require('../consts'),
+var { store } = require('../consts'),
+	utils = require('../../Utils'),
 	svg = require('./svg');
 
 class Tab {

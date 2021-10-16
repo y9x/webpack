@@ -1,6 +1,6 @@
 'use strict';
 
-var { utils } = require('../consts'),
+var utils = require('../../Utils'),
 	Panel = require('../panel');
 
 class Loading extends Panel {

@@ -1,7 +1,6 @@
 'use strict';
 
-var Utils = require('./utils'),
-	utils = new Utils();
+var utils = require('./Utils');
 
 class File {
 	utf8_dec = new TextDecoder('utf8');

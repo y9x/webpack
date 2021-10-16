@@ -1,9 +1,5 @@
 'use strict';
 
-var DataStore = require('../DataStore'),
-	Utils = require('../Utils'),
-	utils = new Utils();
-
-exports.utils = utils;
+var DataStore = require('../DataStore');
 
 exports.store = new DataStore();

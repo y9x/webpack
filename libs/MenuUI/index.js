@@ -1,13 +1,16 @@
 'use strict';
 
-var { utils, store } = require('./consts'),
+var { store } = require('./consts'),
+	utils = require('../Utils'),
 	DataStore = require('../DataStore'),
 	Window = require('./Window/'),
 	MenuButton = require('./MenuButton'),
-	EventLite  = require('event-lite');
+	Events  = require('../Events');
 
-class MenuUI {
+class MenuUI extends Events {
 	constructor(label, icon, key, store = new DataStore()){
+		super();
+		
 		this.store = store;
 		
 		this.config_key = key;
@@ -78,8 +81,6 @@ class MenuUI {
 	}
 	static keybinds = new Set();
 };
-
-EventLite.mixin(MenuUI.prototype);
 
 window.addEventListener('keydown', event => {
 	if(event.repeat || ['TEXTAREA', 'INPUT'].includes((document.activeElement || {}).tagName))return;

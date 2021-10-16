@@ -1,7 +1,7 @@
 'use strict';
 
 var Addon = require('../Addon'),
-	{ utils, consts } = require('../consts');
+	utils = require('../../Utils');
 
 class DiscordAddon extends Addon {
 	invite = /([a-z0-9-]{3,25})\s*?$/i;

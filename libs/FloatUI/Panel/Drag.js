@@ -1,6 +1,6 @@
 'use strict';
 
-var { frame, panels, utils, store } = require('../consts'),
+var { frame, panels, store } = require('../consts'),
 	Panel = require('./index');
 
 class DragPanel extends Panel {

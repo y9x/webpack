@@ -8,7 +8,8 @@ var meta = require('./meta'),
 	DiscordAddon = require('../libs/MenuUI/addons/discord'),
 	SettingsAddon = require('../libs/MenuUI/addons/settings'),
 	menu = new MenuUI('Junk', meta.icon, 'junkerconfig'),
-	{ api, utils, meta } = require('../libs/consts'),
+	{ api, meta } = require('../libs/consts'),
+	utils = require('../libs/Utils'),
 	doc_body = utils.wait_for(() => document.body);
 
 MenuUI.keybinds.add({

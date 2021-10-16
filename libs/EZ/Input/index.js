@@ -1,6 +1,6 @@
 'use strict';
 
-var { utils } = require('../consts.js');
+var utils = require('../../Utils');
 
 class Input extends HTMLElement {
 	constructor(){

@@ -1,7 +1,7 @@
 'use strict';
 
 var Panel = require('../Panel'),
-	{ utils } = require('../consts');
+	utils = require('../../Utils');
 
 class Actions {
 	constructor(frame){

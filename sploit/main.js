@@ -6,8 +6,9 @@ var UI = require('../libs/FloatUI'),
 	Socket = require('../libs/Socket'),
 	Player = require('../libs/Player'),
 	Keybind = require('../libs/Keybind'),
-	KUtils = require('../libs/KUtils'),
-	{ frame, utils, proxy_addons, supported_store, addon_url, meta, store, loader, init } = require('../libs/consts'),
+	KrunkerUtils = require('../libs/KrunkerUtils'),
+	{ frame, proxy_addons, supported_store, addon_url, meta, store, loader, init } = require('../libs/consts'),
+	utils = require('../libs/Utils'),
 	actions = new UI.Actions(frame);
 
 class Main {
@@ -32,7 +33,7 @@ class Main {
 		
 		this.init_interface();
 		
-		this.utils = new KUtils(this.interface);
+		this.utils = new KrunkerUtils(this.interface);
 		this.visual = new Visual(this.interface);
 		this.input = new Input(this.interface);
 	}

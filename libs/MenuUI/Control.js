@@ -1,10 +1,12 @@
 'use strict';
 
-var { utils } = require('./consts'),
-	EventLite  = require('event-lite');
+var utils = require('../Utils'),
+	Events = require('../Events');
 
-class Control {
+class Control extends Events {
 	constructor(name, data, category){
+		super();
+		
 		this.data = data;
 		this.name = name;
 		this.category = category;
@@ -67,8 +69,6 @@ class Control {
 	}
 };
 
-EventLite.mixin(Control.prototype);
-
 class BooleanControl extends Control {
 	static id = 'boolean';
 	create(){
@@ -89,6 +89,7 @@ class BooleanControl extends Control {
 	update(init){
 		super.update(init);
 		if(init)this.input.checked = this.value;
+		this.label_text(this.name);
 	}
 }
 
@@ -115,22 +116,42 @@ class LinkControl extends Control {
 	static id = 'link';
 	create(){
 		this.link = utils.add_ele('a', this.content, {
-			className: 'settingsBtn',
-			textContent: 'Run',
+			href: this.value,
 		});
+		this.link.append(this.label);
 	}
-	update(init){
-		this.link.textContent = this.value;
+	interact(){
+		this.link.click();
 	}
 };
+
+class LinkFunctionControl extends Control {
+	static id = 'linkfunction';
+	create(){
+		this.link = utils.add_ele('a', this.content, {
+			href: '#',
+			events: {
+				click: () => this.interact(),
+			},
+		});
+		this.link.append(this.label);
+	}
+	interact(){
+		this.value();
+	}
+};
+
 
 class FunctionControl extends Control {
 	static id = 'function';
 	create(){
 		utils.add_ele('div', this.content, {
 			className: 'settingsBtn',
-			textContent: 'Run',
-		}).addEventListener('click', () => this.interact());
+			textContent: this.data.text || 'Run',
+			events: {
+				click: () => this.interact(),
+			},
+		});
 	}
 	interact(){
 		this.value();
@@ -258,7 +279,7 @@ class ColorControl extends Control {
 	}
 };
 
-Control.Types = [
+Control.Types = {
 	KeybindControl,
 	SelectControl,
 	BooleanControl,
@@ -268,6 +289,7 @@ Control.Types = [
 	SliderControl,
 	ColorControl,
 	LinkControl,
-];
+	LinkFunctionControl,
+};
 
 module.exports = Control;

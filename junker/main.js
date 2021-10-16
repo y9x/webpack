@@ -1,12 +1,13 @@
  'use strict';
 
-var { api, meta, utils, loader, frame } = require('../libs/consts'),
+var { api, meta, loader, frame } = require('../libs/consts'),
 	{ vars } = loader,
+	utils = require('../libs/Utils'),
 	Input = require('../libs/Input'),
 	Player = require('../libs/Player'),
 	Visual = require('../libs/visual'),
 	Socket = require('../libs/Socket'),
-	KUtils = require('../libs/KUtils');
+	KrunkerUtils = require('../libs/KrunkerUtils');
 
 class Main {
 	constructor(){
@@ -17,7 +18,7 @@ class Main {
 		
 		this.init_interface();
 		
-		this.utils = new KUtils(this.interface);
+		this.utils = new KrunkerUtils(this.interface);
 		this.input = new Input(this.interface);
 		this.visual = new Visual(this.interface);
 		
@@ -140,7 +141,7 @@ class Main {
 		};		
 	}
 	async load(){
-		this.utils.add_ele('style', () => document.documentElement, { textContent: require('./index.css') });
+		utils.add_ele('style', () => document.documentElement, { textContent: require('./index.css') });
 		
 		await this.menu.load_config();
 		

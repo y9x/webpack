@@ -1,6 +1,6 @@
 'use strict';
 
-var { utils } = require('./consts');
+var utils = require('../Utils');
 
 class Frame {
 	container = utils.add_ele('div', () => document.documentElement, { style: {

@@ -1,12 +1,10 @@
 'use strict';
 
 var { loader } = require('./consts'),
-	{ vars } = loader,
-	Utils = require('./Utils');
+	{ vars } = loader;
 
-class KUtils extends Utils {
+class KrunkerUtils {
 	constructor(data){
-		super();
 		this.data = data;
 	}
 	rgbToHex(e, t, i){
@@ -136,4 +134,4 @@ class KUtils extends Utils {
 	}
 };
 
-module.exports = KUtils;
+module.exports = KrunkerUtils;

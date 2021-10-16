@@ -1,11 +1,10 @@
 'use strict';
 
-var Utils = require('./Utils'),
+var utils = require('./Utils'),
 	Request = require('./Request'),
-	EventLite = require('event-lite'),
-	utils = new Utils();
+	Events = require('./Events');
 
-class Loader {
+class Loader extends Events {
 	gconsts = {
 		playerHeight: 11,
 		cameraHeight: 1.5,
@@ -21,27 +20,19 @@ class Loader {
 	};
 	api = 0 ? 'http://127.0.0.1:7300/' : 'https://api.sys32.dev/';
 	matchmaker = 'https://matchmaker.krunker.io/';
-	constructor(matchmaker_url, api_url){
-		this.has_instruct = this.has_instruct.bind(this);
-		
-		this.stacks = new Set();
-		
-		this.api_v2 = new URL('v2/', this.api);
-		
-		this.meta = utils.promise();
-		
-		this.patches = new Map();
-		this.variables = new Map();
-		
+	badge = '[GameLoader]';
 		// outcome of above maps
-		this.vars = {};
-		
-		this.context = {
-			key: '_' + Math.random().toString().substr(2),
-		};
-		
-		this.badge = '[GameLoader]';
-	}
+	vars = {};
+	context = {
+		key: '_' + Math.random().toString().substr(2),
+	};
+	has_instruct = this.has_instruct.bind(this);
+	stacks = new Set();
+	api_v2 = new URL('v2/', this.api);
+	
+	meta = utils.promise();
+	patches = new Map();
+	variables = new Map();
 	log(...text){
 		console.log(this.badge, ...text);
 	}
@@ -105,6 +96,8 @@ class Loader {
 		holder.style.display = 'block';
 		holder.style.pointerEvents = 'all';
 		
+		for(let node of document.querySelectorAll('#loadingBg, #initLoader'))node.style.display = 'none';
+	
 		instructions.innerHTML = `<div style='color:#FFF9'>${title}</div><div style='margin-top:10px;font-size:20px;color:#FFF6'>${message}</div>`;
 	}
 	async token(){
@@ -184,7 +177,7 @@ class Loader {
 			cache: true,
 		});
 	}
-	async load(add_args = {}, add_context = {}){
+	async load(add_args = {}, add_context = {}, before_load = () => {}){
 		var args = {
 				...add_args,
 				[this.context.key]: this.context,
@@ -196,6 +189,7 @@ class Loader {
 		
 		try{
 			await this.loadp;
+			before_load();
 			new Function(...Object.keys(args), source)(...Object.values(args));
 		}catch(err){
 			this.report_error('loading', err);
@@ -203,7 +197,5 @@ class Loader {
 		}
 	}
 };
-
-EventLite.mixin(Loader.prototype);
 
 module.exports = Loader;

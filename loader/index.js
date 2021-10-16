@@ -1,9 +1,8 @@
 'use strict';
 
 var Request = require('../libs/Request'),
-	Utils = require('../libs/utils'),
-	utils = new Utils(),
 	Controls = require('../libs/ExtendMenu'),
+	utils = require('../libs/Utils'),
 	meta = require('./meta');
 
 class Loader {
@@ -152,8 +151,6 @@ class Loader {
 		delete Object.prototype.logs;
 	}
 };
-
-if(!window.open.toString().includes('MOCK_PROTOCOL'))alert('Please replace this userscript with the official client loader.');
 
 var loader = new Loader(SCRIPTS_URL);
 

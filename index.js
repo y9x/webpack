@@ -81,4 +81,3 @@ var create_script = (basename, served) => {
 create_script('sploit', true);
 create_script('junker', true);
 create_script('loader', false);
-// create_script('loaderMAD', false);

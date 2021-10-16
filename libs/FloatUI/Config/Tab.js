@@ -1,6 +1,6 @@
 'use strict';
 
-var { utils } = require('../consts'),
+var utils = require('../../Utils'),
 	Control = require('./Control');
 
 class Tab {

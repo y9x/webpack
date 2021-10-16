@@ -1,13 +1,13 @@
 'use strict';
 
 class Utils {
-	is_host(url, ...hosts){
+	static is_host(url, ...hosts){
 		return hosts.some(host => url.hostname == host || url.hostname.endsWith('.' + host));
 	}
-	round(n, r){
+	static round(n, r){
 		return Math.round(n * Math.pow(10, r)) / Math.pow(10, r);
 	}
-	add_ele(node_name, parent, attributes = {}){
+	static add_ele(node_name, parent, attributes = {}){
 		var crt = this.crt_ele(node_name, attributes);
 		
 		if(typeof parent == 'function')this.wait_for(parent).then(data => data.append(crt));
@@ -16,7 +16,7 @@ class Utils {
 		
 		return crt;
 	}
-	crt_ele(node_name, attributes = {}){
+	static crt_ele(node_name, attributes = {}){
 		var after = {};
 		
 		for(let prop in attributes)if(typeof attributes[prop] == 'object' && attributes[prop] != null)after[prop] = attributes[prop], delete attributes[prop];
@@ -48,7 +48,7 @@ class Utils {
 		
 		return node;
 	}
-	wait_for(check, time){
+	static wait_for(check, time){
 		return new Promise(resolve => {
 			var interval,
 				run = () => {
@@ -67,21 +67,21 @@ class Utils {
 			interval = run() || setInterval(run, time || 50);
 		});
 	}
-	sanitize(string){
+	static sanitize(string){
 		var node = document.createElement('div');
 		
 		node.textContent = string;
 		
 		return node.innerHTML;
 	}
-	unsanitize(string){
+	static unsanitize(string){
 		var node = document.createElement('div');
 		
 		node.innerHTML = string;
 		
 		return node.textContent;
 	}
-	node_tree(nodes, parent = document){
+	static node_tree(nodes, parent = document){
 		var output = {
 				parent: parent,
 			},
@@ -114,13 +114,13 @@ class Utils {
 		
 		return output;
 	}
-	string_key(key){
+	static string_key(key){
 		return key.replace(/^([A-Z][a-z]+?)([A-Z0-9][a-z]*?)/, (match, type, key) => ['Digit', 'Key'].includes(type) ? key : `${key} ${type}`);
 	}
-	clone_obj(obj){
+	static clone_obj(obj){
 		return JSON.parse(JSON.stringify(obj));
 	}
-	assign_deep(target, ...objects){
+	static assign_deep(target, ...objects){
 		for(let ind in objects)for(let key in objects[ind]){
 			if(typeof objects[ind][key] == 'object' && objects[ind][key] != null && key in target)this.assign_deep(target[key], objects[ind][key]);
 			else if(typeof target == 'object' && target != null)Object.defineProperty(target, key, Object.getOwnPropertyDescriptor(objects[ind], key))
@@ -128,7 +128,7 @@ class Utils {
 		
 		return target;
 	}
-	filter_deep(target, match){
+	static filter_deep(target, match){
 		for(let key in target){
 			if(!(key in match))delete target[key];
 			
@@ -137,7 +137,7 @@ class Utils {
 		
 		return target;
 	}
-	redirect(name, from, to){
+	static redirect(name, from, to){
 		var proxy = Symbol();
 		
 		to.addEventListener(name, event => {
@@ -150,7 +150,7 @@ class Utils {
 			preventDefault: event.preventDefault.bind(event),
 		})));
 	}
-	promise(){
+	static promise(){
 		var temp,
 			promise = new Promise((resolve, reject) => temp = { resolve, reject });
 		
@@ -160,7 +160,7 @@ class Utils {
 		
 		return promise;
 	}
-	rtn(number, unit){
+	static rtn(number, unit){
 		return (number / unit).toFixed() * unit;
 	}
 };

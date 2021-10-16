@@ -1,6 +1,6 @@
 'use strict';
 
-var { utils } = require('../consts'),
+var utils = require('../../Utils'),
 	Control = require('../Control');
 
 class Category {
@@ -10,6 +10,8 @@ class Category {
 		this.controls = new Set();
 		
 		if(label){
+			this.label = label;
+			
 			this.header = utils.add_ele('div', this.tab.content, {
 				className: 'setHed',
 			});
@@ -62,7 +64,7 @@ class Category {
 		for(let control of this.controls)control.show_content();
 	}
 	control(name, data){
-		for(let type of Control.Types)if(type.id == data.type){
+		for(let [ cls, type ] of Object.entries(Control.Types))if(type.id == data.type){
 			let control = new type(name, data, this);
 			
 			this.controls.add(control);

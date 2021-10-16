@@ -40,7 +40,7 @@ window.addEventListener('keydown', event => {
 	//  || keybind.repeat
 	for(let keybind of Keybind.keybinds)if((!event.repeat) && keybind.keys.has(event.code)){
 		event.preventDefault();
-		for(let callback of keybind.callbacks)callback();
+		for(let callback of keybind.callbacks)callback(event);
 	}
 });
 

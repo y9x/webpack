@@ -1,10 +1,11 @@
 'use strict';
 
-var { api, utils, meta, loader, frame } = require('../libs/consts.js'),
+var { api, meta, loader, frame } = require('../libs/consts.js'),
 	UI = require('../libs/FloatUI'),
 	File = require('../libs/File'),
 	Keybind = require('../libs/Keybind'),
 	Request = require('../libs/Request'),
+	utils = require('../libs/Utils'),
 	menu = new UI.Config(frame, 'Sploit', 'config'),
 	binds = {
 		toggle: new Keybind().callback(() => {

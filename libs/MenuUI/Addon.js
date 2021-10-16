@@ -1,9 +1,11 @@
 'use strict';
 
-var EventLite  = require('event-lite');
+var Events  = require('../Events');
 
-class Addon {
+class Addon extends Events {
 	constructor(menu, args){
+		super();
+		
 		this.menu = menu;
 		this.window = menu.window;
 		
@@ -15,7 +17,5 @@ class Addon {
 	}
 	create(){}
 };
-
-EventLite.mixin(Addon.prototype);
 
 module.exports = Addon;

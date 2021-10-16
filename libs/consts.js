@@ -12,8 +12,7 @@ var loader = new Loader();
 
 exports.loader = loader;
 
-var Utils = require('./Utils'),
-	utils = new Utils();
+var utils = require('./Utils');
 
 exports.is_frame = window != window.top;
 
@@ -64,8 +63,6 @@ if(exports.krunker && !exports.is_frame){
 	loader.license(exports.meta);
 
 }
-
-exports.utils = utils;
 
 // old loader compatibility
 // 
