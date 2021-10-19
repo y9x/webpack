@@ -18,6 +18,7 @@ class Loader extends ExtendMenu {
 		this.config = utils.assign_deep({
 			script: {
 				url: false,
+				name: '',
 				version: 0,
 			},
 			gui: {
@@ -121,7 +122,10 @@ class Loader extends ExtendMenu {
 			this.warn('No script in sessionStorage, cache invalidated.');
 			cache_invalidated = true;
 		}else this.log('Loading cache...');
-			
+		
+		this.config.script.version = serving.version;
+		this.save_config();
+		
 		if(cache_invalidated){
 			this.log('Requesting new script...');
 			
@@ -162,6 +166,7 @@ class Loader extends ExtendMenu {
 			if(init)return;
 			
 			this.config.script.name = this.dropdown.key;
+			
 			this.save_config();
 			location.reload();
 		});
