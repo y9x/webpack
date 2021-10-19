@@ -30,18 +30,12 @@ class Control extends Events {
 	remove(){
 		this.content.remove();
 	}
-	get key(){
-		if(!this.data.key)return null;
-		
-		var walked = this.walk(this.data.key);
-		return walked[0][walked[1]];
-	}
 	walk(data){
 		var state = this.panel.config,
 			last_state,
 			last_key;
 		
-		data.split('.').forEach(key => state = ((last_state = state)[last_key = key] || {}));
+		for(let key of data.split('.'))state = (last_state = state)[last_key = key] || {};
 		
 		return [ last_state, last_key ];
 	}
@@ -104,6 +98,33 @@ class SelectControl extends Control {
 	}
 	update(init){
 		if(init)this.select.value = this.value;
+	}
+};
+
+class DropdownControl extends Control {
+	static id = 'dropdown';
+	create(){
+		this.select = utils.add_ele('ez-select', this.content, {
+			events: {
+				change: () => {
+					this.key = this.select.value;
+					this.value = this.data.value[this.select.value];
+				},
+			},
+		});
+		
+		for(let key in this.data.value)utils.add_ele('ez-option', this.select, {
+			textContent: key,
+			value: key,
+		});
+	}
+	update(init){
+		if(init)for(let [ key, value ] of Object.entries(this.data.value)){
+			if(value == this.value){
+				this.select.value = key;
+				this.key = key;
+			}
+		}
 	}
 };
 
@@ -213,6 +234,7 @@ class ColorControl extends Control {
 Control.Types = [
 	KeybindControl,
 	SelectControl,
+	DropdownControl,
 	BooleanControl,
 	FunctionControl,
 	ManyFunctionsControl,

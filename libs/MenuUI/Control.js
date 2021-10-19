@@ -30,7 +30,7 @@ class Control extends Events {
 			last_state,
 			last_key;
 		
-		data.split('.').forEach(key => state = ((last_state = state)[last_key = key] || {}));
+		for(let key of data.split('.'))state = (last_state = state)[last_key = key] || {};
 		
 		return [ last_state, last_key ];
 	}

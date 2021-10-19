@@ -21,14 +21,14 @@ var Render = menu.tab('Render');
 
 Render.control('ESP Mode', {
 	name: 'ESP Mode',
-	type: 'select',
+	type: 'dropdown',
 	walk: 'esp.status',
 	value: {
-		off: 'Off',
-		box: 'Box',
+		Off: 'off',
+		Box: 'box',
 		chams: 'Chams',
-		box_chams: 'Box & Chams',
-		full: 'Full',
+		'Box & Chams': 'box_chams',
+		Full: 'full',
 	},
 });
 
@@ -108,11 +108,11 @@ Weapon.control('Target', {
 	type: 'select',
 	walk: 'aim.offset',
 	value: {
-		head: 'Head',
-		torso: 'Torso',
-		legs: 'Legs',
-		random: 'Random',
-		multi:  'Multi',
+		Head: 'head',
+		Torso: 'torso',
+		Legs: 'legs',
+		Random: 'random',
+		Multi: 'multi',
 	},
 });
 
@@ -120,9 +120,9 @@ Weapon.control('Target Sorting', {
 	type: 'select',
 	walk: 'aim.target_sorting',
 	value: {
-		dist2d: 'Crosshair',
-		dist3d: 'Distance',
-		hp: 'Health',
+		Crosshair: 'dist2d',
+		Distance: 'dist3d',
+		Health: 'hp',
 	},
 });
 
@@ -137,9 +137,7 @@ Weapon.control('Target FOV', {
 	min: 5,
 	max: 110,
 	step: 5,
-	labels: {
-		110: 'Inf',
-	},
+	labels: { 110: 'Inf' },
 });
 
 Weapon.control('Smoothness', {
@@ -185,11 +183,11 @@ Player.control('Auto Bhop Mode', {
 	type: 'select',
 	walk: 'player.bhop',
 	value: {
-		off: 'Off',
-		keyjump: 'Key Jump',
-		keyslide: 'Key Slide',
-		autoslide: 'Auto Slide',
-		autojump: 'Auto Jump',
+		Off: 'off',
+		'Key Jump': 'keyjump',
+		'Key Slide': 'keyslide',
+		'Auto Slide': 'autoslide',
+		'Auto Jump': 'autojump',
 	},
 });
 
