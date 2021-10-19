@@ -17,6 +17,8 @@ class Events {
 		if(typeof callback != 'function')throw new TypeError('Callback is not a function.');
 		
 		this.#resolve(event).add(callback);
+		
+		return this;
 	}
 	once(event, callback){
 		var cb = function(...data){

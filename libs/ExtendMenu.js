@@ -6,8 +6,12 @@ var utils = require('../libs/utils'),
 	Category = require('./MenuUI/Window/Category');
 
 class ExtendMenu extends Events {
-	save_config(){
+	html = new HTMLProxy();
+	async save_config(){
 		console.error('save_config() not implemented');
+	}
+	async load_config(){
+		console.error('load_config() not implemented');
 	}
 	tab = {
 		content: this.html,

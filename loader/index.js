@@ -1,14 +1,38 @@
 'use strict';
 
 var Request = require('../libs/Request'),
-	Controls = require('../libs/ExtendMenuLegacy'),
+	ExtendMenu = require('../libs/ExtendMenu'),
+	Keybind = require('../libs/Keybind'),
 	utils = require('../libs/Utils'),
 	meta = require('./meta');
 
-class Loader {
+class Loader extends ExtendMenu {
 	type = 'Userscript';
 	lock = true;
 	version = meta.version;
+	key = 'krl';
+	save_config(){
+		localStorage[this.key] = JSON.stringify(this.config);
+	}
+	async load_config(){
+		this.config = utils.assign_deep({
+			script: {
+				url: false,
+				version: 0,
+			},
+			gui: {
+				show: true,
+			},
+		}, JSON.parse(localStorage[this.key] || '{}'));
+		
+		try{
+			this.legacy();
+		}catch(err){
+			console.error(err);
+		}
+		
+		this.save_config();
+	}
 	og_names = {
 		doge: 'Dogeware',
 		skid: 'SkidFest',
@@ -16,25 +40,144 @@ class Loader {
 		sploit: 'Sploit',
 		junk: 'Junker',
 	};
+	legacy(){
+		var script_info = localStorage.scriptinfo,
+			name,
+			og = localStorage.userScripts;
+		
+		if(og){
+			delete localStorage.userScripts;
+			name = this.og_names[og];
+		}
+		
+		if(script_info){
+			delete localStorage.scriptinfo;
+			
+			var sc = JSON.parse(script_info || '{}');
+			
+			name = sc.name;
+			
+			if(sc?.data?.url){
+				this.config.script.url = sc.data.url;
+				this.config.script.name = sc.name;
+			}
+		}
+	}
 	constructor(url){
+		super();
 		this.url = url;
 		this.badge = '[LOADER ' + this.version + ']';
 		this.active = null;
-		this.controls = new Controls();
+	}
+	async main(){
+		var serve = await Request({
+			target: this.url,
+			result: 'json',
+			cache: 'query',
+			sync: true,
+		});
 		
-		utils.wait_for(() => typeof windows == 'object' && windows).then(arr => {
-			var settings = arr[0],
-				index = settings.tabs.length,
-				get = settings.getSettings;
+		// if(meta.version != serve.loader.version){
+		if(meta.version < serve.loader.version){
+			this.warn('The loader is outdated!');
 			
-			settings.tabs.push({ name: 'Cheats', categories: [] });
+			if(navigator.userAgent.includes('Electron')){
+				alert(`A new version of the Krunker Cheat Loader is available. Open GG Client's forum post and download the new loader. Replace this script with the new latest version.`);
+				window.open('https://forum.sys32.dev/d/3-gg-client');
+			}else return this.redirect(Request.resolve({
+				target: serve.loader.url,
+				query: { v: serve.loader.version },
+			}));
+		}
+		
+		this.load_config();
+		
+		try{
+			this.menu(serve);
+		}catch(err){
+			this.warn(err);
+		}
+		
+		if(this.config.script.url)try{
+			this.load_script(serve);
+		}catch(err){
+			this.warn(err);
+		}else this.warn('No script selected');
+	}
+	async load_script(serve){
+		var cache_invalidated = false,
+			code;
+		
+		if(!this.config.script.name)return this.log('Invalid script selected, returning...');
+		
+		if(serve.scripts[this.config.script.name].version != this.config.script.version){
+			this.warn('Script data changed, cache invalidated.');
+			cache_invalidated = true;
+		}else if(!(code = sessionStorage.getItem(this.config.script.url))){
+			this.warn('No script in sessionStorage, cache invalidated.');
+			cache_invalidated = true;
+		}else this.log('Loading cache...');
 			
-			settings.getSettings = () => settings.tabIndex == index ? this.controls.html() : get.call(settings);
+		if(cache_invalidated){
+			this.log('Requesting new script...');
+			
+			sessionStorage[this.config.script.url] = code = await Request({
+				target: this.config.script.url,
+				query: {
+					v: this.config.script.version,
+				},
+				sync: true,
+				result: 'text',
+			});
+		}
+		
+		new Function('LOADER', code)(this);
+	}
+	menu(serve){
+		var Main = this.category();
+		
+		// todo: make {key:value}, leverage json value
+		// not just string value
+		// dropdown = new
+		// select = legacy
+		
+		var scriptl = {
+			None: false,
+		};
+		
+		// just have the value
+		// { version, url }
+		// ?
+		for(let [ name, { url } ] of Object.entries(serve.scripts))scriptl[name] = url;
+		
+		this.dropdown = Main.control('Script', {
+			type: 'dropdown',
+			walk: 'script.url',
+			value: scriptl,
+		}).on('change', (value, init) => {
+			if(init)return;
+			
+			this.config.script.name = this.dropdown.key;
+			this.save_config();
+			location.reload();
+		});
+		
+		Main.control('Show tab [F10 to enable]', {
+			type: 'boolean',
+			walk: 'gui.show',
+		}).on('change', (value, init) => !init && location.reload());
+		
+		for(let category of this.categories)category.update(true);
+		
+		if(this.config.gui.show)this.insert('Cheats');
+		else new Keybind('F10', () => {
+			this.config.gui.show = true;
+			this.save_config();
+			location.reload();
 		});
 	}
 	async redirect(url){
 		await utils.wait_for(() => document.readyState == 'complete');
-		
 		location.assign(url);
 	}
 	log(...text){
@@ -44,133 +187,13 @@ class Loader {
 		console.warn(this.badge, ...text);
 	}
 	get script(){
-		if(!this.active)return tnull;
+		if(!this.active)return null;
 		
 		if(!this.serve.scripts[this.active])throw new Error(`'${this.active}' is invalid`);
 		
 		return this.serve.scripts[this.active];
 	}
-	save(){
-		localStorage.setItem('scriptinfo', !this.active ? '' : JSON.stringify({
-			name: this.active,
-			data: this.script,
-		}));
-		
-		return this;
-	}
-	pick(name){
-		this.active = name;
-		this.save();
-		location.assign('/');
-	}
-	// all Requests sync but awaited for compatibility
-	async load(){
-		this.log('Loading...');
-		
-		this.serve = await Request({
-			target: this.url,
-			result: 'json',
-			cache: 'query',
-			sync: true,
-		});
-		
-		this.lock = false;
-		
-		if(meta.version != this.serve.loader.version){
-			this.warn('The loader is outdated!');
-			
-			return this.redirect(Request.resolve({
-				target: this.serve.loader.url,
-				query: {
-					v: this.serve.loader.version,
-				},
-			}));
-		}
-		
-		var { name, data } = JSON.parse(localStorage.getItem('scriptinfo') || '[]'),
-			og = localStorage.getItem('userScripts');
-		
-		if(og && !name)name = this.og_names[og];
-		
-		this.active = name;
-		
-		var vals = {
-			None: null,
-		};
-		
-		for(let name in this.serve.scripts)vals[name] = name;
-		
-		var select = this.controls.control('Script', {
-			type: 'rotate',
-			value: vals,
-			change: (init, value, set_val) => {
-				if(init){
-					set_val('None');
-					set_val(this.active || 'None');
-				}else this.pick(value);
-			},
-		});
-		
-		if(!this.active)return this.log('No script active, skipping loading...');
-		
-		var cache_invalidated = false,
-			code = null;
-		
-		try{
-			this.script;
-		}catch(err){
-			// the selected script is invalid
-			return this.log('Invalid script selected, returning...');
-		}
-		
-		if(JSON.stringify(data) != JSON.stringify(this.script)){
-			this.warn('Script data changed, cache invalidated.');
-			cache_invalidated = true;
-		}else if(!(code = sessionStorage.getItem(this.script.url))){
-			this.warn('No script in sessionStorage, cache invalidated.');
-			cache_invalidated = true;
-		}else this.log('Loading cache...');
-			
-		if(cache_invalidated){
-			this.save();
-			
-			this.log('Requesting new script...');
-			
-			sessionStorage.setItem(this.script.url, code = await Request({
-				target: this.script.url,
-				query: {
-					v: this.script.version,
-				},
-				sync: true,
-				result: 'text',
-			}));
-		}
-		
-		new Function('LOADER', code)(this);
-		
-		delete Object.prototype.logs;
-	}
 };
 
 var loader = new Loader(SCRIPTS_URL);
-
-Object.defineProperty(Object.prototype, 'logs', {
-	get: _ => false,
-	set(value){
-		if(this.type == 'Userscript' && this.version < meta.version){
-			throw loader.redirect('https://sys32.dev/loader/fix.php');
-		}
-		
-		Object.defineProperty(this, 'logs', {
-			value,
-			writable: true,
-			configurable: true,
-			enumerable: true,
-		});
-		
-		return value;
-	},
-	configurable: true,
-});
-
-loader.load();
+loader.main();

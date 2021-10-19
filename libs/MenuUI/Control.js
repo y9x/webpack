@@ -112,6 +112,33 @@ class SelectControl extends Control {
 	}
 };
 
+class DropdownControl extends Control {
+	static id = 'dropdown';
+	create(){
+		this.select = utils.add_ele('select', this.content, { className: 'inputGrey2' });
+		
+		this.select.addEventListener('change', () => {
+			this.key = this.select.value;
+			this.value = this.data.value[this.select.value];
+		});
+		
+		for(let key in this.data.value)utils.add_ele('option', this.select, {
+			textContent: key,
+			value: key,
+		});
+	}
+	update(init){
+		super.update(init);
+		
+		if(init)for(let [ key, value ] of Object.entries(this.data.value)){
+			if(value == this.value){
+				this.select.value = key;
+				this.key = key;
+			}
+		}
+	}
+};
+
 class LinkControl extends Control {
 	static id = 'link';
 	create(){
@@ -282,6 +309,7 @@ class ColorControl extends Control {
 Control.Types = {
 	KeybindControl,
 	SelectControl,
+	DropdownControl,
 	BooleanControl,
 	FunctionControl,
 	LinkControl,
