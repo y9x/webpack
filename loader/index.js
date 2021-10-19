@@ -67,6 +67,8 @@ class Loader extends ExtendMenu {
 		super();
 		this.url = url;
 		this.badge = '[LOADER ' + this.version + ']';
+		this.log = console.log.bind(console, this.badge);
+		this.warn = console.warn.bind(console, this.badge);
 		this.active = null;
 	}
 	async main(){
@@ -102,15 +104,17 @@ class Loader extends ExtendMenu {
 			this.load_script(serve);
 		}catch(err){
 			this.warn(err);
-		}else this.warn('No script selected');
+		}else this.log('No script selected');
 	}
 	async load_script(serve){
 		var cache_invalidated = false,
-			code;
+			serving = serve.scripts[this.config.script.name];
 		
-		if(!this.config.script.name)return this.log('Invalid script selected, returning...');
+		if(!serving || !this.config.script.name)return this.log('Invalid script selected, returning...');
 		
-		if(serve.scripts[this.config.script.name].version != this.config.script.version){
+		var code;
+		
+		if(serving.version != this.config.script.version){
 			this.warn('Script data changed, cache invalidated.');
 			cache_invalidated = true;
 		}else if(!(code = sessionStorage.getItem(this.config.script.url))){
@@ -179,12 +183,6 @@ class Loader extends ExtendMenu {
 	async redirect(url){
 		await utils.wait_for(() => document.readyState == 'complete');
 		location.assign(url);
-	}
-	log(...text){
-		console.log(this.badge, ...text);
-	}
-	warn(...text){
-		console.warn(this.badge, ...text);
 	}
 	get script(){
 		if(!this.active)return null;
