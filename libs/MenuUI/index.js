@@ -79,17 +79,6 @@ class MenuUI extends Events {
 	async load_config(){
 		this.insert_config(await this.store.get(this.config_key, 'object'));
 	}
-	static keybinds = new Set();
 };
-
-window.addEventListener('keydown', event => {
-	if(event.repeat || ['TEXTAREA', 'INPUT'].includes((document.activeElement || {}).tagName))return;
-	
-	// some(keycode => typeof keycode == 'string' && [ keycode, keycode.replace('Digit', 'Numpad') ]
-	for(let keybind of MenuUI.keybinds)if(keybind.code.includes(event.code)){
-		event.preventDefault();
-		keybind.interact();
-	}
-});
 
 module.exports = MenuUI;

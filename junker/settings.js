@@ -7,17 +7,15 @@ var meta = require('./meta'),
 	MenuUI = require('../libs/MenuUI'),
 	DiscordAddon = require('../libs/MenuUI/addons/discord'),
 	SettingsAddon = require('../libs/MenuUI/addons/settings'),
+	Keybind = require('../libs/Keybind'),
 	menu = new MenuUI('Junk', meta.icon, 'junkerconfig'),
 	{ api, meta } = require('../libs/consts'),
 	utils = require('../libs/Utils'),
 	doc_body = utils.wait_for(() => document.body);
 
-MenuUI.keybinds.add({
-	code: 'F1',
-	interact(){
-		document.exitPointerLock();
-		menu.window.show();
-	},
+new Keybind('F1', () => {
+	document.exitPointerLock();
+	menu.window.show();
 });
 
 menu.load_addon(DiscordAddon, fetch(new URL('code.txt', meta.discord), { cache: 'no-store' }).then(res => res.text()));
