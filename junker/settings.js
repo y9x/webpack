@@ -112,14 +112,14 @@ render.control('Draw FOV box', {
 var ESP = render.category('ESP');
 
 ESP.control('Mode', {
-	type: 'select',
+	type: 'dropdown',
 	walk: 'esp.status',
 	value: {
-		off: 'Off',
-		box: 'Box',
+		Off: 'off',
+		Box: 'box',
 		chams: 'Chams',
-		box_chams: 'Box & Chams',
-		full: 'Full',
+		'Box & Chams': 'box_chams',
+		Full: 'full',
 	},
 });
 
@@ -215,25 +215,26 @@ Patches.control('Force auto-fire', {
 var Aimbot = Weapon.category('Aimbot');
 
 Aimbot.control('Mode', {
-	type: 'select',
+	type: 'dropdown',
 	walk: 'aim.status',
 	value: {
-		off: 'Off',
-		trigger: 'Triggerbot',
-		correction: 'Correction',
-		assist: 'Assist',
-		auto: 'Automatic',
+		Off: 'off',
+		Triggerbot: 'trigger',
+		Correction: 'correction',
+		Assist: 'assist',
+		Automatic: 'auto',
 	},
 });
 
 Aimbot.control('Offset', {
-	type: 'select',
+	type: 'dropdown',
 	walk: 'aim.offset',
 	value: {
-		head: 'Head',
-		torso: 'Torso',
-		legs: 'Legs',
-		random: 'Random',
+		Head: 'head',
+		Torso: 'torso',
+		Legs: 'legs',
+		Random: 'random',
+		Multi: 'multi',
 	},
 });
 
@@ -275,14 +276,14 @@ Aimbot.control('Spinbot', {
 var Player = menu.window.tab('Player');
 
 Player.control('Auto Bhop Mode', {
-	type: 'select',
+	type: 'dropdown',
 	walk: 'player.bhop',
 	value: {
-		off: 'Off',
-		keyjump: 'Key Jump',
-		keyslide: 'Key Slide',
-		autoslide: 'Auto Slide',
-		autojump: 'Auto Jump',
+		Off: 'off',
+		'Key Jump': 'keyjump',
+		'Key Slide': 'keyslide',
+		'Auto Slide': 'autoslide',
+		'Auto Jump': 'autojump',
 	},
 });
 

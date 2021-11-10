@@ -93,19 +93,19 @@ Render.control('Rainbow Color', {
 var Weapon = menu.tab('Weapon');
 
 Weapon.control('Aimbot Mode', {
-	type: 'select',
+	type: 'dropdown',
 	walk: 'aim.status',
 	value: {
-		off: 'Off',
-		trigger: 'Triggerbot',
-		correction: 'Correction',
-		assist: 'Assist',
-		auto: 'Automatic',
+		Off: 'off',
+		Triggerbot: 'trigger',
+		Correction: 'correction',
+		Assist: 'assist',
+		Automatic: 'auto',
 	},
 });
 
 Weapon.control('Target', {
-	type: 'select',
+	type: 'dropdown',
 	walk: 'aim.offset',
 	value: {
 		Head: 'head',
@@ -117,7 +117,7 @@ Weapon.control('Target', {
 });
 
 Weapon.control('Target Sorting', {
-	type: 'select',
+	type: 'dropdown',
 	walk: 'aim.target_sorting',
 	value: {
 		Crosshair: 'dist2d',
@@ -180,7 +180,7 @@ Weapon.control('Auto reload', {
 var Player = menu.tab('Player');
 
 Player.control('Auto Bhop Mode', {
-	type: 'select',
+	type: 'dropdown',
 	walk: 'player.bhop',
 	value: {
 		Off: 'off',

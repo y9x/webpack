@@ -1,7 +1,8 @@
 'use strict';
 
 var { loader } = require('./consts'),
-	{ vars } = loader;
+	{ vars } = loader,
+	{ Vector3 } = require('./Space');
 
 class KrunkerUtils {
 	constructor(data){
@@ -55,7 +56,7 @@ class KrunkerUtils {
 	}
 	obstructing(target){
 		var wallbang = this.data.wallbangs && (!this.data.player || this.data.player.weapon && this.data.player.weapon.pierce),
-			view = this.camera_world(),
+			view = this.camera_world() || new Vector3(),
 			d3d = this.getD3D(view.x, view.y, view.z, target.x, target.y, target.z),
 			dir = this.getDir(view.z, view.x, target.z, target.x),
 			dist_dir = this.getDir(this.getDistance(view.x, view.z, target.x, target.z), target.y, 0, view.y),
