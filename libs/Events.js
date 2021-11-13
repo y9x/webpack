@@ -2,13 +2,18 @@
 
 class Events {
 	static original = Symbol();
-	#events = new Map();
-	#resolve(event){
-		var callbacks = this.#events.get(event);
+	static events = new WeakMap();
+	static resolve(event){
+		if(!Events.events.has(this)){
+			Events.events.set(this, new Map());
+		}
+		
+		var events = Events.events.get(this),
+			callbacks = events.get(event);
 		
 		if(!callbacks){
 			callbacks = new Set();
-			this.#events.set(event, callbacks);
+			events.set(event, callbacks);
 		}
 		
 		return callbacks;
@@ -16,7 +21,7 @@ class Events {
 	on(event, callback){
 		if(typeof callback != 'function')throw new TypeError('Callback is not a function.');
 		
-		this.#resolve(event).add(callback);
+		Events.resolve.call(this, event).add(callback);
 		
 		return this;
 	}
@@ -35,12 +40,12 @@ class Events {
 		
 		if(callback[Events.original])callback = callback[Events.original];
 		
-		var list = this.#resolve(event);
+		var list = Events.resolve.call(this, event);
 		
 		return list.delete(callback);
 	}
 	emit(event, ...data){
-		var set = this.#resolve(event);
+		var set = Events.resolve.call(this, event);
 		
 		if(!set.size){
 			if(event == 'error')throw data[0];
