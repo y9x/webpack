@@ -51,7 +51,7 @@ loader.var('adsToggled', /this\.(\w+)=!1,this\.keys=/, 1);
 
 loader.var('recoilAnimY', /\.\w+=0,this\.(\w+)=0,this\.\w+=0,this\.\w+=1,this\.slide/, 1),
 
-loader.var('objInstances', /objInstances/, 1);
+loader.var('objInstances', /objInstances/, 0);
 // /lowerBody\),\w+\|\|\w+\.(\w+)\./, 1);
 
 loader.var('getWorldPosition', /var \w+=\w+\.camera\.(\w+)\(\);/, 1);
