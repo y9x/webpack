@@ -1,7 +1,7 @@
 'use strict';
 
 /*
-Source: https://api.sys32.dev/v2/source
+Source: https://api.sys32.dev/v3/source
 
 Notes:
 	- Versions past 3.9.2 don't have variable randomization
