@@ -57,7 +57,7 @@ if(exports.krunker && !exports.is_frame){
 	if(utils.is_host(location, 'browserfps.com')){
 		require('./Proxy');
 	}
-		
+	
 	loader.observe();
 	
 	loader.license(exports.meta);
