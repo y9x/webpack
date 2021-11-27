@@ -225,7 +225,7 @@ menu.add_preset('Rage', {
 			type: 'slider',
 			walk: 'aim.force_auto_rate',
 			min: 0,
-			max: 5,
+			max: 2,
 			step: 0.1,
 		});
 	}

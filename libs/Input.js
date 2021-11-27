@@ -148,13 +148,17 @@ class Input {
 		
 		data.could_shoot = this.data.player.can_shoot;
 		
-		if(this.data.force_auto && this.can_auto_fire && this.data.player.did_shoot){
+		if(data.shoot && !this.data.player.did_shoot){
 			this.can_auto_fire = false;
-			data.shoot = false;
 			
 			setTimeout(() => {
 				this.can_auto_fire = true;
 			}, this.data.force_auto_rate * 1000);
+		}
+		
+		if(this.data.force_auto && this.can_auto_fire && this.data.player.did_shoot && data.shoot){
+			this.can_auto_fire = false;
+			data.shoot = false;
 		}
 		
 		var nauto = this.data.player.weapon_auto || this.data.player.weapon.burst || !data.shoot || !data.previous.could_shoot || !data.previous.shoot,
