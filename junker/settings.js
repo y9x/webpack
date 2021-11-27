@@ -43,6 +43,7 @@ menu.add_preset('Default', {
 		smooth: 0,
 		wallbangs: false,
 		force_auto: false,
+		force_auto_rate: 0.2,
 		spinbot: false,
 	},
 	player: {
@@ -102,294 +103,322 @@ menu.add_preset('Rage', {
 	},
 });
 
-var render = menu.window.tab('Render');
+{
+	let render = menu.window.tab('Render');
 
-render.control('Draw FOV box', {
-	type: 'boolean',
-	walk: 'aim.fov_box',
-});
+	render.control('Draw FOV box', {
+		type: 'boolean',
+		walk: 'aim.fov_box',
+	});
 
-var ESP = render.category('ESP');
+	{
+		let ESP = render.category('ESP');
+		
+		ESP.control('Mode', {
+			type: 'dropdown',
+			walk: 'esp.status',
+			value: {
+				Off: 'off',
+				Box: 'box',
+				Chams: 'chams',
+				'Box & Chams': 'box_chams',
+				Full: 'full',
+			},
+		});
 
-ESP.control('Mode', {
-	type: 'dropdown',
-	walk: 'esp.status',
-	value: {
-		Off: 'off',
-		Box: 'box',
-		chams: 'Chams',
-		'Box & Chams': 'box_chams',
-		Full: 'full',
-	},
-});
+		ESP.control('Tracers', {
+			type: 'boolean',
+			walk: 'esp.tracers',
+		});
 
-ESP.control('Tracers', {
-	type: 'boolean',
-	walk: 'esp.tracers',
-});
+		ESP.control('Wireframe', {
+			type: 'boolean',
+			walk: 'esp.wireframe',
+		});
 
-ESP.control('Wireframe', {
-	type: 'boolean',
-	walk: 'esp.wireframe',
-});
+		ESP.control('Hostile Color', {
+			type: 'color',
+			walk: 'colors.hostile',
+		});
 
-ESP.control('Hostile Color', {
-	type: 'color',
-	walk: 'colors.hostile',
-});
+		ESP.control('Risk Color', {
+			type: 'color',
+			walk: 'colors.risk',
+		});
 
-ESP.control('Risk Color', {
-	type: 'color',
-	walk: 'colors.risk',
-});
+		ESP.control('Friendly Color', {
+			type: 'color',
+			walk: 'colors.friendly',
+		});
 
-ESP.control('Friendly Color', {
-	type: 'color',
-	walk: 'colors.friendly',
-});
+		ESP.control('Rainbow Color', {
+			type: 'boolean',
+			walk: 'colors.rainbow',
+		});
+	}
 
-ESP.control('Rainbow Color', {
-	type: 'boolean',
-	walk: 'colors.rainbow',
-});
+	{
+		let UI = render.category('UI');
 
-var UI = render.category('UI');
+		let css = utils.add_ele('link', () => document.documentElement, { rel: 'stylesheet' }); 
 
-var css = utils.add_ele('link', () => document.documentElement, { rel: 'stylesheet' }); 
+		UI.control('Custom CSS', {
+			type: 'textbox',
+			walk: 'ui.css',
+			placeholder: 'CSS Url',
+		}).on('change', value => {
+			if(value != '')css.href = value;
+		});
 
-UI.control('Custom CSS', {
-	type: 'textbox',
-	walk: 'ui.css',
-	placeholder: 'CSS Url',
-}).on('change', value => {
-	if(value != '')css.href = value;
-});
+		UI.control('Show Menu Button ( [F1] to show )', {
+			type: 'boolean',
+			walk: 'ui.show_button',
+		}).on('change', value => {
+			if(value)menu.button.show();
+			else menu.button.hide();
+		});
 
-UI.control('Show Menu Button ( [F1] to show )', {
-	type: 'boolean',
-	walk: 'ui.show_button',
-}).on('change', value => {
-	if(value)menu.button.show();
-	else menu.button.hide();
-});
+		UI.control('Show Advertisments', {
+			type: 'boolean',
+			walk: 'ui.show_adverts',
+		}).on('change', async value => (await doc_body).classList[value ? 'remove' : 'add']('hide-adverts'));
 
-UI.control('Show Advertisments', {
-	type: 'boolean',
-	walk: 'ui.show_adverts',
-}).on('change', async value => (await doc_body).classList[value ? 'remove' : 'add']('hide-adverts'));
+		UI.control('Show Streams', {
+			type: 'boolean',
+			walk: 'ui.show_streams',
+		}).on('change', async value => (await doc_body).classList[value ? 'remove' : 'add']('hide-streams'));
 
-UI.control('Show Streams', {
-	type: 'boolean',
-	walk: 'ui.show_streams',
-}).on('change', async value => (await doc_body).classList[value ? 'remove' : 'add']('hide-streams'));
+		UI.control('Show Merch', {
+			type: 'boolean',
+			walk: 'ui.show_merch',
+		}).on('change', async value => (await doc_body).classList[value ? 'remove' : 'add']('hide-merch'));
 
-UI.control('Show Merch', {
-	type: 'boolean',
-	walk: 'ui.show_merch',
-}).on('change', async value => (await doc_body).classList[value ? 'remove' : 'add']('hide-merch'));
+		UI.control('Show News Console', {
+			type: 'boolean',
+			walk: 'ui.show_news',
+		}).on('change', async value => (await doc_body).classList[value ? 'remove' : 'add']('hide-news'));
 
-UI.control('Show News Console', {
-	type: 'boolean',
-	walk: 'ui.show_news',
-}).on('change', async value => (await doc_body).classList[value ? 'remove' : 'add']('hide-news'));
+		UI.control('Show Security Button', {
+			type: 'boolean',
+			walk: 'ui.show_cookie',
+		}).on('change', async value => (await doc_body).classList[value ? 'remove' : 'add']('hide-security'));
+	}
+}
 
-UI.control('Show Security Button', {
-	type: 'boolean',
-	walk: 'ui.show_cookie',
-}).on('change', async value => (await doc_body).classList[value ? 'remove' : 'add']('hide-security'));
+{
+	let Weapon = menu.window.tab('Weapon');
 
-var Weapon = menu.window.tab('Weapon');
+	{
+		let Patches = Weapon.category('Patches');
 
-var Patches = Weapon.category('Patches');
+		Patches.control('Auto Reload', {
+			type: 'boolean',
+			walk: 'aim.auto_reload',
+		});
 
-Patches.control('Auto Reload', {
-	type: 'boolean',
-	walk: 'aim.auto_reload',
-});
+		Patches.control('Force auto-fire', {
+			type: 'boolean',
+			walk: 'aim.force_auto',
+		});
 
-Patches.control('Force auto-fire', {
-	type: 'boolean',
-	walk: 'aim.force_auto',
-});
+		Patches.control('Auto-fire rate', {
+			type: 'slider',
+			walk: 'aim.force_auto_rate',
+			min: 0,
+			max: 5,
+			step: 0.1,
+		});
+	}
+	
+	{
+		let Aimbot = Weapon.category('Aimbot');
 
-var Aimbot = Weapon.category('Aimbot');
+		Aimbot.control('Mode', {
+			type: 'dropdown',
+			walk: 'aim.status',
+			value: {
+				Off: 'off',
+				Triggerbot: 'trigger',
+				Correction: 'correction',
+				Assist: 'assist',
+				Automatic: 'auto',
+			},
+		});
 
-Aimbot.control('Mode', {
-	type: 'dropdown',
-	walk: 'aim.status',
-	value: {
-		Off: 'off',
-		Triggerbot: 'trigger',
-		Correction: 'correction',
-		Assist: 'assist',
-		Automatic: 'auto',
-	},
-});
+		Aimbot.control('Offset', {
+			type: 'dropdown',
+			walk: 'aim.offset',
+			value: {
+				Head: 'head',
+				Torso: 'torso',
+				Legs: 'legs',
+				Random: 'random',
+				Multi: 'multi',
+			},
+		});
 
-Aimbot.control('Offset', {
-	type: 'dropdown',
-	walk: 'aim.offset',
-	value: {
-		Head: 'head',
-		Torso: 'torso',
-		Legs: 'legs',
-		Random: 'random',
-		Multi: 'multi',
-	},
-});
+		Aimbot.control('Smoothness', {
+			type: 'slider',
+			walk: 'aim.smooth',
+			min: 0,
+			max: 1,
+			step: 0.1,
+		});
 
-Aimbot.control('Smoothness', {
-	type: 'slider',
-	walk: 'aim.smooth',
-	min: 0,
-	max: 1,
-	step: 0.1,
-});
+		Aimbot.control('Hitchance', {
+			type: 'slider',
+			walk: 'aim.hitchance',
+			min: 10,
+			max: 100,
+			step: 10,
+		});
 
-Aimbot.control('Hitchance', {
-	type: 'slider',
-	walk: 'aim.hitchance',
-	min: 10,
-	max: 100,
-	step: 10,
-});
+		Aimbot.control('FOV', {
+			type: 'slider',
+			walk: 'aim.fov',
+			min: 10,
+			max: 110,
+			step: 10,
+			labels: { 110: 'Inf' },
+		});
 
-Aimbot.control('FOV', {
-	type: 'slider',
-	walk: 'aim.fov',
-	min: 10,
-	max: 110,
-	step: 10,
-	labels: { 110: 'Inf' },
-});
+		Aimbot.control('Wallbangs', {
+			type: 'boolean',
+			walk: 'aim.wallbangs',
+		});
 
-Aimbot.control('Wallbangs', {
-	type: 'boolean',
-	walk: 'aim.wallbangs',
-});
+		Aimbot.control('Spinbot', {
+			type: 'boolean',
+			walk: 'aim.spinbot',
+		});
+	}
+}
 
-Aimbot.control('Spinbot', {
-	type: 'boolean',
-	walk: 'aim.spinbot',
-});
+{
+	let Player = menu.window.tab('Player');
 
-var Player = menu.window.tab('Player');
+	Player.control('Auto Bhop Mode', {
+		type: 'dropdown',
+		walk: 'player.bhop',
+		value: {
+			Off: 'off',
+			'Key Jump': 'keyjump',
+			'Key Slide': 'keyslide',
+			'Auto Slide': 'autoslide',
+			'Auto Jump': 'autojump',
+		},
+	});
 
-Player.control('Auto Bhop Mode', {
-	type: 'dropdown',
-	walk: 'player.bhop',
-	value: {
-		Off: 'off',
-		'Key Jump': 'keyjump',
-		'Key Slide': 'keyslide',
-		'Auto Slide': 'autoslide',
-		'Auto Jump': 'autojump',
-	},
-});
+	Player.control('Unlock Skins', {
+		type: 'boolean',
+		walk: 'player.skins',
+	});
+}
 
-Player.control('Unlock Skins', {
-	type: 'boolean',
-	walk: 'player.skins',
-});
+{
+	let Game = menu.window.tab('Game');
 
-var Game = menu.window.tab('Game');
+	Game.control('Proxy', {
+		type: 'boolean',
+		walk: 'game.proxy',
+	}).on('change', (value, init) => !init && location.assign('/'));
 
-Game.control('Proxy', {
-	type: 'boolean',
-	walk: 'game.proxy',
-}).on('change', (value, init) => !init && location.assign('/'));
+	Game.control('Auto Activate Nuke', {
+		type: 'boolean',
+		walk: 'game.auto_nuke',
+	});
 
-Game.control('Auto Activate Nuke', {
-	type: 'boolean',
-	walk: 'game.auto_nuke',
-});
+	Game.control('Auto Start Match', {
+		type: 'boolean',
+		walk: 'game.auto_start',
+	});
 
-Game.control('Auto Start Match', {
-	type: 'boolean',
-	walk: 'game.auto_start',
-});
+	Game.control('New Lobby Finder', {
+		type: 'boolean',
+		walk: 'game.auto_lobby',
+	});
 
-Game.control('New Lobby Finder', {
-	type: 'boolean',
-	walk: 'game.auto_lobby',
-});
+	Game.control('No Inactivity kick', {
+		type: 'boolean',
+		walk: 'game.inactivity',
+	});
+}
 
-Game.control('No Inactivity kick', {
-	type: 'boolean',
-	walk: 'game.inactivity',
-});
+{
+	let Radio = menu.window.tab('Radio');
 
-var Radio = menu.window.tab('Radio');
-
-Radio.control('Stream', {
-	type: 'select',
-	walk: 'radio.stream',
-	value: {
-		'off': 'Off',
-		'http://0n-2000s.radionetz.de/0n-2000s.aac': 'General German/English',
-		'https://stream-mixtape-geo.ntslive.net/mixtape2': 'Hip Hop / RNB',
-		'https://live.wostreaming.net/direct/wboc-waaifmmp3-ibc2': 'Country',
-		'http://streaming.radionomy.com/A-RADIO-TOP-40': 'Dance',
-		'http://bigrradio.cdnstream1.com/5106_128': 'Pop',
-		'http://strm112.1.fm/ajazz_mobile_mp3': 'Jazz',
-		'http://strm112.1.fm/60s_70s_mobile_mp3': 'Golden Oldies',
-		'http://strm112.1.fm/club_mobile_mp3': 'Club',
-		'https://freshgrass.streamguys1.com/irish-128mp3': 'Folk',
-		'http://1a-classicrock.radionetz.de/1a-classicrock.mp3': 'Classic Rock',
-		'http://streams.radiobob.de/metalcore/mp3-192': 'Heavy Metal',
-		'http://stream.laut.fm/beatdownx': 'Death Metal',
-		'http://live-radio01.mediahubaustralia.com/FM2W/aac/': 'Classical',
-		'http://bigrradio.cdnstream1.com/5187_128': 'Alternative',
-		'http://streaming.radionomy.com/R1Dubstep?lang=en': 'DubStep',
-		'http://streams.fluxfm.de/Chillhop/mp3-256': 'LoFi HipHop',
-		'http://streams.90s90s.de/hiphop/mp3-128/': 'Hip Hop Oldskool',
-	},
-}).on('change', function(value){
-	if(value == 'off'){
-		if(this.audio){
-			this.audio.pause();
-			this.audio.currentTime = 0;
-			delete this.audio;
+	Radio.control('Stream', {
+		type: 'select',
+		walk: 'radio.stream',
+		value: {
+			'off': 'Off',
+			'http://0n-2000s.radionetz.de/0n-2000s.aac': 'General German/English',
+			'https://stream-mixtape-geo.ntslive.net/mixtape2': 'Hip Hop / RNB',
+			'https://live.wostreaming.net/direct/wboc-waaifmmp3-ibc2': 'Country',
+			'http://streaming.radionomy.com/A-RADIO-TOP-40': 'Dance',
+			'http://bigrradio.cdnstream1.com/5106_128': 'Pop',
+			'http://strm112.1.fm/ajazz_mobile_mp3': 'Jazz',
+			'http://strm112.1.fm/60s_70s_mobile_mp3': 'Golden Oldies',
+			'http://strm112.1.fm/club_mobile_mp3': 'Club',
+			'https://freshgrass.streamguys1.com/irish-128mp3': 'Folk',
+			'http://1a-classicrock.radionetz.de/1a-classicrock.mp3': 'Classic Rock',
+			'http://streams.radiobob.de/metalcore/mp3-192': 'Heavy Metal',
+			'http://stream.laut.fm/beatdownx': 'Death Metal',
+			'http://live-radio01.mediahubaustralia.com/FM2W/aac/': 'Classical',
+			'http://bigrradio.cdnstream1.com/5187_128': 'Alternative',
+			'http://streaming.radionomy.com/R1Dubstep?lang=en': 'DubStep',
+			'http://streams.fluxfm.de/Chillhop/mp3-256': 'LoFi HipHop',
+			'http://streams.90s90s.de/hiphop/mp3-128/': 'Hip Hop Oldskool',
+		},
+	}).on('change', function(value){
+		if(value == 'off'){
+			if(this.audio){
+				this.audio.pause();
+				this.audio.currentTime = 0;
+				delete this.audio;
+			}
+			
+			return;
 		}
 		
-		return;
-	}
-	
-	if(!this.audio){
-		this.audio = new Audio(value);
-		console.log(menu.config);
-		this.audio.volume = menu.config.radio.volume;
-	}else{
-		this.audio.src = value;
-	}
-	
-	this.audio.load();
-	this.audio.play();
-});
+		if(!this.audio){
+			this.audio = new Audio(value);
+			console.log(menu.config);
+			this.audio.volume = menu.config.radio.volume;
+		}else{
+			this.audio.src = value;
+		}
+		
+		this.audio.load();
+		this.audio.play();
+	});
 
-Radio.control('Radio Volume', {
-	type: 'slider',
-	walk: 'radio.volume',
-	min: 0,
-	max: 1,
-	step: 0.05,
-});
+	Radio.control('Radio Volume', {
+		type: 'slider',
+		walk: 'radio.volume',
+		min: 0,
+		max: 1,
+		step: 0.05,
+	});
+}
 
-var Dev = menu.window.tab('Dev');
+{
+	let Dev = menu.window.tab('Dev');
 
-Dev.control('Save Game Script', {
-	type: 'function',
-	value(){
-		var link = utils.add_ele('a', document.documentElement, { href: Request.resolve({
-			target: 'https://api.sys32.dev/',
-			endpoint: '/v2/source',
-			query: { download: true },
-		}) });
+	Dev.control('Save Game Script', {
+		type: 'function',
+		value(){
+			var link = utils.add_ele('a', document.documentElement, { href: Request.resolve({
+				target: 'https://api.sys32.dev/',
+				endpoint: '/v2/source',
+				query: { download: true },
+			}) });
 
-		link.click();
+			link.click();
 
-		link.remove();
-	},
-});
+			link.remove();
+		},
+	});
+}
 
 module.exports = menu;

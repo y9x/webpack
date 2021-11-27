@@ -29,7 +29,6 @@ loader.var('isYou', /this\.accid=0,this\.(\w+)=\w+,this\.isPlayer/, 1);
 // loader.var('pchObjc', /0,this\.(\w+)=new \w+\.Object3D,this/, 1);
 loader.var('pchObjc', /this\.mouseX=0,this\.mouseY=0\,this\.(\w+)=new /, 1);
 
-
 loader.var('aimVal', /this\.(\w+)-=1\/\(this\.weapon\.aimSpd/, 1),
 
 loader.var('crouchVal', /this\.(\w+)\+=\w\.crouchSpd\*\w+,1<=this\.\w+/, 1),
@@ -43,7 +42,6 @@ loader.var('weaponIndex', /\.weaponConfig\[\w+]\.secondary&&\(\w+\.(\w+)==\w+/, 
 loader.var('maxHealth', /\.regenDelay,this\.(\w+)=\w+\.mode&&\w+\.mode\.\1/, 1),
 
 // loader.var('yVel', /\w+\.(\w+)&&\(\w+\.y\+=\w+\.\1\*/, 1);
-
 
 // loader.var('mouseDownR', /this\.(\w+)=0,this\.keys=/, 1);
 

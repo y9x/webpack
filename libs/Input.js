@@ -23,6 +23,7 @@ class Input {
 		0.9: 0.02,
 		1: 0.01, // light
 	};
+	can_auto_fire = true;
 	constructor(data){
 		this.data = data;
 	}
@@ -147,7 +148,14 @@ class Input {
 		
 		data.could_shoot = this.data.player.can_shoot;
 		
-		if(this.data.force_auto && this.data.player.did_shoot)data.shoot = false;
+		if(this.data.force_auto && this.can_auto_fire && this.data.player.did_shoot){
+			this.can_auto_fire = false;
+			data.shoot = false;
+			
+			setTimeout(() => {
+				this.can_auto_fire = true;
+			}, this.data.force_auto_rate * 1000);
+		}
 		
 		var nauto = this.data.player.weapon_auto || this.data.player.weapon.burst || !data.shoot || !data.previous.could_shoot || !data.previous.shoot,
 			hitchance = (Math.random() * 100) < this.data.hitchance,

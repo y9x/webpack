@@ -72,6 +72,9 @@ class Main {
 			get force_auto(){
 				return self.config.aim.force_auto;
 			},
+			get force_auto_rate(){
+				return self.config.aim.force_auto_rate;
+			},
 			get color(){
 				return self.config.colors;
 			},

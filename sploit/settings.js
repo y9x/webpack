@@ -26,7 +26,7 @@ Render.control('ESP Mode', {
 	value: {
 		Off: 'off',
 		Box: 'box',
-		chams: 'Chams',
+		Chams: 'chams',
 		'Box & Chams': 'box_chams',
 		Full: 'full',
 	},
@@ -170,6 +170,14 @@ Weapon.control('Spinbot', {
 Weapon.control('Force auto-fire', {
 	type: 'boolean',
 	walk: 'aim.force_auto',
+});
+
+Weapon.control('Auto-fire rate', {
+	type: 'slider',
+	walk: 'aim.force_auto_rate',
+	min: 0,
+	max: 5,
+	step: 0.1,
 });
 
 Weapon.control('Auto reload', {
@@ -369,6 +377,7 @@ menu.add_preset('Default', {
 		wallbangs: false,
 		auto_reload: false,
 		force_auto: false,
+		force_auto_rate: 0.2,
 		spinbot: false,
 	},
 	colors: {
