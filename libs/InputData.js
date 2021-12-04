@@ -81,5 +81,3 @@ for(let prop in inputs){
 }
 
 module.exports = InputData;
-
-window.InputData = InputData;
