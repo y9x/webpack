@@ -58,7 +58,7 @@ class Loader extends ExtendMenu {
 			
 			name = sc.name;
 			
-			if(sc?.data?.url){
+			if(sc && sc.data && sc.data.url){
 				this.config.script.url = sc.data.url;
 				this.config.script.name = sc.name;
 			}

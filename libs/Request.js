@@ -13,6 +13,12 @@ var is_obj = data => typeof data == 'object' && data != null,
 		}else return headers;
 	};
 
+/*var ofetch = window.fetch;
+window.fetch = (url, opts) => {
+	if((url + '').endsWith('/meta'))return Promise.reject(new Error('test'));
+	else return ofetch(url, opts);
+};*/
+
 var request = input => {
 	if(!is_obj(input))throw new TypeError('Input must be an object');
 	

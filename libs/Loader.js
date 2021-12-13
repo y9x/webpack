@@ -90,8 +90,8 @@ class Loader extends Events {
 	async show_error(title, message){
 		await this.load;
 		
-		var holder = document.querySelector('#instructionHolder'),
-			instructions = document.querySelector('#instructions');
+		var holder = await utils.wait_for(() => document.querySelector('#instructionHolder')),
+			instructions = await utils.wait_for(() => document.querySelector('#instructions'));
 		
 		holder.style.display = 'block';
 		holder.style.pointerEvents = 'all';
@@ -144,16 +144,28 @@ class Loader extends Events {
 		return source;
 	}
 	async license(input_meta){
-		var meta = await Request({
-			target: this.api_v2,
-			endpoint: 'meta',
-			data: {
-				...input_meta,
-				needs_key: true,
-			},
-			method: 'POST',
-			result: 'json',
-		});
+		var meta;
+		
+		try{
+			meta = await Request({
+				target: this.api_v2,
+				endpoint: 'meta',
+				data: {
+					...input_meta,
+					needs_key: true,
+				},
+				method: 'POST',
+				result: 'json',
+			});
+		}catch(err){
+			console.log(err);
+			meta = {
+				error: {
+					title: err.message,
+					message: `Post a screenshot of this error on <a href='https://forum.sys32.dev/'>the forums</a> or <a href='/'>click here</a> to try again.`,
+				},
+			};
+		}
 		
 		if(meta.error){
 			utils.add_ele('style', document.documentElement, {
