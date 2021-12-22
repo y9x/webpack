@@ -149,14 +149,6 @@ Weapon.control('Smoothness', {
 	labels: { 0: 'Off' },
 });
 
-Weapon.control('Hitchance', {
-	type: 'slider',
-	walk: 'aim.hitchance',
-	min: 10,
-	max: 100,
-	step: 10,
-});
-
 Weapon.control('Wallbangs', {
 	type: 'boolean',
 	walk: 'aim.wallbangs',
@@ -370,7 +362,6 @@ menu.add_preset('Default', {
 		offset: 'random',
 		target_sorting: 'dist2d',
 		smooth: 0.2,
-		hitchance: 100,
 		// percentage of screen
 		fov_box: false,
 		fov: 50,

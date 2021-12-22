@@ -162,7 +162,6 @@ class Input {
 		}
 		
 		var nauto = this.data.player.weapon_auto || this.data.player.weapon.burst || !data.shoot || !data.previous.could_shoot || !data.previous.shoot,
-			hitchance = (Math.random() * 100) < this.data.hitchance,
 			can_target = this.data.aim == 'auto' || data.scope || data.shoot;
 		
 		if(this.data.player.weapon.burst)this.data.player.shot = this.data.player.did_shoot;
@@ -177,7 +176,7 @@ class Input {
 			
 			this.anti_offset(rot);
 			
-			if(hitchance)if(this.data.aim == 'correction' && nauto)this.correct_aim(rot, data);
+			if(this.data.aim == 'correction' && nauto)this.correct_aim(rot, data);
 			else if(this.data.aim == 'auto'){
 				if(this.data.player.can_aim)data.scope = true;
 				
@@ -203,7 +202,7 @@ class Input {
 				
 				this.aim_camera(rot, data);
 				
-				if(data.shoot && !this.data.player.shot && !hitchance)data.xdir = 0;
+				if(data.shoot && !this.data.player.shot)data.xdir = 0;
 			}
 		}
 		

@@ -120,9 +120,6 @@ class Main {
 			get aim_smooth(){
 				return self.config.aim.smooth;
 			},
-			get hitchance(){
-				return self.config.aim.hitchance;
-			},
 			get auto_reload(){
 				return self.config.aim.auto_reload;
 			},

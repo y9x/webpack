@@ -38,7 +38,6 @@ menu.add_preset('Default', {
 		status: 'off',
 		auto_reload: false,
 		fov: 60,
-		hitchance: 100,
 		offset: 'random',
 		smooth: 0,
 		wallbangs: false,
@@ -264,15 +263,7 @@ menu.add_preset('Rage', {
 			max: 1,
 			step: 0.1,
 		});
-
-		Aimbot.control('Hitchance', {
-			type: 'slider',
-			walk: 'aim.hitchance',
-			min: 10,
-			max: 100,
-			step: 10,
-		});
-
+		
 		Aimbot.control('FOV', {
 			type: 'slider',
 			walk: 'aim.fov',
