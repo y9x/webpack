@@ -250,15 +250,6 @@ Info.control('Forum', {
 	value: meta.forum,
 });
 
-Info.control('Download Game', {
-	type: 'link',
-	value: Request.resolve({
-		target: loader.api,
-		endpoint: '/v2/source',
-		query: { download: true },
-	}),
-});
-
 var Interface = menu.tab('Interface');
 
 Interface.control({
