@@ -3,13 +3,12 @@
 if(localStorage.ssconfig && !localStorage.ssjunkerconfig)localStorage.ssjunkerconfig = localStorage.ssconfig;
 
 var meta = require('./meta'),
-	request = require('../libs/Request'),
 	MenuUI = require('../libs/MenuUI'),
 	DiscordAddon = require('../libs/MenuUI/addons/discord'),
 	SettingsAddon = require('../libs/MenuUI/addons/settings'),
 	Keybind = require('../libs/Keybind'),
 	menu = new MenuUI('Junk', meta.icon, 'junkerconfig'),
-	{ api, meta } = require('../libs/consts'),
+	{ meta } = require('../libs/consts'),
 	utils = require('../libs/Utils'),
 	doc_body = utils.wait_for(() => document.body);
 
@@ -25,6 +24,7 @@ menu.add_preset('Default', {
 	esp: {
 		status: 'off',
 		tracers: false,
+		nametags: false,
 		wireframe: false,
 		rainbow: false,
 	},
@@ -129,7 +129,12 @@ menu.add_preset('Rage', {
 			type: 'boolean',
 			walk: 'esp.tracers',
 		});
-
+		
+		ESP.control('Nametags', {
+			type: 'boolean',
+			walk: 'esp.nametags',
+		});
+		
 		ESP.control('Wireframe', {
 			type: 'boolean',
 			walk: 'esp.wireframe',
@@ -390,25 +395,6 @@ menu.add_preset('Rage', {
 		min: 0,
 		max: 1,
 		step: 0.05,
-	});
-}
-
-{
-	let Dev = menu.window.tab('Dev');
-
-	Dev.control('Save Game Script', {
-		type: 'function',
-		value(){
-			var link = utils.add_ele('a', document.documentElement, { href: Request.resolve({
-				target: 'https://api.sys32.dev/',
-				endpoint: '/v2/source',
-				query: { download: true },
-			}) });
-
-			link.click();
-
-			link.remove();
-		},
 	});
 }
 
