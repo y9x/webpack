@@ -11,7 +11,8 @@
 		"url": "git+https://github.com/y9x/webpack.git"
 	},
 	"scripts": {
-		"build": "node ./index.js"
+		"build": "node ./index.js -once",
+		"live-build": "node ./index.js"
 	},
 	"bugs": {
 		"url": "https://github.com/y9x/webpack/issues"
