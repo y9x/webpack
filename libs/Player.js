@@ -208,7 +208,22 @@ class Player {
 					this.body = body;
 					break;
 		});*/
-		for(var mesh of this.entity.legMeshes)if(mesh.visible)return mesh;
+		for(let mesh of this.entity.legMeshes)if(mesh.visible)return mesh;
+		
+		var base = this.entity.lowerBody;
+		
+		return {
+			getWorldQuaternion(){
+				return base.getWorldQuaternion();
+			},
+			[vars.getWorldPosition]: () => {
+				return new Vector3().copy(base[vars.getWorldPosition]()).translate_quaternion(base.getWorldQuaternion(), new Vector3().copy({
+					x: GConsts.legScale / 2,
+					y: GConsts.legHeight / 2,
+					z: 0,
+				}));
+			},
+		};
 	}
 	// Rotation to look at aim_point
 	calc_rot(){
@@ -234,19 +249,20 @@ class Player {
 		if(this.data.aim_smooth && this.aim_point && (this.dont_calc++) % (this.calc_ticks + 1) != 0)return;
 		
 		var head_size = 1.5,
-			torso = this.entity.lowerBody.getWorldPosition();
+			torso = this.entity.lowerBody.getWorldPosition(),
+			torso_quaternion = this.entity.lowerBody.getWorldQuaternion();
 		
 		// accurate center of head
 		// player.entity.upperBody.getWorldPosition()
 		
-		this.parts.chest.copy(torso).translate_quaternion(this.entity.lowerBody.getWorldQuaternion(), new Vector3().copy({
+		this.parts.chest.copy(torso).translate_quaternion(torso_quaternion, new Vector3().copy({
 			x: 0,
 			y: GConsts.chestHeight / 2,
 			z: 0,
 		}));
 		
 		// head can be p.parts.torso_real = p.entity.upperBody.getWorldPosition();
-		this.parts.head.copy(torso).translate_quaternion(this.entity.lowerBody.getWorldQuaternion(), new Vector3().copy({
+		this.parts.head.copy(torso).translate_quaternion(torso_quaternion, new Vector3().copy({
 			x: 0,
 			y: GConsts.chestHeight + GConsts.headScale / 2,
 			z: 0,

@@ -51,7 +51,7 @@ class Input {
 		this.data.controls[vars.pchObjc].rotation.x = rot.x;
 		this.data.controls.object.rotation.y = rot.y;
 		
-		this.aim_input(rot, data);
+		// this.aim_input(rot, data);
 	}
 	correct_aim(rot, data){
 		if(data.shoot)data.shoot = !this.data.player.shot;
@@ -174,7 +174,7 @@ class Input {
 		
 		if(this.data.player.can_shoot)if(this.data.aim == 'trigger')data.shoot = this.enemy_sight() || data.shoot;
 		else if(this.data.aim != 'off' && this.data.target && this.data.player.health){
-			var rot = this.data.target.calc_rot();
+			let rot = this.data.target.calc_rot();
 			
 			this.anti_offset(rot);
 			
@@ -200,6 +200,7 @@ class Input {
 				
 				let turn = this.smooth_map[+Math.min(this.data.aim_smooth * 3, 1).toFixed(1)];
 				
+				// todo: switch from in out quad to more natural easing
 				rot = this.smooth(data, rot, speed, turn);
 				
 				this.aim_camera(rot, data);
