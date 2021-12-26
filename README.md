@@ -25,7 +25,7 @@ Build output is in the `dist/` folder
 
 ## NPM Commands
 
-| ------- | ----------- |
 | Command | Description |
+| ------- | ----------- |
 | `npm run build` | Builds the targets Sploit,Junker,Loader then outputs in the `dist/` folder. |
 | `npm run live-build` | Similar to `npm run build`; This will automatially build when a file in the repository changes. |
