@@ -102,7 +102,6 @@ class Player {
 		return out;
 	}
 	calc_in_fov(){
-		if(!this.active)return false;
 		if(this.data.aim_fov == 110)return true;
 		if(!this.frustum)return false;
 		
@@ -322,7 +321,7 @@ class Player {
 		
 		this.in_fov = this.calc_in_fov();
 		
-		this.can_target = this.active && this.can_see && this.enemy && this.in_fov;
+		this.can_target = this.can_see && this.enemy && this.in_fov;
 	}
 	visible_points(points){
 		var face_points = [
