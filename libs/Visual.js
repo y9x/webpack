@@ -166,7 +166,9 @@ class Visual {
 		this.data.ctx.lineWidth = 1.5;
 		this.data.ctx.strokeRect(player.rect.left, player.rect.top, player.rect.width, player.rect.height);
 		
-		// part labels
+		// this.labels(player);
+	}
+	labels(player){
 		for(let [label, part] of Object.entries(player.parts)){
 			let {x,y} = this.data.utils.pos2d(part);
 			this.data.ctx.fillStyle = '#FFF';
