@@ -1,7 +1,8 @@
 'use strict';
 
 var utils = require('../Utils'),
-	Events = require('../Events');
+	Events = require('../Events'),
+	console = require('../console');
 
 class Control extends Events {
 	constructor(name, data, category){

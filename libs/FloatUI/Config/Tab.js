@@ -1,7 +1,8 @@
 'use strict';
 
-var utils = require('../../Utils'),
-	Control = require('./Control');
+var Control = require('./Control'),
+	utils = require('../../Utils'),
+	console = require('../../console');
 
 class Tab {
 	constructor(name, panel){

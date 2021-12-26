@@ -1,11 +1,12 @@
 'use strict';
 
 var { store } = require('./consts'),
-	utils = require('../Utils'),
-	DataStore = require('../DataStore'),
 	Window = require('./Window/'),
 	MenuButton = require('./MenuButton'),
-	Events  = require('../Events');
+	utils = require('../Utils'),
+	DataStore = require('../DataStore'),
+	Events  = require('../Events'),
+	console = require('../console');
 
 class MenuUI extends Events {
 	constructor(label, icon, key, store = new DataStore()){

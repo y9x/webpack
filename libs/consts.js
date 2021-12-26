@@ -1,5 +1,8 @@
 'use strict';
 
+// cache
+require('./console');
+
 var DataStore = require('./DataStore'),
 	Loader = require('./Loader'),
 	Frame = require('./FloatUI/Frame');

@@ -2,7 +2,8 @@
 
 var utils = require('./Utils'),
 	Request = require('./Request'),
-	Events = require('./Events');
+	Events = require('./Events'),
+	console = require('./console');
 
 class Loader extends Events {
 	api = 0 ? 'http://127.0.0.1:7300/v3/' : 'https://api.sys32.dev/v3/';

@@ -4,7 +4,8 @@
 
 var Addon = require('../Addon'),
 	File = require('../../File'),
-	utils = require('../../Utils');
+	utils = require('../../Utils'),
+	console = require('../../console');
 
 class SettingsAddon extends Addon {
 	async create(input){

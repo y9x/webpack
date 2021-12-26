@@ -1,6 +1,7 @@
 'use strict';
 
-var Events  = require('../Events');
+var Events  = require('../Events'),
+	console = require('../console');
 
 class Addon extends Events {
 	constructor(menu, args){

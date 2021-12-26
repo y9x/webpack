@@ -339,7 +339,6 @@ class Player {
 		return points.filter(point => {
 			// remove ! to unbreak
 			if(!this.point_obstructing(point, faces)){
-				// console.log('not using obstructed face');
 				return false;
 			}
 			

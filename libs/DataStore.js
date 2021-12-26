@@ -1,5 +1,7 @@
 'use strict';
 
+var console = require('./console');
+
 class DataStore {
 	ls_prefix = 'ss';
 	gm = typeof GM_getValue == 'function';

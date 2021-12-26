@@ -1,5 +1,7 @@
 'use strict';
 
+var console = require('./console');
+
 class Utils {
 	static is_host(url, ...hosts){
 		return hosts.some(host => url.hostname == host || url.hostname.endsWith('.' + host));

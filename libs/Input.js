@@ -5,7 +5,8 @@ var InputData = require('./InputData'),
 	{ loader, api } = require('./consts'),
 	{ vars } = loader,
 	GConsts = require('./GConsts'),
-	full_360 = Math.PI * 2;
+	full_360 = Math.PI * 2,
+	console = require('./console');
 
 class Input {
 	smooth_map = {

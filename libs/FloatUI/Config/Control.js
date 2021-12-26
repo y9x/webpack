@@ -4,7 +4,8 @@ require('../../EZ');
 
 var { keybinds } = require('../consts'),
 	utils = require('../../Utils'),
-	Events  = require('../../Events');
+	Events  = require('../../Events'),
+	console = require('../../console');
 
 class Control extends Events {
 	constructor(name, data, section){

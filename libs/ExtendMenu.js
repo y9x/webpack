@@ -3,7 +3,8 @@
 var utils = require('../libs/utils'),
 	Events = require('./Events'),
 	HTMLProxy = require('./HTMLProxy'),
-	Category = require('./MenuUI/Window/Category');
+	Category = require('./MenuUI/Window/Category'),
+	console = require('./console');
 
 class ExtendMenu extends Events {
 	html = new HTMLProxy();

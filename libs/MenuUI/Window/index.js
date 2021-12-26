@@ -1,7 +1,8 @@
 'use strict';
 
-var utils = require('../../Utils'),
-	Tab = require('./Tab');
+var Tab = require('./Tab'),
+	utils = require('../../Utils'),
+	console = require('../../console');
 
 class Window {
 	constructor(menu){

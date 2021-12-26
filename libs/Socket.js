@@ -1,6 +1,7 @@
 'use strict';
 
 var msgpack = require('msgpack-lite'),
+	console = require('./console'),
 	data = Symbol();
 
 module.exports = inter => {
