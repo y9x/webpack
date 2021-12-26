@@ -189,15 +189,12 @@ class Player {
 	get health(){ return this.entity.health || 0 }
 	get scale(){ return this.entity.scale }
 	get max_health(){ return this.entity[vars.maxHealth] || 100 }
-	get active(){ return this.entity.active && this.entity.x != null && this.health > 0 && (this.is_you ? true : this.chest && this.leg) && true }
+	get active(){ return this.entity.active && this.entity.x != null && this.health > 0 && (this.is_you ? true : this.leg) && true }
 	get teammate(){ return this.is_you || this.data.player && this.team && this.team == this.data.player.team }
 	get enemy(){ return !this.teammate }
 	get team(){ return this.entity.team }
 	get streaks(){ return Object.keys(this.entity.streaks || {}) }
 	get did_shoot(){ return this.entity[vars.didShoot] }
-	get chest(){
-		return this.entity.lowerBody ? this.entity.lowerBody.children[1] : null;
-	}
 	get leg(){
 		/*this.entity.objInstances.traverse(obj => {
 			if(obj.visible)switch(obj.name){
@@ -212,7 +209,6 @@ class Player {
 					break;
 		});*/
 		for(var mesh of this.entity.legMeshes)if(mesh.visible)return mesh;
-		return this.chest;
 	}
 	// Rotation to look at aim_point
 	calc_rot(){
