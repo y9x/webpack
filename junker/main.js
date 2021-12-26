@@ -226,5 +226,3 @@ class Main {
 var main = module.exports = new Main();
 
 main.load();
-
-window.main = main;
