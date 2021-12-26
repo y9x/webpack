@@ -5,7 +5,7 @@ var utils = require('./Utils'),
 	Events = require('./Events');
 
 class Loader extends Events {
-	api = 0 ? 'http://127.0.0.1:7300/' : 'https://api.sys32.dev/';
+	api = 0 ? 'http://127.0.0.1:7300/v3/' : 'https://api.sys32.dev/v3/';
 	matchmaker = 'https://matchmaker.krunker.io/';
 	badge = '[GameLoader]';
 		// outcome of above maps
@@ -15,8 +15,6 @@ class Loader extends Events {
 	};
 	has_instruct = this.has_instruct.bind(this);
 	stacks = new Set();
-	api_v2 = new URL('v2/', this.api);
-	
 	meta = utils.promise();
 	patches = new Map();
 	variables = new Map();
@@ -69,7 +67,7 @@ class Loader extends Events {
 		this.stacks.add(err.stack);
 		
 		await Request({
-			target: this.api_v2,
+			target: this.api,
 			endpoint: 'error',
 			data: body,
 		});
@@ -91,7 +89,7 @@ class Loader extends Events {
 		await this.meta;
 		
 		return await Request({
-			target: this.api_v2,
+			target: this.api,
 			endpoint: 'token',
 			data: await Request({
 				target: this.matchmaker,
@@ -135,7 +133,7 @@ class Loader extends Events {
 		
 		try{
 			meta = await Request({
-				target: this.api_v2,
+				target: this.api,
 				endpoint: 'meta',
 				data: {
 					...input_meta,
@@ -167,7 +165,7 @@ class Loader extends Events {
 		await this.meta;
 		
 		return await Request({
-			target: this.api_v2,
+			target: this.api,
 			endpoint: 'source',
 			query: {
 				build: this.meta.build,
