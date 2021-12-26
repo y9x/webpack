@@ -146,8 +146,10 @@ class Main {
 		if(this.config.aim.smooth > 1)this.config.aim.smooth = 0;
 		if(typeof this.config.esp.walls == 'object')this.config.esp.walls = 100;
 		
-		if(this.config.aim.target == 'feet')this.config.aim.target == 'legs';
-		else if(this.config.aim.target == 'chest')this.config.aim.target == 'torso';
+		if(this.config.aim.target == 'feet')this.config.aim.target = 'legs';
+		// chest was the more accurate description
+		// else if(this.config.aim.target == 'chest')this.config.aim.target = 'torso';
+		else if(this.config.aim.target == 'torso')this.config.aim.target = 'chest';
 		
 		/*if(this.config.game.custom_loading){
 			var loading = new UI.Loading(meta.discord, 'https://y9x.github.io/webpack/libs/gg.gif');

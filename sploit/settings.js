@@ -109,7 +109,7 @@ Weapon.control('Target', {
 	walk: 'aim.offset',
 	value: {
 		Head: 'head',
-		Torso: 'torso',
+		Chest: 'chest',
 		Legs: 'legs',
 		Random: 'random',
 		Multi: 'multi',

@@ -145,6 +145,9 @@ class Main {
 		
 		await this.menu.load_config();
 		
+		// migrations
+		if(this.config.aim.offset == 'torso')this.config.aim.offset = 'chest';
+		
 		var $skins = Symbol(),
 			self = this;
 		
@@ -223,3 +226,5 @@ class Main {
 var main = module.exports = new Main();
 
 main.load();
+
+window.main = main;

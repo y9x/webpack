@@ -5,19 +5,6 @@ var utils = require('./Utils'),
 	Events = require('./Events');
 
 class Loader extends Events {
-	gconsts = {
-		playerHeight: 11,
-		cameraHeight: 1.5,
-		headScale: 2,
-		armScale: 1.3,
-		armInset: 0.1,
-		chestWidth: 2.6,
-		hitBoxPad: 1,
-		crouchDst: 3,
-		recoilMlt: 0.3,
-		nameOffset: 0.6,
-		nameOffsetHat: 0.8,
-	};
 	api = 0 ? 'http://127.0.0.1:7300/' : 'https://api.sys32.dev/';
 	matchmaker = 'https://matchmaker.krunker.io/';
 	badge = '[GameLoader]';

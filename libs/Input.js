@@ -3,7 +3,8 @@
 var InputData = require('./InputData'),
 	{ Vector3 } = require('./Space'),
 	{ loader, api } = require('./consts'),
-	{ vars, gconsts } = loader,
+	{ vars } = loader,
+	GConsts = require('./GConsts'),
 	full_360 = Math.PI * 2;
 
 class Input {
@@ -116,7 +117,7 @@ class Input {
 	}
 	anti_offset(rot){
 		rot.x -= this.data.world.shakeY;
-		rot.x -= this.data.player.entity.recoilAnimY * gconsts.recoilMlt;
+		rot.x -= this.data.player.entity.recoilAnimY * GConsts.recoilMlt;
 		rot.x -= this.data.player.entity.landBobY * 0.1;
 	}
 	move = 0;

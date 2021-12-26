@@ -2,13 +2,14 @@
 
 var { Vector3, Hex3, Box3 } = require('../libs/Space'),
 	{ loader } = require('../libs/consts'),
-	{ vars, gconsts } = loader,
+	{ vars } = loader,
+	GConsts = require('./GConsts'),
 	random_target = 0;
 
 setInterval(() => random_target = Math.random(), 2000);
 
 class Player {
-	part_keys = [ 'head', 'torso', 'legs' ];
+	part_keys = [ 'head', 'chest', 'legs' ];
 	// every x ticks calculate heavy pos data
 	calc_ticks = 2;
 	constructor(data, entity){
@@ -27,7 +28,7 @@ class Player {
 		this.parts = {
 			hitbox_head: new Vector3(),
 			head: new Vector3(),
-			torso: new Vector3(),
+			chest: new Vector3(),
 			legs: new Vector3(),
 		};
 	}
@@ -35,7 +36,7 @@ class Player {
 		return this.entity.onGround;
 	}
 	calc_rect(){
-		var playerScale = (2 * gconsts.armScale + gconsts.chestWidth + gconsts.armInset) / 2,
+		var playerScale = (2 * GConsts.armScale + GConsts.chestWidth + GConsts.armInset) / 2,
 			xmin = Infinity,
 			xmax = -Infinity,
 			ymin = Infinity,
@@ -184,7 +185,7 @@ class Player {
 	get has_ammo(){ return this.ammo || this.ammo == this.max_ammo }
 	get ammo(){ return this.entity[vars.ammos][this.entity[vars.weaponIndex]] || 0 }
 	get max_ammo(){ return this.weapon.ammo || 0 }
-	get height(){ return this.entity.height - this.crouch * gconsts.crouchDst }
+	get height(){ return this.entity.height - this.crouch * GConsts.crouchDst }
 	get health(){ return this.entity.health || 0 }
 	get scale(){ return this.entity.scale }
 	get max_health(){ return this.entity[vars.maxHealth] || 100 }
@@ -195,9 +196,21 @@ class Player {
 	get streaks(){ return Object.keys(this.entity.streaks || {}) }
 	get did_shoot(){ return this.entity[vars.didShoot] }
 	get chest(){
-		return this.entity.lowerBody ? this.entity.lowerBody.children[0] : null;
+		return this.entity.lowerBody ? this.entity.lowerBody.children[1] : null;
 	}
 	get leg(){
+		/*this.entity.objInstances.traverse(obj => {
+			if(obj.visible)switch(obj.name){
+				case'leg':
+					this.leg = obj;
+					break;
+				case'head':
+					this.head = obj;
+					break;
+				case'body':
+					this.body = body;
+					break;
+		});*/
 		for(var mesh of this.entity.legMeshes)if(mesh.visible)return mesh;
 		return this.chest;
 	}
@@ -225,31 +238,29 @@ class Player {
 		if(this.data.aim_smooth && this.aim_point && (this.dont_calc++) % (this.calc_ticks + 1) != 0)return;
 		
 		var head_size = 1.5,
-			chest_box = new this.data.three.Box3().setFromObject(this.chest),
-			chest_size = chest_box.getSize(),
-			chest_pos = chest_box.getCenter();
+			torso = this.entity.lowerBody.getWorldPosition();
 		
-		// parts centered
-		this.parts.torso.copy(chest_pos).translate_quaternion(this.chest.getWorldQuaternion(), new Vector3().copy({
+		// accurate center of head
+		// player.entity.upperBody.getWorldPosition()
+		
+		this.parts.chest.copy(torso).translate_quaternion(this.entity.lowerBody.getWorldQuaternion(), new Vector3().copy({
 			x: 0,
-			y: -head_size / 2,
+			y: GConsts.chestHeight / 2,
 			z: 0,
 		}));
 		
-		this.parts.torso_height = chest_size.y - head_size;
-		
-		this.parts.head.copy(chest_pos).translate_quaternion(this.chest.getWorldQuaternion(), new Vector3().copy({
+		// head can be p.parts.torso_real = p.entity.upperBody.getWorldPosition();
+		this.parts.head.copy(torso).translate_quaternion(this.entity.lowerBody.getWorldQuaternion(), new Vector3().copy({
 			x: 0,
-			y: this.parts.torso_height / 2,
+			y: GConsts.chestHeight + GConsts.headScale / 2,
 			z: 0,
 		}));
 		
-		var leg_pos = this.leg[vars.getWorldPosition](),
-			leg_scale = this.leg.getWorldScale();
+		var leg_pos = this.leg[vars.getWorldPosition]();
 		
 		this.parts.legs.copy(leg_pos).translate_quaternion(this.leg.getWorldQuaternion(), new Vector3().copy({
-			x: -leg_scale.x / 2,
-			y: -leg_scale.y / 2,
+			x: -GConsts.legScale / 2,
+			y: -GConsts.legHeight / 2,
 			z: 0,
 		}));
 		
@@ -271,18 +282,28 @@ class Player {
 					let points = this.visible_points(this.hitbox.head.points())
 					.sort((p1, p2) => (p1.distance_to(view) - p2.distance_to(view)) + (p2.y - p1.y));
 					
-					/* use Set to remove duplicates
-					 [...new Set(points.concat(this.visible_points(this.hitbox.points())
-					.sort((p1, p2) => p1.distance_to(this.data.utils.camera_world()) - p2.distance_to(this.data.utils.camera_world()))
-					))];*/
-					
 					for(let point of points)if(this.set_aim_point(point))break;
 				}
 				
 				break;
+			case'chest':
+			
+				this.set_aim_point(this.parts.chest);
+				
+				break;
+			case'legs':
+			
+				this.set_aim_point(this.parts.legs);
+				
+				break;
+			case'head':
+			
+				this.set_aim_point(this.parts.head);
+				
+				break;
 			default:
 				
-				this.set_aim_point(this.parts[part]);
+				throw 'unknown part ' + part;
 				
 				break;
 		}
