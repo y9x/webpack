@@ -202,8 +202,6 @@ class Input {
 				rot = this.smooth(data, rot, speed, turn);
 				
 				this.aim_camera(rot, data);
-				
-				if(data.shoot && !this.data.player.shot)data.xdir = 0;
 			}
 		}
 		
