@@ -15,11 +15,8 @@ Quickstart:
 
 ```sh
 git clone https://github.com/y9x/webpack.git
-
 cd webpack
-
 npm install
-
 npm run build
 ```
 
