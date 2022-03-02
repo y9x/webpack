@@ -1,6 +1,6 @@
 'use strict';
 
-var utils = require('../libs/utils'),
+var utils = require('../libs/Utils'),
 	Events = require('./Events'),
 	HTMLProxy = require('./HTMLProxy'),
 	Category = require('./MenuUI/Window/Category'),
