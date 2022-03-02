@@ -5,7 +5,7 @@ var { api, meta, loader, frame } = require('../libs/consts'),
 	utils = require('../libs/Utils'),
 	Input = require('../libs/Input'),
 	Player = require('../libs/Player'),
-	Visual = require('../libs/visual'),
+	Visual = require('../libs/Visual'),
 	Socket = require('../libs/Socket'),
 	KrunkerUtils = require('../libs/KrunkerUtils');
 

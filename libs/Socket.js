@@ -1,8 +1,7 @@
 'use strict';
 
 var msgpack = require('msgpack-lite'),
-	console = require('./console'),
-	data = Symbol();
+	console = require('./console');
 
 module.exports = inter => {
 	var socket_id, skin_cache;

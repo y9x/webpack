@@ -1,7 +1,7 @@
 'use strict';
 
-var { Vector3, Hex3, Box3 } = require('../libs/Space'),
-	{ loader } = require('../libs/consts'),
+var { Vector3, Hex3, Box3 } = require('./Space'),
+	{ loader } = require('./consts'),
 	{ vars } = loader,
 	GConsts = require('./GConsts'),
 	random_target = 0;

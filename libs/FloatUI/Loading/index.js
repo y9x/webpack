@@ -1,7 +1,7 @@
 'use strict';
 
 var utils = require('../../Utils'),
-	Panel = require('../panel');
+	Panel = require('../Panel');
 
 class Loading extends Panel {
 	constructor(frame, discord, icon){

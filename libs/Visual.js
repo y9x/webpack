@@ -1,6 +1,6 @@
 'use strict';
 
-var { Vector3 } = require('./space');
+var { Vector3 } = require('./Space');
 
 class Visual {
 	constructor(data){
