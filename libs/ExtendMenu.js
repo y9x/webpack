@@ -23,15 +23,20 @@ class ExtendMenu extends Events {
 	async insert(label){
 		var array = await utils.wait_for(() => typeof windows == 'object' && windows),
 			settings = array[0],
-			index = settings.tabs.length,
+			indexes = {},
 			get = settings.getSettings;
-	
-		settings.tabs.push({
-			name: label,
-			categories: [],
-		});
+
 		
-		settings.getSettings = () => settings.tabIndex == index ? this.html.get() : get.call(settings);
+		for(let i in settings.tabs){
+			indexes[i] = settings.tabs[i].length;
+			
+			settings.tabs[i].push({
+				name: label,
+				categories: [],
+			});
+		}
+
+		settings.getSettings = () => settings.tabIndex == indexes[settings.settingType] ? this.html.get() : get.call(settings);
 	}
 	categories = new Set();
 	category(label){
