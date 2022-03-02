@@ -5,6 +5,6 @@ module.exports = {
 	namespace: `https://forum.sys32.dev/`,
 	icon: `https://y9x.github.io/webpack/libs/gg.gif`,
 	license: 'gpl-3.0',
-	version: 1.23,
+	version: 1.24,
 	match: [ 'https://krunker.io/*', 'https://*.browserfps.com/*' ],
 };
